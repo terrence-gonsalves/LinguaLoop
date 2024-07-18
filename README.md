@@ -49,7 +49,7 @@ Join our community of developers creating universal apps.
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
-![LinguaLoop Logo](src/assets/images/linguaLoopLogo.png) 
+![LinguaLoop Logo](assets/images/linguaLoopLogo.png) 
 
 [![Made with Supabase](https://supabase.com/badge-made-with-supabase-dark.svg)](https://supabase.com) 
 
