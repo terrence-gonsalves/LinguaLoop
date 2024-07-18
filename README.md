@@ -48,3 +48,33 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+![LinguaLoop Logo](src/assets/images/linguaLoopLogo.png) 
+
+[![Made with Supabase](https://supabase.com/badge-made-with-supabase-dark.svg)](https://supabase.com) 
+
+Track your language learning progress by staying focused with a goal driven approach.
+
+## Project
+
+## Tech Stack
+
+## Getting Started
+
+### Versioning 
+
+App versioning will be in the following format - 0.0.0.
+
+0: Major revision (new UI, lots of new features, conceptual change, etc.).  
+0: Minor revision (maybe a change to a search box, 1 feature added, collection of bug fixes).  
+0: Bug fix release.
+
+## Contributing
+
+## Contributors
+
+## Learn More
+
+## License
+
+[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
