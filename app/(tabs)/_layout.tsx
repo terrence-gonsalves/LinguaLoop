@@ -2,10 +2,15 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { MaterialIconsIcon, FoundationIcon, EntypoIcon } from '@/components/navigation/TabBarIcons';
+import { Colors } from '@/constants/Colors';
 
 export default function TabLayout() {
     return (
-        <Tabs screenOptions={{headerShown: false}}>
+        <Tabs screenOptions={{ 
+            headerShown: false, 
+            tabBarShowLabel: false,
+            tabBarActiveTintColor: Colors.light.tabIconSelected,
+            tabBarInactiveTintColor: Colors.light.tabIconDefault }}>
             <Tabs.Screen
                 name="index"
                 options={{
