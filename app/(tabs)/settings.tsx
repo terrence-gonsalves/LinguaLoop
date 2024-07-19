@@ -10,7 +10,7 @@ export default function HomeScreen() {
                 <ThemedText type="title">Welcome!</ThemedText>
             </ThemedView>
             <ThemedView style={styles.stepContainer}>
-                <ThemedText type="subtitle">Dashboard/Home Screen</ThemedText>
+                <ThemedText type="subtitle">Settings Screen</ThemedText>
             </ThemedView>
         </>
     );
