@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { MaterialIconsIcon, FoundationIcon, EntypoIcon } from '@/components/navigation/TabBarIcons';
 
 export default function TabLayout() {
     return (
@@ -11,7 +11,7 @@ export default function TabLayout() {
                 options={{
                 title: 'Dashboard',
                 tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+                    <MaterialIconsIcon name={focused ? 'dashboard' : 'dashboard'} color={color} />
                 ),
                 }}
             />
@@ -20,7 +20,7 @@ export default function TabLayout() {
                 options={{
                 title: 'Progress',
                 tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+                    <FoundationIcon name={focused ? 'graph-bar' : 'graph-bar'} color={color} />
                 ),
                 }}
             />
@@ -29,7 +29,7 @@ export default function TabLayout() {
                 options={{
                 title: 'Profile',
                 tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+                    <EntypoIcon name={focused ? 'user' : 'user'} color={color} />
                 ),
                 }}
             />
@@ -38,7 +38,7 @@ export default function TabLayout() {
                 options={{
                 title: 'Settings',
                 tabBarIcon: ({ color, focused }) => (
-                    <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+                    <MaterialIconsIcon name={focused ? 'settings' : 'settings'} color={color} />
                 ),
                 }}
             />
