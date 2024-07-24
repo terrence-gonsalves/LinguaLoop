@@ -14,6 +14,9 @@ export default function SettingsLayout() {
             <Stack.Screen name="contact" options={{  title: 'Contact' }} />
             <Stack.Screen name="feedback" options={{  title: 'Feedback' }} />
             <Stack.Screen name="about" options={{  title: 'About' }} />
+            <Stack.Screen name="terms" options={{  title: 'Terms' }} />
+            <Stack.Screen name="eula" options={{  title: 'EULA' }} />
+            <Stack.Screen name="acknowledgements" options={{  title: 'Acknowledgements' }} />
         </Stack>
     );
 }

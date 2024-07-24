@@ -90,6 +90,24 @@ export default function HomeScreen() {
                     </Pressable>
                 </ThemedView>
 
+                <ThemedView darkColor={'transparents'} style={ styles.settingsOptionsContainer}>
+                    <ThemedView darkColor={'transparent'} style={styles.settingsOptionsTextContainer}>
+                        <Text>Privacy</Text>
+                    </ThemedView>
+                    <Pressable onPress={() => navigateToScreen('terms')} style={ styles.settingsOptions }>
+                        <Text>Terms</Text>
+                        <MaterialIcons name="keyboard-arrow-right" size={30} />
+                    </Pressable>
+                    <Pressable onPress={() => navigateToScreen('eula')} style={ styles.settingsOptions }>
+                        <Text>EULA</Text>
+                        <MaterialIcons name="keyboard-arrow-right" size={30} />
+                    </Pressable>
+                    <Pressable onPress={() => navigateToScreen('acknowledgements')} style={ styles.settingsOptionsBottom }>
+                        <Text>Acknowledgments</Text>
+                        <MaterialIcons name="keyboard-arrow-right" size={30} />
+                    </Pressable>
+                </ThemedView>
+
                 <ThemedView darkColor={'transparent'}  style={styles.btnsContainer}>
                     <Text>{Application.nativeApplicationVersion}</Text>
                     <Text style={styles.logoutBtn}>LOG OUT</Text>
