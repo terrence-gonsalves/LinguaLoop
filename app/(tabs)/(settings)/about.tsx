@@ -20,8 +20,8 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+    justifyContent: "center",
+    alignItems: "center",
   },
     titleContainer: {
       flexDirection: 'row',

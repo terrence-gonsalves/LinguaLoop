@@ -1,41 +1,132 @@
-import { StyleSheet, View } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import { ThemedText } from '@/components/ThemedText';
+//import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Avatar } from '@/components/Avatar';
+import { DividerLine } from '@/components/DividerLine';
+import { Colors } from '@/constants/Colors';
 
 export default function HomeScreen() {
-    return (
-        <View style={styles.wrapper}>
-            <ThemedView style={styles.titleContainer}>
-                <ThemedText type="title">Welcome!</ThemedText>
+  return (
+    <SafeAreaView style={styles.wrapper}>
+      <ThemedView darkColor={'transparent'} style={ styles.container }>
+        <ThemedView darkColor={'transparent'} style={ styles.profileInfoContainer }>
+          <ThemedView darkColor={'transparent'}>
+            <Text style={ styles.profileTitles }>Name</Text>
+            <Text style={ styles.profileInfoJoined }>Joined: July 24, 2024</Text>
+            <ThemedView style={ styles.profileFlagsContainer }></ThemedView>
+          </ThemedView>
+
+          <Avatar width={125} />
+        </ThemedView>
+
+        <DividerLine />
+
+        <ThemedView darkColor={'transparent'} style={ styles.profileStatsContainer }>
+          <Text style={ styles.profileTitles }>Statistics</Text>
+          <ThemedView darkColor={'transparent'} style={ styles.profileStatsWrapper }>          
+            <ThemedView darkColor={'transparent'} style={ styles.profileStats }>
+              <MaterialCommunityIcons name="trophy-award" size={30} />
+              <Text>Top Language</Text>
+              <Text>Spanish</Text>
             </ThemedView>
-            <ThemedView style={styles.stepContainer}>
-                <ThemedText type="subtitle">Profile Screen</ThemedText>
+            <ThemedView darkColor={'transparent'} style={ styles.profileStats }>          
+              <MaterialCommunityIcons name="desktop-mac-dashboard" size={30} />
+              <Text>Total Input Hours</Text>
+              <Text>135</Text>
             </ThemedView>
-        </View>
-    );
+          </ThemedView>
+
+          <ThemedView darkColor={'transparent'} style={ styles.profileStatsWrapper }>
+            <ThemedView darkColor={'transparent'} style={ styles.profileStats }>
+              <MaterialCommunityIcons name="calendar" size={30} />
+              <Text>40</Text>
+              <Text>Days Practiced</Text>
+            </ThemedView>
+            <ThemedView darkColor={'transparent'} style={ styles.profileStats }>          
+              <MaterialCommunityIcons name="calendar" size={30} />
+              <Text>12</Text>
+              <Text>Day Streak</Text>
+            </ThemedView>
+          </ThemedView>   
+
+          <ThemedView darkColor={'transparent'} style={ styles.profileStatsWrapper }> 
+            <ThemedView darkColor={'transparent'} style={ styles.profileStats }>  
+              <MaterialCommunityIcons name="clock" size={30} />
+              <Text>125</Text>        
+              <Text>Total Hours Spanish</Text>
+            </ThemedView>
+            <ThemedView darkColor={'transparent'} style={ styles.profileStats }>
+              <MaterialCommunityIcons name="clock" size={30} />
+              <Text>10</Text>        
+              <Text>Total Hours French</Text>
+            </ThemedView>
+          </ThemedView> 
+        </ThemedView>
+      </ThemedView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+      flex: 1,
   },
-    titleContainer: {
+  container: {
+      padding: 15,
+  },
+  profileInfoContainer: {
+      flexDirection: 'row',  
+      justifyContent: 'space-between', 
+      alignItems: 'center'
+  },
+  profileTitles: {
+      fontWeight: 'bold', 
+      fontSize: 24,
+  },
+  profileInfoJoined: { 
+      paddingTop: 5,
+      paddingBottom: 5
+  },
+  profileFlagsContainer: {
+      flexDirection: 'row', 
+      alignItems: 'center'
+  },
+  profileFlags: {
+      width: 30, 
+      aspectRatio: 1,
+      marginRight: 5
+  },
+  profileStatsContainer: {
+      paddingRight: 10,
+      paddingLeft: 10,
+      paddingBottom: 10,
+  },
+  profileStatsWrapper: {
+      flexDirection: 'row', 
+      alignItems: 'center', 
+      justifyContent: 'space-between', 
+      marginVertical: 10,
+  },
+  profileStats: {
+      width: '49%', 
+      alignItems: 'center', 
+      backgroundColor: Colors.light.generalBG, 
+      borderWidth: 1, 
+      borderColor: Colors.light.generalBG, 
+      borderRadius: 10, 
+      padding: 20
+  },
+
+  titleContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 8,
-    },
-    stepContainer: {
+  },
+  stepContainer: {
       gap: 8,
       marginBottom: 8,
-    },
-    reactLogo: {
-      height: 178,
-      width: 290,
-      bottom: 0,
-      left: 0,
-      position: 'absolute',
-    },
-  });
+  }
+});

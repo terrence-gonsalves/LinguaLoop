@@ -14,37 +14,37 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="index"
                 options={{
-                title: 'Dashboard',
-                tabBarIcon: ({ color, focused }) => (
-                    <MaterialIconsIcon name={focused ? 'dashboard' : 'dashboard'} color={color} />
-                ),
+                    title: 'Dashboard',
+                    tabBarIcon: ({ color, focused }) => (
+                        <MaterialIconsIcon name={focused ? 'dashboard' : 'dashboard'} color={color} />
+                    ),
                 }}
             />
             <Tabs.Screen
                 name="progress"
                 options={{
-                title: 'Progress',
-                tabBarIcon: ({ color, focused }) => (
-                    <FoundationIcon name={focused ? 'graph-bar' : 'graph-bar'} color={color} />
-                ),
+                    title: 'Progress',
+                    tabBarIcon: ({ color, focused }) => (
+                        <FoundationIcon name={focused ? 'graph-bar' : 'graph-bar'} color={color} />
+                    ),
                 }}
             />
             <Tabs.Screen
                 name="profile"
                 options={{
-                title: 'Profile',
-                tabBarIcon: ({ color, focused }) => (
-                    <EntypoIcon name={focused ? 'user' : 'user'} color={color} />
-                ),
+                    title: 'Profile',
+                    tabBarIcon: ({ color, focused }) => (
+                        <EntypoIcon name={focused ? 'user' : 'user'} color={color} />
+                    ),
                 }}
             />
             <Tabs.Screen
                 name="(settings)"
                 options={{
-                title: 'Settings',
-                tabBarIcon: ({ color, focused }) => (
-                    <MaterialIconsIcon name={focused ? 'settings' : 'settings'} color={color} />
-                ),
+                    title: 'Settings',
+                    tabBarIcon: ({ color, focused }) => (
+                        <MaterialIconsIcon name={focused ? 'settings' : 'settings'} color={color} />
+                    ),
                 }}
             />
         </Tabs>

@@ -17,6 +17,7 @@ export const Colors = {
     error: '#ff4b4b',
     outLineBtnText: '#C8D1D3',
     link: '#1cb0f6',
+    generalBG: '#F7F8FB',
   },
   dark: {
     text: '#ECEDEE',
