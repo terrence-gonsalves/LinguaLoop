@@ -9,7 +9,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 15,
-        paddingBottom: 100,
     },
     settingsOptionsContainer: {},
     settingsOptionsTextContainer: {

@@ -1,4 +1,4 @@
-import { Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -26,6 +26,32 @@ export default function HomeScreen() {
 
         <ThemedView darkColor={'transparent'} style={ styles.profileStatsContainer }>
           <Text style={ styles.profileTitles }>Statistics</Text>
+
+          <ScrollView 
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1, paddingRight: 3 }}
+            pagingEnabled={true}>
+              <ThemedView darkColor={'transparent'} style={styles.languageSelector}>
+                <Text style={styles.languageText}>Spanish</Text>
+              </ThemedView>
+              <ThemedView darkColor={'transparent'} style={styles.languageSelector}>
+                <Text style={styles.languageText}>French</Text>
+              </ThemedView>
+              <ThemedView darkColor={'transparent'} style={styles.languageSelector}>
+                <Text style={styles.languageText}>Italian</Text>
+              </ThemedView>
+              <ThemedView darkColor={'transparent'} style={styles.languageSelector}>
+                <Text style={styles.languageText}>Portuguese</Text>
+              </ThemedView>
+              <ThemedView darkColor={'transparent'} style={styles.languageSelector}>
+                <Text style={styles.languageText}>Tagalog</Text>
+              </ThemedView>
+              <ThemedView darkColor={'transparent'} style={styles.languageSelector}>
+                <Text style={styles.languageText}>English</Text>
+              </ThemedView>
+          </ScrollView>
+
           <ThemedView darkColor={'transparent'} style={ styles.profileStatsWrapper }>          
             <ThemedView darkColor={'transparent'} style={ styles.profileStats }>
               <MaterialCommunityIcons name="trophy-award" size={30} />
@@ -128,5 +154,22 @@ const styles = StyleSheet.create({
   stepContainer: {
       gap: 8,
       marginBottom: 8,
+  },
+  languageSelector: {
+    backgroundColor: Colors.light.tabsBG,
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    marginVertical: 10,
+    width: 150,
+    height: 60,
+    borderRightWidth: 1,
+    borderRightColor: Colors.light.background,
+  },
+  languageText: {
+    color: Colors.light.text,
+    fontSize: 16,
+    textAlign: 'center',
+    width: 150,
   }
 });
