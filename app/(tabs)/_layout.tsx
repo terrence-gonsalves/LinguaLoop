@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
-import { MaterialIconsIcon, FoundationIcon, EntypoIcon } from '@/components/navigation/TabBarIcons';
+import { FoundationIcon, MaterialIcon, FontAwesomeIcon } from '@/components/navigation/TabBarIcons';
 import { Colors } from '@/constants/Colors';
 
 export default function TabLayout() {
@@ -16,7 +16,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Dashboard',
                     tabBarIcon: ({ color, focused }) => (
-                        <MaterialIconsIcon name={focused ? 'dashboard' : 'dashboard'} color={color} />
+                        <MaterialIcon name={focused ? 'dashboard' : 'dashboard'} color={color} />
                     ),
                 }}
             />
@@ -30,20 +30,29 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="profile"
+                name="language"
                 options={{
-                    title: 'Profile',
+                    title: 'Languages',
                     tabBarIcon: ({ color, focused }) => (
-                        <EntypoIcon name={focused ? 'user' : 'user'} color={color} />
+                        <FontAwesomeIcon name={focused ? 'language' : 'language'} color={color} />
                     ),
                 }}
             />
             <Tabs.Screen
-                name="(settings)"
+                name="tracking"
+                options={{
+                    title: 'Tracking',
+                    tabBarIcon: ({ color, focused }) => (
+                        <MaterialIcon name={focused ? 'track-changes' : 'track-changes'} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="settings"
                 options={{
                     title: 'Settings',
                     tabBarIcon: ({ color, focused }) => (
-                        <MaterialIconsIcon name={focused ? 'settings' : 'settings'} color={color} />
+                        <MaterialIcon name={focused ? 'settings' : 'settings'} color={color} />
                     ),
                 }}
             />
