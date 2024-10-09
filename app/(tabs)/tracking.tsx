@@ -3,14 +3,14 @@ import { StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-export default function Progress() {
+export default function Tracking() {
     return (
         <View style={styles.wrapper}>
             <ThemedView style={styles.titleContainer}>
                 <ThemedText type="title">Welcome!</ThemedText>
             </ThemedView>
             <ThemedView style={styles.stepContainer}>
-                <ThemedText type="subtitle">Progress Screen</ThemedText>
+                <ThemedText type="subtitle">Tracking Screen</ThemedText>
             </ThemedView>
         </View>
     );
