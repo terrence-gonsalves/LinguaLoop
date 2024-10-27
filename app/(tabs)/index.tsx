@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
-
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { H1, H2, H3, H4, H5, H6, YStack, Button, XGroup, XStack, } from 'tamagui';
 
 export default function Dashboard() {
   const [selectedLang, setSelectedLang] = useState('en');
@@ -24,13 +22,45 @@ export default function Dashboard() {
   ];
 
     return (
-      <View style={styles.wrapper}>
-          <ThemedView style={styles.titleContainer}>
-              <ThemedText type="title">Welcome!</ThemedText>
-          </ThemedView>
-          <ThemedView style={styles.stepContainer}>
-              <ThemedText type="subtitle">Dashboard Screen</ThemedText>
-          </ThemedView>
+      <View>
+        <YStack alignSelf="center">
+          <H1>Heading 1</H1>
+          <H2>Heading 2</H2>
+          <H3>Heading 3</H3>
+          <H4>Heading 4</H4>
+          <H5>Heading 5</H5>
+          <H6>Heading 6</H6>
+        </YStack>
+
+        <YStack padding="$3" gap="$3">
+          <Button>Plain</Button>
+          <XStack gap="$2" justifyContent="center">
+            <Button size="$3" theme="active">
+              Active
+            </Button>
+            <Button size="$3" variant="outlined">
+              Outlined
+            </Button>
+          </XStack>
+          <XStack gap="$2">
+            <Button themeInverse size="$3">
+              Inverse
+            </Button>
+          </XStack>
+          <XGroup>
+            <XGroup.Item>
+              <Button width="50%" size="$2" disabled opacity={0.5}>
+                disabled
+              </Button>
+            </XGroup.Item>
+
+            <XGroup.Item>
+              <Button width="50%" size="$2" chromeless>
+                chromeless
+              </Button>
+            </XGroup.Item>
+          </XGroup>
+        </YStack>
       </View>
     );
 }
