@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TamaguiProvider, createTamagui } from 'tamagui';
-import { config } from '@tamagui/config/v3'
+import { config } from '@tamagui/config/v3';
 
 const tamaguiConfig = createTamagui(config);
 
