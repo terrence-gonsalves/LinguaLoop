@@ -4,7 +4,7 @@ Track your language learning progress by staying focused with a goal driven appr
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-[![Made with Supabase](https://supabase.com/badge-made-with-supabase-dark.svg)](https://supabase.com) [![forthebadge](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNzQuMDQ2OTAzNjEwMjI5NSIgaGVpZ2h0PSIzNSIgdmlld0JveD0iMCAwIDE3NC4wNDY5MDM2MTAyMjk1IDM1Ij48cmVjdCB3aWR0aD0iMTMxLjcxODc3Mjg4ODE4MzYiIGhlaWdodD0iMzUiIGZpbGw9IiM1NDUzNTQiLz48cmVjdCB4PSIxMzEuNzE4NzcyODg4MTgzNiIgd2lkdGg9IjQyLjMyODEzMDcyMjA0NTkiIGhlaWdodD0iMzUiIGZpbGw9IiMwMDAwMDAiLz48dGV4dCB4PSI2NS44NTkzODY0NDQwOTE4IiB5PSIyMS41IiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iJ1JvYm90bycsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIyIj5HTFVFU1RBQ0stVUk8L3RleHQ+PHRleHQgeD0iMTUyLjg4MjgzODI0OTIwNjU0IiB5PSIyMS41IiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iJ01vbnRzZXJyYXQnLCBzYW5zLXNlcmlmIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIiBsZXR0ZXItc3BhY2luZz0iMiI+VjI8L3RleHQ+PC9zdmc+)](https://forthebadge.com)
+[![Made with Supabase](https://supabase.com/badge-made-with-supabase-dark.svg)](https://supabase.com)
 
 ## Project
 
