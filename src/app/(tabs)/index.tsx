@@ -31,9 +31,9 @@ const DashboardScreen = () => {
 
   // mock data for languages and activities
   const languages = [
-    { id: 1, name: 'Spanish', totalHours: 42, streak: 15 },
-    { id: 2, name: 'French', totalHours: 28, streak: 10 },
-    { id: 3, name: 'Japanese', totalHours: 18, streak: 5 }
+    { id: 1, name: 'Spanish', totalHoursWeek: 7.5, streak: 15, most: 'Speaking' },
+    { id: 2, name: 'French', totalHoursWeek: 5, streak: 10, most: 'Reading' },
+    { id: 3, name: 'Japanese', totalHoursWeek: 2.3, streak: 5, most: 'Listening' }
   ];
 
   const recentActivities = [
@@ -73,52 +73,60 @@ const DashboardScreen = () => {
               <Text style={styles.titleText}>Let's do something amazing today!</Text>
             </View>
           </View>
+
+          <View style={styles.bodyContainer}>
+            <Surface style={styles.cardContainer}>              
+              <Text style={styles.dailyGoalText}>Overview</Text>
+
+              <View style={styles.languageSummaryWrapper}>
+                <View>
+                  <Text># languages</Text>
+                </View>
+                <View>
+                  <Text># h this week</Text>
+                </View>
+                <View>
+                  <Text>top language</Text>
+                </View>
+              </View>
+            </Surface>
+
+            <Text style={styles.sectionTitle}>Your Languages</Text>
             
-          <View style={styles.languageSummaryWrapper}>
-            <Text style={styles.dailyGoalText}>Language Summary</Text>
+            <View style={styles.yourLanguages}>
 
-            <View>
-              <Text>This is the wrapper for the language summary</Text>
-              <View>
-                <Text>This is one language</Text>
-              </View>
-              <View>
-                <Text>This is another language</Text>
-              </View>
+              {languages.map((lang, index) => (
+                <Surface style={styles.languageItem}>
+                  <View key={index}>
+                    <Text style={styles.languageName}>{lang.name}</Text>
+                    <Text>{lang.totalHoursWeek}h this week</Text>
+                    <Text>{lang.streak} day streak</Text>
+                    <Text>Most: {lang.most}</Text>
+                  </View>
+                </Surface>
+              ))}
+
             </View>
+
+            {/* RECENT ACTIVITIES */}
+            <Surface style={styles.cardContainer}>
+              <Text style={styles.sectionTitle}>Recent Activities</Text>
+
+              {recentActivities.map((activity, index) => (
+                <View key={index} style={styles.activityItem}>
+                  <Text>{activity.language} - {activity.type}</Text>
+                  <Text>{activity.duration} min</Text>
+                </View>
+              ))}
+
+            </Surface>
           </View>
-
-        <View style={styles.languagesOverview}>
-          <Text style={styles.sectionTitle}>Your Languages</Text>
-
-          {languages.map((lang, index) => (
-            <View key={index} style={styles.languageItem}>
-              <Text style={styles.languageName}>{lang.name}</Text>
-              <Text>Total time: {lang.totalHours} min</Text>
-              <Text>Streak: {lang.streak} days</Text>
-            </View>
-          ))}
-
-        </View>
-
-        <Surface style={styles.recentActivities}>
-          <Text style={styles.sectionTitle}>Recent Activities</Text>
-
-          {recentActivities.map((activity, index) => (
-            <View key={index} style={styles.activityItem}>
-              <Text>{activity.language}: {activity.type}</Text>
-              <Text>{activity.duration} min</Text>
-            </View>
-          ))}
-
-        </Surface>
-
-          {/* Start Tracking Button */}
-          <TouchableOpacity style={styles.startButton}>
-            <Ionicons name="play-circle" size={24} color="white" />
-            <Text style={styles.startButtonText}>Start New Session</Text>
-          </TouchableOpacity>
         </ScrollView>
+
+        {/* Start Tracking Button */}
+        <TouchableOpacity style={styles.startButton}>
+          <Ionicons name="add" size={24} color="white" />
+        </TouchableOpacity>
       </SafeAreaView>
     </>
   );
@@ -133,6 +141,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  bodyContainer: {    
+    marginHorizontal: 15,
+  },
   stepContainer: {
     gap: 8,
     marginBottom: 8,
@@ -143,7 +154,8 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: '#324755',
-    padding: 15
+    padding: 15,
+    marginBottom: 20,
   },
   headerWrapper: {
     flexDirection: 'row', 
@@ -174,9 +186,27 @@ const styles = StyleSheet.create({
     color: '#F0F3F4'
   },
   languageSummaryWrapper: {
-      width: '100%', 
-      padding: 15
+      flexDirection: 'row', 
+      justifyContent: 'space-between'
   },
+
+  yourLanguages: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  languageItem: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    backgroundColor: 'white',
+      padding: 15,
+      borderRadius: 10,
+      marginBottom: 20,
+      width: 160,
+  },
+
   dailyGoalText: {
       fontSize: 18, 
       fontWeight: 'bold', 
@@ -289,21 +319,14 @@ const styles = StyleSheet.create({
       marginHorizontal: 15,
       marginBottom: 20,
     },
-    languageItem: {
-      marginBottom: 10,
-      padding: 10,
-      backgroundColor: '#f0f0f0',
-      borderRadius: 5,
-    },
     languageName: {
       //fontWeight: Fonts.weight.bold,
       marginBottom: 5,
     },
-    recentActivities: {
+    cardContainer: {
       backgroundColor: 'white',
       padding: 15,
       borderRadius: 10,
-      marginHorizontal: 15,
       marginBottom: 20,
     },
     activityItem: {
@@ -312,20 +335,18 @@ const styles = StyleSheet.create({
       marginBottom: 5,
     },
     startButton: {
-      backgroundColor: '#4CAF50',
-      flexDirection: 'row',
-      alignItems: 'center',
+      backgroundColor: '#D97D54',
       justifyContent: 'center',
-      padding: 15,
-      borderRadius: 10,
+      alignItems: 'center',
+      borderRadius: '50%',
       marginHorizontal: 15,
       marginBottom: 20,
-    },
-    startButtonText: {
-      color: 'white',
-      fontSize: 18,
-      marginLeft: 10,
-    },
+      width: 50,
+      height: 50,
+      position: 'absolute',
+      bottom: 40,
+      right: 30,
+    }
   });
 
 export default DashboardScreen;
