@@ -97,7 +97,7 @@ const DashboardScreen = () => {
 
               {languages.map((lang, index) => (
                 <Surface style={styles.languageItem}>
-                  <View key={index}>
+                  <View key={lang.id}>
                     <Text style={styles.languageName}>{lang.name}</Text>
                     <Text>{lang.totalHoursWeek}h this week</Text>
                     <Text>{lang.streak} day streak</Text>
@@ -113,7 +113,7 @@ const DashboardScreen = () => {
               <Text style={styles.sectionTitle}>Recent Activities</Text>
 
               {recentActivities.map((activity, index) => (
-                <View key={index} style={styles.activityItem}>
+                <View key={activity.id} style={styles.activityItem}>
                   <Text>{activity.language} - {activity.type}</Text>
                   <Text>{activity.duration} min</Text>
                 </View>
