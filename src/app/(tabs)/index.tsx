@@ -1,8 +1,7 @@
-import React from 'react';
+import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { 
   View, 
-  Text, 
   ScrollView, 
   StyleSheet, 
   Dimensions,
@@ -14,20 +13,51 @@ import {
   Card, 
   Surface, 
   Button, 
-  Divider 
+  Divider,
+  Text,
+  SegmentedButtons,
+  ProgressBar
 } from 'react-native-paper';
+import {
+  LineChart,
+  BarChart,
+  ProgressChart
+} from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 import { Ionicons } from '@expo/vector-icons';
+import Colors from '@/src/constants/Colors';
 // import { Colors } from '@/src/constants/Colors';
 // import { Fonts } from '@/src/constants/Fonts';
 import { Avatar } from '@/src/components/Avatar';
 
+// Interfaces for type safety
+interface ChartDataset {
+  data: number[];
+}
+
+interface ChartData {
+  labels: string[];
+  datasets: ChartDataset[];
+}
+
+interface LanguageProgressData {
+  weekly: ChartData;
+  monthly: ChartData;
+}
+
+interface ProgressDataStructure {
+  [language: string]: LanguageProgressData;
+}
+
 const { width } = Dimensions.get('window');
+const height = 220;
 
 const DashboardScreen = () => {
+  const [timeFilter, setTimeFilter] = useState<'weekly' | 'monthly'>('weekly');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('Spanish');
 
   // mock data for languages and activities
   const languages = [
@@ -42,6 +72,83 @@ const DashboardScreen = () => {
     { id: 3, language: 'Japanese', type: 'Speaking', duration: 20 }
   ];
 
+  //const languagesChart: string[] = ['Spanish', 'French', 'Japanese'];
+
+  const progressData: ProgressDataStructure = {
+    Spanish: {
+      weekly: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          data: [45, 60, 30, 50, 70, 55, 40]
+        }]
+      },
+      monthly: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+          data: [180, 220, 190, 210]
+        }]
+      }
+    },
+    // Similar data for other languages
+    French: {
+      weekly: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          data: [40, 50, 35, 45, 60, 50, 35]
+        }]
+      },
+      monthly: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+          data: [160, 190, 170, 180]
+        }]
+      }
+    },
+    // Similar data for other languages
+    Japanese: {
+      weekly: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          data: [15, 25, 35, 10, 5, 40, 30, 10]
+        }]
+      },
+      monthly: {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [{
+          data: [100, 50, 120, 30]
+        }]
+      }
+    }
+  };
+
+  const barData = {
+    labels: ["January", "February", "March", "April", "May", "June"],
+    datasets: [
+      {
+        data: [20, 45, 28, 80, 99, 43]
+      }
+    ]
+  };
+
+  const progressChartData = [0.4, 0.6, 0.8];
+
+  const chartConfig = {
+    backgroundColor: '#ffffff',
+    backgroundGradientFrom: '#ffffff',
+    backgroundGradientTo: '#ffffff',
+    decimalPlaces: 0,
+    color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
+    style: {
+      borderRadius: 16,
+      padding: 0,
+      margin: 0
+    }
+  };
+
+  const graphStyle = {
+    ...chartConfig.style
+  }
+
   return (
     <>
       <StatusBar backgroundColor="#324755" style="light" />
@@ -51,7 +158,7 @@ const DashboardScreen = () => {
             <View style={styles.headerWrapper}>
               <View style={styles.headerIcon}>
                 <Pressable hitSlop={20}>
-                  <Avatar width={50} borderWidth={1} borderColour='#F0F3F4' />
+                  <Avatar width={60} borderWidth={1} borderColour='#F0F3F4' />
                 </Pressable>
               </View>
 
@@ -63,7 +170,7 @@ const DashboardScreen = () => {
 
               <View style={styles.notificationBell}>
                 <Pressable hitSlop={20}>
-                  <AntDesign name="notification" size={25} color="#F0F3F4" />
+                  <AntDesign name="notification" size={20} color="#F0F3F4" />
                 </Pressable>
               </View>
             </View>
@@ -75,48 +182,85 @@ const DashboardScreen = () => {
           </View>
 
           <View style={styles.bodyContainer}>
-            <Surface style={styles.cardContainer}>              
-              <Text style={styles.dailyGoalText}>Overview</Text>
-
-              <View style={styles.languageSummaryWrapper}>
-                <View>
-                  <Text># languages</Text>
-                </View>
-                <View>
-                  <Text># h this week</Text>
-                </View>
-                <View>
-                  <Text>top language</Text>
-                </View>
-              </View>
-            </Surface>
-
-            <Text style={styles.sectionTitle}>Your Languages</Text>
-            
-            <View style={styles.yourLanguages}>
-
-              {languages.map((lang, index) => (
-                <Surface style={styles.languageItem}>
-                  <View key={lang.id}>
-                    <Text style={styles.languageName}>{lang.name}</Text>
-                    <Text>{lang.totalHoursWeek}h this week</Text>
-                    <Text>{lang.streak} day streak</Text>
-                    <Text>Most: {lang.most}</Text>
+            <Card style={styles.dashboardCard}>  
+              <Card.Title title="Overview" /> 
+              <Card.Content>              
+                <View style={styles.languageSummaryWrapper}>
+                  <View>
+                    <Text># languages</Text>
                   </View>
-                </Surface>
-              ))}
+                  <View>
+                    <Text># h this week</Text>
+                  </View>
+                  <View>
+                    <Text>top language</Text>
+                  </View>
+                </View>
+              </Card.Content>
+            </Card> 
 
-            </View>
+            {/* Time Spent Chart */}
+            <Card style={styles.dashboardCard}>
+              <Card.Title title="Time Spent Learning" />
+              <Card.Content>
+                <LineChart
+                  data={{
+                    labels: progressData[selectedLanguage][timeFilter].labels,
+                    datasets: progressData[selectedLanguage][timeFilter].datasets
+                  }}
+                  width={width - 60}
+                  height={220}
+                  chartConfig={chartConfig}
+                  bezier
+                />
+              </Card.Content>
+            </Card>
+
+            {/* Progress Breakdown */}
+            <Card style={styles.dashboardCard}>
+              <Card.Title title="Acitivity Progress" />
+              <Card.Content>
+
+                {['Listening', 'Speaking', 'Reading', 'Writing'].map((skill) => (
+
+                  <View key={skill} style={styles.skillProgress}>
+                    <Text>{skill}</Text>
+                    <ProgressBar 
+                      progress={Math.random()} 
+                      color="#007AFF" 
+                      style={styles.progressBar} 
+                    />
+                  </View>
+
+                ))}
+
+              </Card.Content>
+            </Card>            
 
             {/* RECENT ACTIVITIES */}
             <Surface style={styles.cardContainer}>
               <Text style={styles.sectionTitle}>Recent Activities</Text>
+              <Text style={styles.subTitle}>Sub Title</Text>
 
               {recentActivities.map((activity, index) => (
                 <View key={activity.id} style={styles.activityItem}>
                   <Text>{activity.language} - {activity.type}</Text>
                   <Text>{activity.duration} min</Text>
                 </View>
+              ))}
+
+            </Surface>
+
+            <Surface style={styles.cardContainer}>
+              <Text style={styles.sectionTitle}>Your Languages</Text>
+
+              {languages.map((lang, index) => (                
+                  <View key={lang.id}>
+                    <Text style={styles.languageName}>{lang.name}</Text>
+                    <Text>{lang.totalHoursWeek}h this week</Text>
+                    <Text>{lang.streak} day streak</Text>
+                    <Text>Most: {lang.most}</Text>
+                  </View>
               ))}
 
             </Surface>
@@ -163,8 +307,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   imageIcon: {
-    width: 28,
-    height: 28,
+    width: 22,
+    height: 22,
   },
   headerIcon: {
     flex: 4
@@ -198,13 +342,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   languageItem: {
-    flexDirection: 'column',
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: 'white',
-      padding: 15,
-      borderRadius: 10,
-      marginBottom: 20,
-      width: 160,
   },
 
   dailyGoalText: {
@@ -310,6 +449,9 @@ const styles = StyleSheet.create({
     sectionTitle: {
       fontSize: 18,
       fontWeight: 'bold',
+    },
+    subTitle: {
+      fontSize: 14,
       marginBottom: 10,
     },
     languagesOverview: {
@@ -329,6 +471,11 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       marginBottom: 20,
     },
+    cardContainerAlt: {
+      backgroundColor: 'white',
+      borderRadius: 10,
+      marginBottom: 20,
+    },
     activityItem: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -339,14 +486,44 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: '50%',
-      marginHorizontal: 15,
-      marginBottom: 20,
+      marginHorizontal: 5,
       width: 50,
       height: 50,
       position: 'absolute',
-      bottom: 40,
+      bottom: 10,
       right: 30,
-    }
+    },
+
+    dashboardCard: {
+      marginBottom: 15,
+      elevation: 2,
+      borderColor: Colors.light.borders,
+      borderWidth: 1,
+      backgroundColor: Colors.light.background,
+      padding: 0,
+      margin: 0,
+    },
+
+    chartCard: {
+      marginBottom: 15,
+      elevation: 2,
+      borderColor: Colors.light.borders,
+      borderWidth: 1,
+      backgroundColor: Colors.light.background,
+      padding: 0,
+      margin: 0,
+    },
+    progressCard: {
+      marginBottom: 15,
+      elevation: 2,
+    },
+    skillProgress: {
+      marginBottom: 10,
+    },
+    progressBar: {
+      height: 10,
+      borderRadius: 5,
+    },
   });
 
 export default DashboardScreen;
