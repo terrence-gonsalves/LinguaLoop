@@ -2,8 +2,7 @@ import React from 'react';
 import { Link, Tabs } from 'expo-router';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import Foundation from '@expo/vector-icons/Foundation';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import Colors from '@/src/constants/Colors';
 import { useColorScheme } from '@/src/components/useColorScheme';
@@ -28,7 +27,7 @@ export default function TabLayout() {
         options={{
           title: 'Dashboard',
           headerShown: false,
-          tabBarIcon: ({ color }) => <MaterialCommunityIcons size={25} name="home-circle" color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons size={25} name="dashboard" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -44,7 +43,7 @@ export default function TabLayout() {
           options={{
               title: 'Languages',
               headerShown: false,
-              tabBarIcon: ({ color }) => <Foundation size={25} name="graph-bar" color={color} />
+              tabBarIcon: ({ color }) => <MaterialIcons size={25} name="language" color={color} />
           }}
       />
       <Tabs.Screen
@@ -60,7 +59,7 @@ export default function TabLayout() {
         options={{
           title: 'Settings',
           headerShown: false,
-          tabBarIcon: ({ color }) => <Ionicons size={25} name="person-circle" color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons size={25} name="manage-accounts" color={color} />,
         }}
       />
     </Tabs>
