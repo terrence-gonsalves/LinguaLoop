@@ -1,14 +1,26 @@
-import { StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/src/components/EditScreenInfo';
-import { Text, View } from '@/src/components/Themed';
+import { 
+  View, 
+  ScrollView, 
+  StyleSheet, 
+  Dimensions,
+  Pressable, 
+  TouchableOpacity,
+  Image
+} from 'react-native';
+import { 
+  Card, 
+  Surface, 
+  Button, 
+  Divider,
+  Text,
+  SegmentedButtons,
+  ProgressBar
+} from 'react-native-paper';
 
 export default function LanguageScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Languages</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/two.tsx" />
     </View>
   );
 }
