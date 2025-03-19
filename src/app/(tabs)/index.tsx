@@ -25,13 +25,13 @@ import {
 } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { Avatar } from '@/src/components/Avatar';
 
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, AntDesign } from '@expo/vector-icons';
+
 import Colors from '@/src/constants/Colors';
 // import { Colors } from '@/src/constants/Colors';
 // import { Fonts } from '@/src/constants/Fonts';
-import { Avatar } from '@/src/components/Avatar';
 
 // Interfaces for type safety
 interface ChartDataset {
@@ -151,7 +151,6 @@ const DashboardScreen = () => {
 
   return (
     <>
-      <StatusBar backgroundColor="#324755" style="light" />
       <SafeAreaView style={styles.wrapper}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.headerContainer}>

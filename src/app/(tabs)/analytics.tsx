@@ -12,6 +12,7 @@ import {
   ProgressBar 
 } from 'react-native-paper';
 import { LineChart } from 'react-native-chart-kit';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Interfaces for type safety
 interface ChartDataset {
@@ -98,88 +99,92 @@ export default function AnalyticsScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Language Learning Progress</Text>
+    <SafeAreaView style={styles.wrapper}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
-      {/* Language Selector */}
-      <SegmentedButtons
-        value={selectedLanguage}
-        onValueChange={setSelectedLanguage}
-        buttons={languages.map(lang => ({
-          value: lang,
-          label: lang
-        }))}
-        style={styles.languageSelector}
-      />
+        {/* Language Selector */}
+        <SegmentedButtons
+          value={selectedLanguage}
+          onValueChange={setSelectedLanguage}
+          buttons={languages.map(lang => ({
+            value: lang,
+            label: lang
+          }))}
+          style={styles.languageSelector}
+        />
 
-      {/* Time Filter */}
-      <SegmentedButtons
-        value={timeFilter}
-        onValueChange={setTimeFilter}
-        buttons={[
-          { value: 'weekly', label: 'Weekly' },
-          { value: 'monthly', label: 'Monthly' }
-        ]}
-        style={styles.timeFilterSelector}
-      />
+        {/* Time Filter */}
+        <SegmentedButtons
+          value={timeFilter}
+          onValueChange={(value) => setTimeFilter(value as 'weekly' | 'monthly')}
+          buttons={[
+            { value: 'weekly', label: 'Weekly' },
+            { value: 'monthly', label: 'Monthly' }
+          ]}
+          style={styles.timeFilterSelector}
+        />
 
-      {/* Time Spent Chart */}
-      <Card style={styles.chartCard}>
-        <Card.Title title="Time Spent Learning" />
-        <Card.Content>
-          <LineChart
-            data={{
-              labels: progressData[selectedLanguage][timeFilter].labels,
-              datasets: progressData[selectedLanguage][timeFilter].datasets
-            }}
-            width={width - 60}
-            height={220}
-            chartConfig={chartConfig}
-            bezier
-          />
-        </Card.Content>
-      </Card>
+        {/* Time Spent Chart */}
+        <Card style={styles.chartCard}>
+          <Card.Title title="Time Spent Learning" />
+          <Card.Content>
+            <LineChart
+              data={{
+                labels: progressData[selectedLanguage][timeFilter].labels,
+                datasets: progressData[selectedLanguage][timeFilter].datasets
+              }}
+              width={width - 60}
+              height={220}
+              chartConfig={chartConfig}
+              bezier
+            />
+          </Card.Content>
+        </Card>
 
-      {/* Progress Breakdown */}
-      <Card style={styles.progressCard}>
-        <Card.Title title="Skill Progress" />
-        <Card.Content>
-          {['Listening', 'Speaking', 'Reading', 'Writing'].map((skill) => (
-            <View key={skill} style={styles.skillProgress}>
-              <Text>{skill}</Text>
-              <ProgressBar 
-                progress={Math.random()} 
-                color="#007AFF" 
-                style={styles.progressBar} 
-              />
+        {/* Progress Breakdown */}
+        <Card style={styles.progressCard}>
+          <Card.Title title="Skill Progress" />
+          <Card.Content>
+            {['Listening', 'Speaking', 'Reading', 'Writing'].map((skill) => (
+              <View key={skill} style={styles.skillProgress}>
+                <Text>{skill}</Text>
+                <ProgressBar 
+                  progress={Math.random()} 
+                  color="#007AFF" 
+                  style={styles.progressBar} 
+                />
+              </View>
+            ))}
+          </Card.Content>
+        </Card>
+
+        {/* Achievement Summary */}
+        <Card style={styles.achievementCard}>
+          <Card.Title title="Achievements" />
+          <Card.Content>
+            <View style={styles.achievementRow}>
+              <Text>Total Learning Time</Text>
+              <Text>120 hours</Text>
             </View>
-          ))}
-        </Card.Content>
-      </Card>
-
-      {/* Achievement Summary */}
-      <Card style={styles.achievementCard}>
-        <Card.Title title="Achievements" />
-        <Card.Content>
-          <View style={styles.achievementRow}>
-            <Text>Total Learning Time</Text>
-            <Text>120 hours</Text>
-          </View>
-          <View style={styles.achievementRow}>
-            <Text>Longest Streak</Text>
-            <Text>45 days</Text>
-          </View>
-          <View style={styles.achievementRow}>
-            <Text>Languages Learned</Text>
-            <Text>3</Text>
-          </View>
-        </Card.Content>
-      </Card>
-    </ScrollView>
+            <View style={styles.achievementRow}>
+              <Text>Longest Streak</Text>
+              <Text>45 days</Text>
+            </View>
+            <View style={styles.achievementRow}>
+              <Text>Languages Learned</Text>
+              <Text>3</Text>
+            </View>
+          </Card.Content>
+        </Card>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({  
+  wrapper: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
