@@ -12,13 +12,17 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import Colors from '@/src/constants/Colors';
 
-export default function LanguageSwitcher() {
+type Props = {
+    onPress: () => void;
+};
+
+export default function LanguageSwitcherBtn({ onPress }: Props) {
   return (
    <View style={styles.flagBG}>
         <Pressable 
             style={styles.buttonContainer}           
             hitSlop={20}
-            onPress={() => console.log('Switch to French')}>
+            onPress={onPress}>
             <Image source={require('@/assets/images/Spain.png')} style={styles.imageIcon} />
             <MaterialCommunityIcons name="chevron-down" size={25} color={Colors.light.drab} />
         </Pressable>

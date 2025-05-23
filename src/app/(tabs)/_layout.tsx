@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Tabs } from 'expo-router';
 
-import LanguageSwitcher from '@/src/components/LanguageSwitcher';
+import LanguageSwitcherBtn from '@/src/components/LanguageSwitcherBtn';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -53,7 +53,7 @@ export default function TabLayout() {
               headerTitleStyle: {
                 color: Colors.light.textTertiary,
               },
-              headerRight: () => <LanguageSwitcher />,
+              headerRight: () => <LanguageSwitcherBtn />,
               tabBarIcon: ({ color }) => <Ionicons size={25} name="analytics" color={color} />
           }}
       />
