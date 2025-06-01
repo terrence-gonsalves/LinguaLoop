@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
-import { MaterialIconsIcon } from '@/components/navigation/TabBarIcons';
+import { MaterialCommunityIconsIcon, MaterialIconsIcon } from '@/components/navigation/TabBarIcons';
 import { Colors } from '@/constants/Colors';
 
 export default function TabLayout() {
@@ -17,6 +17,15 @@ export default function TabLayout() {
                     title: 'Dashboard',
                     tabBarIcon: ({ color, focused }) => (
                         <MaterialIconsIcon name={focused ? 'dashboard' : 'dashboard'} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="track"
+                options={{
+                    title: 'Track Activity',
+                    tabBarIcon: ({ color, focused }) => (
+                        <MaterialCommunityIconsIcon name={focused ? 'plus-circle-outline' : 'plus-circle-outline'} color={color} />
                     ),
                 }}
             />
