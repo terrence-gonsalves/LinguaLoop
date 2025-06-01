@@ -2,7 +2,7 @@
   "expo": {
     "name": "LinguaLoop",
     "slug": "LinguaLoop",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "lingualoop",
@@ -13,13 +13,15 @@
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcHFnc2R2cHlnZGtzanp2dmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1NDcxNTUsImV4cCI6MjA2NDEyMzE1NX0.Smd13NOwA9dpUZb0psGEaGvN0HRcEKbnS3yMwjZDrTo"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "versionCode": 1,
       "edgeToEdgeEnabled": true
     },
     "web": {
