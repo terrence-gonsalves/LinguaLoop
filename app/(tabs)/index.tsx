@@ -20,9 +20,21 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Home</Text>
+        {/* User Profile Section */}
+        <View style={styles.profileSection}>
+          <View style={styles.profileInfo}>
+            <View>
+              <Text style={styles.welcomeText}>Welcome back,</Text>
+              <Text style={styles.userName}>Sarah</Text>
+            </View>
+            <View style={styles.profileImageContainer}>
+              <MaterialCommunityIcons 
+                name="account-circle" 
+                size={50} 
+                color={Colors.light.textSecondary} 
+              />
+            </View>
+          </View>
         </View>
 
         {/* Study Time Card */}
@@ -114,13 +126,39 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
-  header: {
-    paddingVertical: 16,
+  profileSection: {
+    paddingVertical: 20,
   },
-  headerTitle: {
+  profileInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  welcomeText: {
+    fontSize: 16,
+    color: Colors.light.textSecondary,
+  },
+  userName: {
     fontSize: 24,
     fontWeight: '600',
     color: Colors.light.textPrimary,
+    marginTop: 4,
+  },
+  profileImageContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: Colors.light.background,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
   },
   studyTimeCard: {
     backgroundColor: Colors.light.sage,
