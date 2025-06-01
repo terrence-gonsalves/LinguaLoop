@@ -1,3 +1,4 @@
+import DefaultAvatar from '@/components/DefaultAvatar';
 import { Colors } from '@/constants/Colors';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -28,11 +29,7 @@ export default function DashboardScreen() {
               <Text style={styles.userName}>Sarah</Text>
             </View>
             <View style={styles.profileImageContainer}>
-              <MaterialCommunityIcons 
-                name="account-circle" 
-                size={50} 
-                color={Colors.light.textSecondary} 
-              />
+              <DefaultAvatar size={50} />
             </View>
           </View>
         </View>
