@@ -4,11 +4,10 @@ import { View } from "react-native";
 
 export default function RootLayout() {
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <StatusBar style="auto" />
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
       </Stack>
     </View>
   );
