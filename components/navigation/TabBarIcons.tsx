@@ -1,4 +1,4 @@
-import { Entypo, Foundation, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, Foundation, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 interface IconProps {
     name: any;
@@ -16,3 +16,7 @@ export const FoundationIcon = ({ name, color }: IconProps) => (
 export const EntypoIcon = ({ name, color }: IconProps) => (
     <Entypo name={name} size={24} color={color} />
 ); 
+
+export const MaterialCommunityIconsIcon = ({ name, color }: IconProps) => (
+    <MaterialCommunityIcons name={name} size={24} color={color} />
+);

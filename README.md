@@ -1,6 +1,14 @@
-# Welcome to your Expo app 👋
+![LinguaLoop Logo](assets/images/linguaLoopLogo.png) 
+
+Track your language learning progress by staying focused with a goal driven approach.
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+
+[![Made with Supabase](https://supabase.com/badge-made-with-supabase-dark.svg)](https://supabase.com) 
+
+## Project
+
+## Tech Stack
 
 ## Get started
 
@@ -13,7 +21,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 2. Start the app
 
    ```bash
-   npx expo start
+    npx expo start
    ```
 
 In the output, you'll find options to open the app in a
@@ -25,15 +33,17 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+### Versioning 
 
-When you're ready, run:
+App versioning will be in the following format - 0.0.0.
 
-```bash
-npm run reset-project
-```
+0: Major revision (new UI, lots of new features, conceptual change, etc.).  
+0: Minor revision (maybe a change to a search box, 1 feature added, collection of bug fixes).  
+0: Bug fix release.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Contributing
+
+## Contributors
 
 ## Learn more
 
@@ -42,9 +52,6 @@ To learn more about developing your project with Expo, look at the following res
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
 - [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-## Join the community
+## License
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)

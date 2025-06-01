@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
-import { EntypoIcon, FoundationIcon, MaterialIconsIcon } from '@/components/navigation/TabBarIcons';
+import { MaterialCommunityIconsIcon, MaterialIconsIcon } from '@/components/navigation/TabBarIcons';
 import { Colors } from '@/constants/Colors';
 
 export default function TabLayout() {
@@ -21,29 +21,11 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="progress"
+                name="track"
                 options={{
-                    title: 'Progress',
+                    title: 'Track Activity',
                     tabBarIcon: ({ color, focused }) => (
-                        <FoundationIcon name={focused ? 'graph-bar' : 'graph-bar'} color={color} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="profile"
-                options={{
-                    title: 'Profile',
-                    tabBarIcon: ({ color, focused }) => (
-                        <EntypoIcon name={focused ? 'user' : 'user'} color={color} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="(settings)"
-                options={{
-                    title: 'Settings',
-                    tabBarIcon: ({ color, focused }) => (
-                        <MaterialIconsIcon name={focused ? 'settings' : 'settings'} color={color} />
+                        <MaterialCommunityIconsIcon name={focused ? 'plus-circle-outline' : 'plus-circle-outline'} color={color} />
                     ),
                 }}
             />
