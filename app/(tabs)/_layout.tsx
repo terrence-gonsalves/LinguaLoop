@@ -30,6 +30,15 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="profile"
+               options={{
+                    title: 'Profile',
+                    tabBarIcon: ({ color, focused }) => (
+                        <MaterialIconsIcon name={focused ? 'person' : 'person'} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="(settings)/index"
                 options={{
                     title: 'Settings',
