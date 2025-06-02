@@ -2,24 +2,42 @@
   "expo": {
     "name": "LinguaLoop",
     "slug": "LinguaLoop",
-    "version": "1.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/linguaLoopLogo.png",
     "scheme": "lingualoop",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/linguaLoopLogo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "extra": {
       "supabaseUrl": "https://gspqgsdvpygdksjzvvep.supabase.co",
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcHFnc2R2cHlnZGtzanp2dmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1NDcxNTUsImV4cCI6MjA2NDEyMzE1NX0.Smd13NOwA9dpUZb0psGEaGvN0HRcEKbnS3yMwjZDrTo"
     },
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "splash": {
+        "image": "./assets/images/linguaLoopLogo.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#FFFFFF"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/linguaLoopLogo.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "splash": {
+        "image": "./assets/images/linguaLoopLogo.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#FFFFFF"
       },
       "versionCode": 1,
       "edgeToEdgeEnabled": true
@@ -27,17 +45,16 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/linguaLoopLogo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "image": "./assets/images/linguaLoopLogo.png",
+          "imageResizeMode": "contain",
+          "backgroundColor": "#FFFFFF"
         }
       ]
     ],
