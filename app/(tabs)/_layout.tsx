@@ -30,6 +30,15 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="reports"
+                options={{
+                    title: 'Reports',
+                    tabBarIcon: ({ color, focused }) => (
+                        <MaterialIconsIcon name={focused ? 'bar-chart' : 'bar-chart'} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="profile"
                options={{
                     title: 'Profile',
