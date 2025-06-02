@@ -15,12 +15,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Link href="/(tabs)/(settings)" asChild>
-            <Pressable style={styles.settingsButton}>
-              <MaterialIcons name="settings" size={24} color={Colors.light.textPrimary} />
-            </Pressable>
-          </Link>
-          <Text style={styles.headerTitle}>My Profile</Text>
+          <Text style={styles.headerTitle}>Profile</Text>
           <Pressable style={styles.notificationButton}>
             <MaterialIcons name="notifications" size={24} color={Colors.light.textPrimary} />
           </Pressable>
@@ -134,12 +129,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: '600',
     color: Colors.light.textPrimary,
-  },
-  settingsButton: {
-    padding: 8,
+    marginBottom: 24,
   },
   notificationButton: {
     padding: 8,
