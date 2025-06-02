@@ -104,84 +104,86 @@ export default function ReportsScreen() {
           <Text style={styles.headerTitle}>Reports</Text>
         </View>
 
-        <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={20} color={Colors.light.textSecondary} />
-          <TextInput
-            placeholder="Filter Reports by Date"
-            style={styles.searchInput}
-            placeholderTextColor={Colors.light.textSecondary}
-          />
-        </View>
-
-        <Text style={styles.sectionTitle}>Performance Overview</Text>
-        <View style={styles.averageSessionCard}>
-          <View style={styles.trendIndicator}>
-            <MaterialIcons name="trending-up" size={16} color={Colors.light.background} />
-            <Text style={styles.trendText}>12%</Text>
-          </View>
-          <View style={styles.sessionInfo}>
-            <Text style={styles.sessionLabel}>Average Session</Text>
-            <Text style={styles.sessionValue}>45</Text>
-            <Text style={styles.sessionUnit}>Mins</Text>
-          </View>
-          <View style={styles.trendIndicator}>
-            <MaterialIcons name="trending-up" size={16} color={Colors.light.background} />
-            <Text style={styles.trendText}>8%</Text>
-          </View>
-        </View>
-
-        <View style={styles.chartSection}>
-          <Text style={styles.chartTitle}>Time Distribution by Activity</Text>
-          <Text style={styles.chartSubtitle}>How your study time is distributed across activities.</Text>
-          <View style={styles.pieChartContainer}>
-            <PieChart
-              data={activityData}
-              width={screenWidth - 64}
-              height={220}
-              chartConfig={chartConfig}
-              accessor="population"
-              backgroundColor="transparent"
-              paddingLeft="0"
-              absolute
+        <View style={styles.section}>
+          <View style={styles.searchContainer}>
+            <MaterialIcons name="search" size={20} color={Colors.light.textSecondary} />
+            <TextInput
+              placeholder="Filter Reports by Date"
+              style={styles.searchInput}
+              placeholderTextColor={Colors.light.textSecondary}
             />
           </View>
-        </View>
 
-        <View style={styles.chartSection}>
-          <Text style={styles.chartTitle}>Weekly Study Progress</Text>
-          <Text style={styles.chartSubtitle}>Your consistency in language learning over weeks.</Text>
-          <View style={styles.lineChartContainer}>
-            <LineChart
-              data={{
-                labels: weeklyLabels,
-                datasets: [{
-                  data: weeklyValues
-                }]
-              }}
-              width={screenWidth - 64}
-              height={220}
-              chartConfig={chartConfig}
-              bezier
-              style={{
-                marginVertical: 8,
-                borderRadius: 16
-              }}
-            />
-          </View>
-        </View>
-
-        <View style={styles.insightsSection}>
-          <Text style={styles.chartTitle}>Key Insights & Focus Areas</Text>
-          <Text style={styles.chartSubtitle}>Actionable tips to boost your learning.</Text>
-          {insights.map((insight, index) => (
-            <View key={index} style={styles.insightCard}>
-              <MaterialCommunityIcons name={insight.icon} size={24} color={Colors.light.rust} />
-              <View style={styles.insightContent}>
-                <Text style={styles.insightTitle}>{insight.title}</Text>
-                <Text style={styles.insightDescription}>{insight.description}</Text>
-              </View>
+          <Text style={styles.sectionTitle}>Performance Overview</Text>
+          <View style={styles.averageSessionCard}>
+            <View style={styles.trendIndicator}>
+              <MaterialIcons name="trending-up" size={16} color={Colors.light.background} />
+              <Text style={styles.trendText}>12%</Text>
             </View>
-          ))}
+            <View style={styles.sessionInfo}>
+              <Text style={styles.sessionLabel}>Average Session</Text>
+              <Text style={styles.sessionValue}>45</Text>
+              <Text style={styles.sessionUnit}>Mins</Text>
+            </View>
+            <View style={styles.trendIndicator}>
+              <MaterialIcons name="trending-up" size={16} color={Colors.light.background} />
+              <Text style={styles.trendText}>8%</Text>
+            </View>
+          </View>
+
+          <View style={styles.chartSection}>
+            <Text style={styles.chartTitle}>Time Distribution by Activity</Text>
+            <Text style={styles.chartSubtitle}>How your study time is distributed across activities.</Text>
+            <View style={styles.pieChartContainer}>
+              <PieChart
+                data={activityData}
+                width={screenWidth - 64}
+                height={220}
+                chartConfig={chartConfig}
+                accessor="population"
+                backgroundColor="transparent"
+                paddingLeft="0"
+                absolute
+              />
+            </View>
+          </View>
+
+          <View style={styles.chartSection}>
+            <Text style={styles.chartTitle}>Weekly Study Progress</Text>
+            <Text style={styles.chartSubtitle}>Your consistency in language learning over weeks.</Text>
+            <View style={styles.lineChartContainer}>
+              <LineChart
+                data={{
+                  labels: weeklyLabels,
+                  datasets: [{
+                    data: weeklyValues
+                  }]
+                }}
+                width={screenWidth - 64}
+                height={220}
+                chartConfig={chartConfig}
+                bezier
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 16
+                }}
+              />
+            </View>
+          </View>
+
+          <View style={styles.insightsSection}>
+            <Text style={styles.chartTitle}>Key Insights & Focus Areas</Text>
+            <Text style={styles.chartSubtitle}>Actionable tips to boost your learning.</Text>
+            {insights.map((insight, index) => (
+              <View key={index} style={styles.insightCard}>
+                <MaterialCommunityIcons name={insight.icon} size={24} color={Colors.light.rust} />
+                <View style={styles.insightContent}>
+                  <Text style={styles.insightTitle}>{insight.title}</Text>
+                  <Text style={styles.insightDescription}>{insight.description}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -206,11 +208,13 @@ const styles = StyleSheet.create({
     color: Colors.light.textPrimary,
     marginBottom: 24,
   },
+  section: {
+    paddingHorizontal: 16,
+  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.light.background,
-    marginHorizontal: 16,
     marginBottom: 16,
     paddingHorizontal: 12,
     paddingVertical: 8,
