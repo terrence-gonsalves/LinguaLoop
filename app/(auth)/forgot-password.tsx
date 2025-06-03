@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/Colors';
+import Colors from '@/constants/Colors';
 import { Link } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';

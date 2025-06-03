@@ -9,6 +9,7 @@ type AuthContextType = {
   profile: Profile | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -26,9 +27,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.id);
       if (session) {
         await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(session));
         setSession(session);
+        if (event === 'SIGNED_IN') {
+          // Add a small delay to ensure the profile has been created
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
         await loadProfile(session.user.id);
       } else {
         await SecureStore.deleteItemAsync(SESSION_KEY);
@@ -58,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function loadProfile(userId: string) {
+    console.log('Loading profile for user:', userId);
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -65,7 +72,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error in loadProfile query:', error);
+        throw error;
+      }
+      
+      console.log('Profile loaded:', profile);
       setProfile(profile);
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -99,6 +111,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function signUp(email: string, password: string) {
+    try {
+      setIsLoading(true);
+      console.log('Starting signup process for:', email);
+      
+      // 1. sign up the user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error('No user data returned');
+
+      console.log('User created:', authData.user.id);
+
+      // 2. create a profile for the user
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          email: email,
+          onboarding_completed: false,
+        })
+        .select()
+        .single();
+
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        throw profileError;
+      }
+
+      console.log('Profile created:', profileData);
+
+      // 3. set the profile immediately to avoid the flash
+      setProfile(profileData);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Account created successfully',
+        text2: 'Please check your email to verify your account',
+      });
+
+      // session will be handled by the auth state change listener
+    } catch (error) {
+      console.error('Error signing up:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error creating account',
+        text2: (error as Error).message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   async function signOut() {
     try {
       setIsLoading(true);
@@ -123,6 +191,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         isLoading,
         signIn,
+        signUp,
         signOut,
       }}
     >
@@ -137,4 +206,6 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}
+
+export default AuthContext; 

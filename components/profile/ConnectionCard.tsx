@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/Colors';
+import Colors from '@/constants/Colors';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import DefaultAvatar from '../DefaultAvatar';
 

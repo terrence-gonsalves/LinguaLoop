@@ -1,17 +1,30 @@
-import { Colors } from '@/constants/Colors';
+import Colors from '@/constants/Colors';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../lib/auth-context';
 
 export default function CreateAccountScreen() {
+  const { signUp, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  const handleSignUp = async () => {
+    if (!email || !password || !confirmPassword || !acceptedTerms) return;
+    if (password !== confirmPassword) {
+      // You might want to show an error message here
+      return;
+    }
+    await signUp(email, password);
+  };
+
+  const isFormValid = email && password && confirmPassword && acceptedTerms && password === confirmPassword;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -35,6 +48,7 @@ export default function CreateAccountScreen() {
               onChangeText={setEmail}
               autoCapitalize="none"
               keyboardType="email-address"
+              editable={!isLoading}
             />
           </View>
 
@@ -48,10 +62,12 @@ export default function CreateAccountScreen() {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
+                editable={!isLoading}
               />
               <Pressable
                 style={styles.eyeIcon}
                 onPress={() => setShowPassword(!showPassword)}
+                disabled={isLoading}
               >
                 <MaterialIcons
                   name={showPassword ? 'visibility' : 'visibility-off'}
@@ -72,10 +88,12 @@ export default function CreateAccountScreen() {
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 secureTextEntry={!showConfirmPassword}
+                editable={!isLoading}
               />
               <Pressable
                 style={styles.eyeIcon}
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                disabled={isLoading}
               >
                 <MaterialIcons
                   name={showConfirmPassword ? 'visibility' : 'visibility-off'}
@@ -90,6 +108,7 @@ export default function CreateAccountScreen() {
             <Pressable
               style={styles.checkbox}
               onPress={() => setAcceptedTerms(!acceptedTerms)}
+              disabled={isLoading}
             >
               <MaterialIcons
                 name={acceptedTerms ? 'check-box' : 'check-box-outline-blank'}
@@ -109,8 +128,16 @@ export default function CreateAccountScreen() {
             </Text>
           </View>
 
-          <Pressable style={styles.signUpButton}>
-            <Text style={styles.signUpButtonText}>Sign Up Now</Text>
+          <Pressable 
+            style={[styles.signUpButton, (!isFormValid || isLoading) && styles.signUpButtonDisabled]}
+            onPress={handleSignUp}
+            disabled={!isFormValid || isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={Colors.light.text} />
+            ) : (
+              <Text style={styles.signUpButtonText}>Sign Up Now</Text>
+            )}
           </Pressable>
 
           <View style={styles.divider}>
@@ -277,5 +304,8 @@ const styles = StyleSheet.create({
     color: Colors.light.rust,
     fontSize: 14,
     fontWeight: '600',
+  },
+  signUpButtonDisabled: {
+    backgroundColor: Colors.light.formInputBorder,
   },
 }); 
