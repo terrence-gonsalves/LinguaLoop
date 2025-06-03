@@ -26,4 +26,6 @@ export type Language = {
   name: string;
   created_at: string;
   master_language_id: string;
-}; 
+};
+
+export default supabase; 

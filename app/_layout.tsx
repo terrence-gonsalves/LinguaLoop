@@ -3,7 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
-import { AuthProvider } from './providers/auth-provider';
+import AuthProvider from './providers/auth-provider';
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().catch(() => {

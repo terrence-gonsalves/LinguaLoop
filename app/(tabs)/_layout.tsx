@@ -1,8 +1,8 @@
-import { Colors } from '@/constants/Colors';
+import Colors from '@/constants/Colors';
 import { useAuth } from '@/lib/auth-context';
 import { router, Tabs } from 'expo-router';
 import { useEffect } from 'react';
-import { MaterialCommunityIconsIcon, MaterialIconsIcon } from '../../components/navigation/TabBarIcons';
+import TabBarIcon from '../../components/navigation/TabBarIcons';
 
 export default function TabLayout() {
     const { session, profile, isLoading } = useAuth();
@@ -33,7 +33,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Dashboard',
                     tabBarIcon: ({ color, focused }) => (
-                        <MaterialIconsIcon name={focused ? 'dashboard' : 'dashboard'} color={color} />
+                        <TabBarIcon type="material" name="dashboard" color={color} />
                     ),
                 }}
             />
@@ -42,7 +42,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Track Activity',
                     tabBarIcon: ({ color, focused }) => (
-                        <MaterialCommunityIconsIcon name={focused ? 'plus-circle-outline' : 'plus-circle-outline'} color={color} />
+                        <TabBarIcon type="material-community" name="plus-circle-outline" color={color} />
                     ),
                 }}
             />
@@ -51,7 +51,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Reports',
                     tabBarIcon: ({ color, focused }) => (
-                        <MaterialIconsIcon name={focused ? 'bar-chart' : 'bar-chart'} color={color} />
+                        <TabBarIcon type="material" name="bar-chart" color={color} />
                     ),
                 }}
             />
@@ -60,7 +60,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color, focused }) => (
-                        <MaterialIconsIcon name={focused ? 'person' : 'person'} color={color} />
+                        <TabBarIcon type="material" name="person" color={color} />
                     ),
                 }}
             />
@@ -69,7 +69,7 @@ export default function TabLayout() {
                 options={{
                     title: 'Settings',
                     tabBarIcon: ({ color, focused }) => (
-                        <MaterialIconsIcon name={focused ? 'settings' : 'settings'} color={color} />
+                        <TabBarIcon type="material" name="settings" color={color} />
                     ),
                 }}
             />

@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/Colors';
+import Colors from '@/constants/Colors';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
