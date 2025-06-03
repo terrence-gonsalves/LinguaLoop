@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.light.ice,
+    backgroundColor: Colors.light.formInputBG,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,

@@ -3,8 +3,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
+import { AuthProvider } from './providers/auth-provider';
 
-// Keep the splash screen visible while we fetch resources
+// keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */
 });
@@ -15,9 +16,9 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepare() {
       try {
-        // Add any initialization logic here
-        // For example, loading fonts, making API calls, etc.
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure splash screen shows for at least 1 second
+        // add any initialization logic here
+        // for example, loading fonts, making API calls, etc.
+        await new Promise(resolve => setTimeout(resolve, 1000)); // ensure splash screen shows for at least 1 second
       } catch (e) {
         console.warn(e);
       } finally {
@@ -39,11 +40,14 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <StatusBar style="auto" />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-      </Stack>
-    </View>
+    <AuthProvider>
+      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <StatusBar style="auto" />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+      </View>
+    </AuthProvider>
   );
 }

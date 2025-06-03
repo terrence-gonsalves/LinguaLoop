@@ -6,7 +6,6 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CreateAccountScreen() {
-  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -27,18 +26,7 @@ export default function CreateAccountScreen() {
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Display Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your full name"
-              placeholderTextColor={Colors.light.textSecondary}
-              value={displayName}
-              onChangeText={setDisplayName}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.label}>Email</Text>
             <TextInput
               style={styles.input}
               placeholder="name@example.com"
@@ -127,24 +115,21 @@ export default function CreateAccountScreen() {
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>OR</Text>
+            <Text style={styles.dividerText}>Continue with</Text>
             <View style={styles.dividerLine} />
           </View>
 
           <View style={styles.socialButtons}>
             <Pressable style={styles.socialButton}>
               <FontAwesome name="google" size={24} color={Colors.light.textPrimary} />
-              <Text style={styles.socialButtonText}>Continue with Google</Text>
             </Pressable>
 
             <Pressable style={styles.socialButton}>
               <FontAwesome name="apple" size={24} color={Colors.light.textPrimary} />
-              <Text style={styles.socialButtonText}>Continue with Apple</Text>
             </Pressable>
 
             <Pressable style={styles.socialButton}>
               <FontAwesome name="facebook" size={24} color={Colors.light.textPrimary} />
-              <Text style={styles.socialButtonText}>Continue with Facebook</Text>
             </Pressable>
           </View>
 
@@ -167,16 +152,16 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 24,
+    padding: 20,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 12,
   },
   logoPlaceholder: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: Colors.light.rust,
   },
   title: {
@@ -186,25 +171,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   titleSecondLine: {
-    marginBottom: 32,
+    marginBottom: 20,
   },
   form: {
-    gap: 20,
+    gap: 12,
   },
   inputContainer: {
-    gap: 8,
+    gap: 4,
   },
   label: {
     fontSize: 14,
     color: Colors.light.textPrimary,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   input: {
     backgroundColor: Colors.light.formInputBG,
     borderWidth: 1,
     borderColor: Colors.light.formInputBorder,
     borderRadius: 8,
-    padding: 12,
+    padding: 10,
     fontSize: 16,
     color: Colors.light.textPrimary,
   },
@@ -217,7 +202,7 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: 'absolute',
     right: 12,
-    top: 12,
+    top: 10,
   },
   termsContainer: {
     flexDirection: 'row',
@@ -225,20 +210,22 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   checkbox: {
-    padding: 4,
+    padding: 2,
   },
   termsText: {
     flex: 1,
     fontSize: 14,
     color: Colors.light.textSecondary,
+    lineHeight: 20,
   },
   link: {
-    color: Colors.light.link,
+    color: Colors.light.rust,
+    textDecorationLine: 'underline',
   },
   signUpButton: {
     backgroundColor: Colors.light.rust,
     borderRadius: 8,
-    padding: 16,
+    padding: 14,
     alignItems: 'center',
   },
   signUpButtonText: {
@@ -249,7 +236,7 @@ const styles = StyleSheet.create({
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: 12,
   },
   dividerLine: {
     flex: 1,
@@ -257,40 +244,38 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.formInputBorder,
   },
   dividerText: {
+    marginHorizontal: 16,
     color: Colors.light.textSecondary,
-    paddingHorizontal: 16,
     fontSize: 14,
   },
   socialButtons: {
-    gap: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 20,
   },
   socialButton: {
-    flexDirection: 'row',
+    backgroundColor: Colors.light.background,
+    borderRadius: 8,
+    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: Colors.light.background,
     borderWidth: 1,
     borderColor: Colors.light.formInputBorder,
-    gap: 12,
-  },
-  socialButtonText: {
-    fontSize: 16,
-    color: Colors.light.textPrimary,
+    width: 56,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
+    alignItems: 'center',
+    marginTop: 12,
   },
   footerText: {
-    fontSize: 14,
     color: Colors.light.textSecondary,
+    fontSize: 14,
   },
   loginLink: {
+    color: Colors.light.rust,
     fontSize: 14,
-    color: Colors.light.link,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 }); 
