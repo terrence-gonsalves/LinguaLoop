@@ -1,14 +1,27 @@
 import { Colors } from '@/constants/Colors';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
-import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Link, router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../lib/auth-context';
 
 export default function LoginScreen() {
+  const { signIn, isLoading, session } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (session) {
+      router.replace('/(tabs)');
+    }
+  }, [session]);
+
+  const handleLogin = async () => {
+    if (!email || !password) return;
+    await signIn(email, password);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,15 +35,16 @@ export default function LoginScreen() {
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email or Username</Text>
+            <Text style={styles.label}>Email</Text>
             <TextInput
               style={styles.input}
-              placeholder="enter@example.com"
+              placeholder="name@example.com"
               placeholderTextColor={Colors.light.textSecondary}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
               keyboardType="email-address"
+              editable={!isLoading}
             />
           </View>
 
@@ -44,10 +58,12 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
+                editable={!isLoading}
               />
               <Pressable
                 style={styles.eyeIcon}
                 onPress={() => setShowPassword(!showPassword)}
+                disabled={isLoading}
               >
                 <MaterialIcons
                   name={showPassword ? 'visibility' : 'visibility-off'}
@@ -61,30 +77,35 @@ export default function LoginScreen() {
             </Link>
           </View>
 
-          <Pressable style={styles.loginButton}>
-            <Text style={styles.loginButtonText}>Login</Text>
+          <Pressable 
+            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={Colors.light.text} />
+            ) : (
+              <Text style={styles.loginButtonText}>Login</Text>
+            )}
           </Pressable>
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>OR</Text>
+            <Text style={styles.dividerText}>Continue with</Text>
             <View style={styles.dividerLine} />
           </View>
 
           <View style={styles.socialButtons}>
-            <Pressable style={styles.socialButton}>
+            <Pressable style={styles.socialButton} disabled={isLoading}>
               <FontAwesome name="google" size={24} color={Colors.light.textPrimary} />
-              <Text style={styles.socialButtonText}>Continue with Google</Text>
             </Pressable>
 
-            <Pressable style={styles.socialButton}>
+            <Pressable style={styles.socialButton} disabled={isLoading}>
               <FontAwesome name="apple" size={24} color={Colors.light.textPrimary} />
-              <Text style={styles.socialButtonText}>Continue with Apple</Text>
             </Pressable>
 
-            <Pressable style={styles.socialButton}>
+            <Pressable style={styles.socialButton} disabled={isLoading}>
               <FontAwesome name="facebook" size={24} color={Colors.light.textPrimary} />
-              <Text style={styles.socialButtonText}>Continue with Facebook</Text>
             </Pressable>
           </View>
 
@@ -107,17 +128,17 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 24,
+    padding: 20,
     justifyContent: 'center',
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   logoPlaceholder: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: Colors.light.rust,
   },
   title: {
@@ -125,25 +146,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.light.textPrimary,
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   form: {
-    gap: 20,
+    gap: 16,
   },
   inputContainer: {
-    gap: 8,
+    gap: 4,
   },
   label: {
     fontSize: 14,
     color: Colors.light.textPrimary,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   input: {
     backgroundColor: Colors.light.formInputBG,
     borderWidth: 1,
     borderColor: Colors.light.formInputBorder,
     borderRadius: 8,
-    padding: 12,
+    padding: 10,
     fontSize: 16,
     color: Colors.light.textPrimary,
   },
@@ -156,18 +177,18 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: 'absolute',
     right: 12,
-    top: 12,
+    top: 10,
   },
   forgotPassword: {
     fontSize: 14,
     color: Colors.light.link,
     textAlign: 'right',
-    marginTop: 8,
+    marginTop: 4,
   },
   loginButton: {
     backgroundColor: Colors.light.rust,
     borderRadius: 8,
-    padding: 16,
+    padding: 14,
     alignItems: 'center',
   },
   loginButtonText: {
@@ -175,10 +196,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  loginButtonDisabled: {
+    opacity: 0.7,
+  },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: 16,
   },
   dividerLine: {
     flex: 1,
@@ -186,40 +210,38 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.formInputBorder,
   },
   dividerText: {
+    marginHorizontal: 16,
     color: Colors.light.textSecondary,
-    paddingHorizontal: 16,
     fontSize: 14,
   },
   socialButtons: {
-    gap: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 20,
   },
   socialButton: {
-    flexDirection: 'row',
+    backgroundColor: Colors.light.background,
+    borderRadius: 8,
+    padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: Colors.light.background,
     borderWidth: 1,
     borderColor: Colors.light.formInputBorder,
-    gap: 12,
-  },
-  socialButtonText: {
-    fontSize: 16,
-    color: Colors.light.textPrimary,
+    width: 56,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 24,
+    alignItems: 'center',
+    marginTop: 16,
   },
   footerText: {
-    fontSize: 14,
     color: Colors.light.textSecondary,
+    fontSize: 14,
   },
   createAccountLink: {
+    color: Colors.light.rust,
     fontSize: 14,
-    color: Colors.light.link,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 }); 
