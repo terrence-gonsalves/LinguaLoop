@@ -12,6 +12,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  reloadProfile: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -95,6 +96,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         text1: 'Error loading profile',
       });
     }
+  }
+
+  // Add reloadProfile function
+  async function reloadProfile() {
+    if (!session?.user?.id) return;
+    await loadProfile(session.user.id);
   }
 
   async function signIn(email: string, password: string) {
@@ -204,6 +211,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signIn,
         signUp,
         signOut,
+        reloadProfile,
       }}
     >
       {children}
