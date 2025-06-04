@@ -10,7 +10,7 @@ import { FormInput } from '../../components/forms/FormInput';
 import { Language, LanguageDropdown } from '../../components/forms/LanguageDropdown';
 
 export default function OnboardingScreen() {
-  const { profile } = useAuth();
+  const { profile, reloadProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [languages, setLanguages] = useState<Language[]>([]);
   
@@ -150,7 +150,10 @@ export default function OnboardingScreen() {
 
       if (languagesError) throw languagesError;
 
-      // Navigate to dashboard - update to force replace
+      // Reload the profile to get the updated onboarding status
+      await reloadProfile();
+
+      // Navigate to dashboard
       router.replace('/(tabs)');
     } catch (error) {
       console.error('Error saving onboarding data:', error);
