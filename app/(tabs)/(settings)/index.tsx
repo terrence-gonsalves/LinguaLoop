@@ -1,11 +1,12 @@
-import { VersionDisplay } from '@/components/common/VersionDisplay';
-import { SettingsItem } from '@/components/settings/SettingsItem';
-import { SettingsSection } from '@/components/settings/SettingsSection';
-import { Colors } from '@/constants/Colors';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { VersionDisplay } from '../../../components/common/VersionDisplay';
+import { SettingsItem } from '../../../components/settings/SettingsItem';
+import { SettingsSection } from '../../../components/settings/SettingsSection';
+import Colors from '../../../constants/Colors';
 
 export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -163,6 +164,7 @@ export default function SettingsScreen() {
             <SettingsItem
               icon={<MaterialIcons name="person-outline" size={24} color={Colors.light.rust} />}
               title="Edit Profile"
+              onPress={() => router.push('/(stack)/edit-profile')}
             />
             <SettingsItem
               icon={<MaterialIcons name="security" size={24} color={Colors.light.rust} />}

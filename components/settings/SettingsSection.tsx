@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/Colors';
+import Colors from '@/constants/Colors';
 import { StyleSheet, Text, View } from 'react-native';
 
 interface SettingsSectionProps {

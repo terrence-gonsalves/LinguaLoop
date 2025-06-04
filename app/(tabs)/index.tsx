@@ -1,8 +1,8 @@
-import DefaultAvatar from '@/components/DefaultAvatar';
-import { Colors } from '@/constants/Colors';
+import Colors from '@/constants/Colors';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import DefaultAvatar from '../../components/DefaultAvatar';
 
 interface ActivityCardProps {
   title: string;
@@ -158,13 +158,13 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   studyTimeCard: {
-    backgroundColor: Colors.light.sage,
+    backgroundColor: Colors.light.rust,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
   },
   studyTimeLabel: {
-    color: Colors.light.textTertiary,
+    color: Colors.light.text,
     fontSize: 16,
   },
   timeContainer: {
@@ -175,15 +175,15 @@ const styles = StyleSheet.create({
   timeNumber: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: Colors.light.textTertiary,
+    color: Colors.light.text,
   },
   timeUnit: {
     fontSize: 24,
-    color: Colors.light.textTertiary,
+    color: Colors.light.text,
     opacity: 0.8,
   },
   timeSubtext: {
-    color: Colors.light.textTertiary,
+    color: Colors.light.text,
     opacity: 0.8,
   },
   activityGrid: {
