@@ -32,8 +32,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session) {
         await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(session));
         setSession(session);
-        if (event === 'SIGNED_IN') {
-          // Add a small delay to ensure the profile has been created
+        if (event === 'SIGNED_IN' && !profile) {
+
+          // add a small delay to ensure the profile has been created
           await new Promise(resolve => setTimeout(resolve, 1000));
           await loadProfile(session.user.id);
         }
@@ -81,11 +82,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('Profile loaded:', profile);
       setProfile(profile);
 
-      // Check if onboarding is needed
+      // check if onboarding is needed
       if (profile && !profile.onboarding_completed) {
         router.push('/(stack)/onboarding');
-      } else if (profile) {
-        router.replace('/(tabs)/profile');
+      } else if (profile && profile.onboarding_completed) {
+        router.replace('/(tabs)');
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -162,8 +163,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         text2: 'Please check your email to verify your account',
       });
 
-      // Navigate to onboarding
-      router.push('/(stack)/onboarding');
+      // navigate to onboarding immediately without waiting for auth state change
+      router.replace('/(stack)/onboarding');
     } catch (error) {
       console.error('Error signing up:', error);
       Toast.show({
