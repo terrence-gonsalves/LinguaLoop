@@ -150,7 +150,7 @@ export default function OnboardingScreen() {
 
       if (languagesError) throw languagesError;
 
-      // Navigate to dashboard
+      // Navigate to dashboard - update to force replace
       router.replace('/(tabs)');
     } catch (error) {
       console.error('Error saving onboarding data:', error);
