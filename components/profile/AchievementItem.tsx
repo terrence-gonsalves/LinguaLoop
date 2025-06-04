@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/Colors';
+import Colors from '@/constants/Colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -30,13 +30,20 @@ export function AchievementItem({ date, title, description, onReview }: Achievem
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    marginBottom: 24,
+    backgroundColor: Colors.light.background,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   iconContainer: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.light.ice,
+    backgroundColor: Colors.light.formInputBG,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,

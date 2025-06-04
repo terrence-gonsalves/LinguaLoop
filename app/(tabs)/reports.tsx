@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/Colors';
+import Colors from '@/constants/Colors';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -82,7 +82,7 @@ const chartConfig = {
   backgroundColor: Colors.light.background,
   backgroundGradientFrom: Colors.light.background,
   backgroundGradientTo: Colors.light.background,
-  color: (opacity = 1) => Colors.light.rust,
+  color: (opacity = 1) => `rgba(217, 125, 84, ${opacity})`,
   labelColor: (opacity = 1) => Colors.light.textSecondary,
   strokeWidth: 2,
   barPercentage: 0.5,
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   averageSessionCard: {
-    backgroundColor: Colors.light.success,
+    backgroundColor: Colors.light.rust,
     borderRadius: 16,
     padding: 20,
     flexDirection: 'row',
