@@ -1,4 +1,5 @@
 import { Session } from '@supabase/supabase-js';
+import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useContext, useEffect, useState } from 'react';
 import Toast from 'react-native-toast-message';
@@ -34,8 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === 'SIGNED_IN') {
           // Add a small delay to ensure the profile has been created
           await new Promise(resolve => setTimeout(resolve, 1000));
+          await loadProfile(session.user.id);
         }
-        await loadProfile(session.user.id);
       } else {
         await SecureStore.deleteItemAsync(SESSION_KEY);
         setSession(null);
@@ -79,6 +80,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       console.log('Profile loaded:', profile);
       setProfile(profile);
+
+      // Check if onboarding is needed
+      if (profile && !profile.onboarding_completed) {
+        router.push('/(stack)/onboarding');
+      } else if (profile) {
+        router.replace('/(tabs)/profile');
+      }
     } catch (error) {
       console.error('Error loading profile:', error);
       Toast.show({
@@ -154,7 +162,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         text2: 'Please check your email to verify your account',
       });
 
-      // session will be handled by the auth state change listener
+      // Navigate to onboarding
+      router.push('/(stack)/onboarding');
     } catch (error) {
       console.error('Error signing up:', error);
       Toast.show({
@@ -172,6 +181,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      router.replace('/(auth)/login');
     } catch (error) {
       console.error('Error signing out:', error);
       Toast.show({

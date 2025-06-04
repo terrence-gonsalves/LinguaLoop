@@ -18,6 +18,7 @@ export type Profile = {
   user_name: string | null;
   onboarding_completed: boolean;
   native_language: string;
+  about_me: string | null;
 };
 
 export type Language = {

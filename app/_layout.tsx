@@ -42,12 +42,13 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-        <StatusBar style="auto" />
+      <StatusBar style="auto" />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
-        </Stack>
-      </View>
+          <Stack.Screen name="(stack)" />
+      </Stack>
+    </View>
     </AuthProvider>
   );
 }

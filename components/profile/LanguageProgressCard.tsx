@@ -13,20 +13,17 @@ export function LanguageProgressCard({ language, level, progress, words, lessons
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.languageInfo}>
-          <Text style={styles.flag}>
-            {language === 'Spanish' ? '🇪🇸' : '🇯🇵'}
-          </Text>
-          <Text style={styles.language}>{language}</Text>
-        </View>
-        <View style={styles.levelContainer}>
-          <Text style={styles.level}>{level}</Text>
+        <Text style={styles.language}>{language}</Text>
+        <View style={styles.levelBadge}>
+          <Text style={styles.levelText}>{level}</Text>
         </View>
       </View>
+
       <View style={styles.progressContainer}>
         <View style={[styles.progressBar, { width: `${progress}%` }]} />
+        <Text style={styles.progressText}>{progress}%</Text>
       </View>
-      <Text style={styles.progressText}>{progress}% Complete</Text>
+
       <View style={styles.stats}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{words}</Text>
@@ -46,48 +43,42 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
-    width: '48%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    width: '100%',
+    marginBottom: 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  languageInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  flag: {
-    fontSize: 16,
+    marginBottom: 16,
   },
   language: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: Colors.light.textPrimary,
   },
-  levelContainer: {
-    backgroundColor: Colors.light.ice,
+  levelBadge: {
+    backgroundColor: Colors.light.formInputBG,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
   },
-  level: {
+  levelText: {
     fontSize: 12,
     color: Colors.light.textSecondary,
+    fontWeight: '500',
   },
   progressContainer: {
     height: 4,
-    backgroundColor: Colors.light.ice,
+    backgroundColor: Colors.light.formInputBG,
     borderRadius: 2,
     marginBottom: 8,
+    overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
@@ -97,11 +88,11 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 12,
     color: Colors.light.textSecondary,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   stats: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   statItem: {
     alignItems: 'center',
@@ -114,5 +105,6 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 12,
     color: Colors.light.textSecondary,
+    marginTop: 4,
   },
 }); 
