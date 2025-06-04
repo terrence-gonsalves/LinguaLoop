@@ -5,6 +5,36 @@
 const tintColorLight = '#D97D54';
 const tintColorDark = '#fff';
 
+type ColorScheme = {
+  text: string;
+  background: string;
+  tint: string;
+  icon: string;
+  tabIconDefault: string;
+  tabIconSelected: string;
+  error: string;
+  success?: string;
+  outLineBtnText?: string;
+  link?: string;
+  generalBG?: string;
+  tabsBG?: string;
+  textPrimary?: string;
+  textSecondary?: string;
+  textTertiary?: string;
+  formInputBG?: string;
+  formInputBorder?: string;
+  borders?: string;
+  grey?: string;
+  black?: string;
+  appBG?: string;
+  sage?: string;
+  rust?: string;
+  drab?: string;
+  ice?: string;
+  fossil?: string;
+  sand?: string;
+};
+
 const Colors = {
   light: {
     text: '#FFFFFF',
@@ -39,11 +69,11 @@ const Colors = {
     rust: '#D97D54',
     drab: '#324755',
 
-     // secondary colours
-     ice: '#F0F3F4',
-     fossil: '#C8D1D3',
-     sand: '#B9B0A2',
-  },
+    // secondary colours
+    ice: '#F0F3F4',
+    fossil: '#C8D1D3',
+    sand: '#B9B0A2',
+  } as ColorScheme,
   dark: {
     text: '#ECEDEE',
     background: '#151718',
@@ -51,7 +81,9 @@ const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
-  },
-} as const;
+    error: '#ff4b4b',
+  } as ColorScheme,
+};
 
+export type { ColorScheme };
 export default Colors;

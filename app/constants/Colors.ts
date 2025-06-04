@@ -13,6 +13,7 @@ export const Colors = {
     rust: '#6366F1',
     link: '#6366F1',
     ice: '#F0F3F4',
+    error: '#ff4b4b',
   },
 } as const;
 

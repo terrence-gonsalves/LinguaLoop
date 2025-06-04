@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -163,6 +164,7 @@ export default function SettingsScreen() {
             <SettingsItem
               icon={<MaterialIcons name="person-outline" size={24} color={Colors.light.rust} />}
               title="Edit Profile"
+              onPress={() => router.push('/(stack)/edit-profile')}
             />
             <SettingsItem
               icon={<MaterialIcons name="security" size={24} color={Colors.light.rust} />}
