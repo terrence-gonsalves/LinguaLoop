@@ -1,12 +1,13 @@
-import Colors from '@/constants/Colors';
 import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
+import { Colors } from '../../app/providers/theme-provider';
 
-interface FormInputProps extends TextInputProps {
+export interface FormInputProps extends TextInputProps {
   label: string;
   error?: string;
+  helperText?: string;
 }
 
-export function FormInput({ label, error, ...props }: FormInputProps) {
+export function FormInput({ label, error, helperText, style, ...props }: FormInputProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
@@ -14,12 +15,16 @@ export function FormInput({ label, error, ...props }: FormInputProps) {
         style={[
           styles.input,
           error ? styles.inputError : null,
-          props.multiline ? styles.multiline : null,
+          style,
         ]}
         placeholderTextColor={Colors.light.textSecondary}
         {...props}
       />
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : helperText ? (
+        <Text style={styles.helperText}>{helperText}</Text>
+      ) : null}
     </View>
   );
 }
@@ -31,18 +36,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '500',
-    color: Colors.light.textPrimary,
+    color: Colors.light.text,
     marginBottom: 8,
   },
   input: {
-    height: 50,
     backgroundColor: Colors.light.formInputBG,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: Colors.light.textPrimary,
     borderWidth: 1,
-    borderColor: Colors.light.formInputBorder,
+    borderColor: Colors.light.border,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: Colors.light.text,
   },
   inputError: {
     borderColor: Colors.light.error,
@@ -53,7 +58,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: Colors.light.error,
-    fontSize: 14,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  helperText: {
+    color: Colors.light.textSecondary,
+    fontSize: 12,
     marginTop: 4,
   },
 }); 

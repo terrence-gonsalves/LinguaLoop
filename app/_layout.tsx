@@ -1,9 +1,10 @@
-import { Stack } from "expo-router";
+import { Stack } from "expo-router/stack";
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import AuthProvider from './providers/auth-provider';
+import { ThemeProvider } from './providers/theme-provider';
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -40,15 +41,17 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <StatusBar style="auto" />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="(stack)" />
-      </Stack>
-    </View>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+          <StatusBar style="auto" />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(stack)" />
+          </Stack>
+        </View>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

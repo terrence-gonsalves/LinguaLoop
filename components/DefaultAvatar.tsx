@@ -1,29 +1,41 @@
-import Colors from '@/constants/Colors';
-import React from 'react';
-import { View } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import { StyleSheet, Text, View } from 'react-native';
+import { Colors } from '../app/providers/theme-provider';
 
 interface DefaultAvatarProps {
   size?: number;
-  backgroundColor?: string;
-  foregroundColor?: string;
+  letter?: string;
 }
 
-export default function DefaultAvatar({
-  size = 100,
-  backgroundColor = Colors.light.rust,
-  foregroundColor = '#FFFFFF',
-}: DefaultAvatarProps) {
+export default function DefaultAvatar({ size = 40, letter = '?' }: DefaultAvatarProps) {
   return (
-    <View style={{ width: size, height: size, borderRadius: size / 2, overflow: 'hidden' }}>
-      <Svg width={size} height={size} viewBox="0 0 100 100">
-        <Circle cx="50" cy="50" r="50" fill={backgroundColor} />
-        <Circle cx="50" cy="38" r="18" fill={foregroundColor} />
-        <Path
-          d="M50 65c-16.5 0-30 11-30 24.5V100h60V89.5C80 76 66.5 65 50 65z"
-          fill={foregroundColor}
-        />
-      </Svg>
+    <View style={[
+      styles.container,
+      {
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+      }
+    ]}>
+      <Text style={[
+        styles.letter,
+        {
+          fontSize: size * 0.4,
+        }
+      ]}>
+        {letter}
+      </Text>
     </View>
   );
-} 
+}
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: Colors.light.buttonPrimary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  letter: {
+    color: Colors.light.background,
+    fontWeight: '600',
+  },
+}); 

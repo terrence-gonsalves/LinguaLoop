@@ -1,27 +1,34 @@
-import Colors from '@/constants/Colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Colors } from '../../app/providers/theme-provider';
 
 interface AchievementItemProps {
-  date: string;
   title: string;
   description: string;
-  onReview: () => void;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
+  progress: number;
+  isCompleted?: boolean;
 }
 
-export function AchievementItem({ date, title, description, onReview }: AchievementItemProps) {
+export function AchievementItem({ title, description, icon, progress, isCompleted = false }: AchievementItemProps) {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <MaterialCommunityIcons name="trophy" size={24} color={Colors.light.rust} />
+        <MaterialCommunityIcons 
+          name={icon} 
+          size={24} 
+          color={isCompleted ? Colors.light.rust : Colors.light.textSecondary} 
+        />
       </View>
       <View style={styles.content}>
-        <Text style={styles.date}>{date}</Text>
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.progressText}>{progress}%</Text>
+        </View>
         <Text style={styles.description}>{description}</Text>
-        <Pressable onPress={onReview}>
-          <Text style={styles.reviewLink}>Review {'>'}</Text>
-        </Pressable>
+        <View style={styles.progressBar}>
+          <View style={[styles.progressFill, { width: `${progress}%` }]} />
+        </View>
       </View>
     </View>
   );
@@ -33,17 +40,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginBottom: 12,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.light.formInputBG,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.light.generalBG,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -51,25 +54,35 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  date: {
-    fontSize: 12,
-    color: Colors.light.textSecondary,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
   },
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.light.textPrimary,
-    marginBottom: 4,
+    color: Colors.light.text,
+  },
+  progressText: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
   },
   description: {
     fontSize: 14,
     color: Colors.light.textSecondary,
     marginBottom: 8,
   },
-  reviewLink: {
-    fontSize: 14,
-    color: Colors.light.rust,
-    fontWeight: '600',
+  progressBar: {
+    height: 4,
+    backgroundColor: Colors.light.generalBG,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: Colors.light.rust,
+    borderRadius: 2,
   },
 }); 
