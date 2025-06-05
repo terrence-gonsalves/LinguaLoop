@@ -1,16 +1,14 @@
-import Colors from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '../../app/providers/theme-provider';
 import DefaultAvatar from '../../components/DefaultAvatar';
 import { AchievementItem } from '../../components/profile/AchievementItem';
 import { ConnectionCard } from '../../components/profile/ConnectionCard';
 import { LanguageProgressCard } from '../../components/profile/LanguageProgressCard';
 
 export default function ProfileScreen() {
-  const router = useRouter();
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -33,26 +31,22 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Language Summary</Text>
-            <Link href="../languages" asChild>
-              <Pressable style={styles.viewAllLink}>
-                <Text style={styles.viewAllText}>View All</Text>
-              </Pressable>
-            </Link>
+            <Pressable style={styles.viewAllLink} onPress={() => router.push('../languages')}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </Pressable>
           </View>
           <View style={styles.languageCards}>
             <LanguageProgressCard
               language="Spanish"
               level="Intermediate"
               progress={75}
-              words={2345}
-              lessons={15}
+              streak={15}
             />
             <LanguageProgressCard
               language="Japanese"
               level="Beginner"
               progress={40}
-              words={860}
-              lessons={12}
+              streak={8}
             />
           </View>
         </View>
@@ -60,26 +54,20 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Active Connections</Text>
-            <Link href="../connections" asChild>
-              <Pressable style={styles.viewAllLink}>
-                <Text style={styles.viewAllText}>View All</Text>
-              </Pressable>
-            </Link>
+            <Pressable style={styles.viewAllLink} onPress={() => router.push('../connections')}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </Pressable>
           </View>
           <View style={styles.connectionCards}>
             <ConnectionCard
               name="Sarah Johnson"
-              username="@sarah.j"
-              nativeLanguage="French"
-              interests={['English', 'Travel', 'Culture']}
-              onMessage={() => {}}
+              languages={['English', 'French', 'Spanish']}
+              streak={12}
             />
             <ConnectionCard
               name="David Lee"
-              username="@david.lingua"
-              nativeLanguage="Mandarin"
-              interests={['Spanish', 'Tech', 'Music']}
-              onMessage={() => {}}
+              languages={['Mandarin', 'English', 'Spanish']}
+              streak={23}
             />
           </View>
         </View>
@@ -87,24 +75,24 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Learning Journey</Text>
-            <Link href="../achievements" asChild>
-              <Pressable style={styles.viewAllLink}>
-                <Text style={styles.viewAllText}>History</Text>
-              </Pressable>
-            </Link>
+            <Pressable style={styles.viewAllLink} onPress={() => router.push('../achievements')}>
+              <Text style={styles.viewAllText}>History</Text>
+            </Pressable>
           </View>
           <View style={styles.achievements}>
             <AchievementItem
-              date="October 2023"
               title="Achieved A1 Spanish Proficiency"
               description="Successfully completed all A1 level lessons and passed the speaking assessment."
-              onReview={() => {}}
+              icon="trophy"
+              progress={100}
+              isCompleted={true}
             />
             <AchievementItem
-              date="September 2023"
               title="Mastered Japanese Hiragana"
               description="Learned and memorized all Hiragana characters and pronunciations."
-              onReview={() => {}}
+              icon="book-education"
+              progress={100}
+              isCompleted={true}
             />
           </View>
         </View>

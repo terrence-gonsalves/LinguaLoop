@@ -1,6 +1,9 @@
 import { useAuth } from '@/lib/auth-context';
-import { Stack, router } from 'expo-router';
-import { useEffect } from 'react';
+import { router } from 'expo-router';
+import { Stack } from 'expo-router/stack';
+import React, { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Colors } from '../providers/theme-provider';
 
 export default function AuthLayout() {
   const { session, isLoading } = useAuth();
@@ -12,20 +15,54 @@ export default function AuthLayout() {
     }
   }, [session, isLoading]);
 
-  // Don't render anything while checking auth state
-  if (isLoading) {
-    return null;
-  }
-
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="login" />
-      <Stack.Screen name="create-account" />
-      <Stack.Screen name="forgot-password" />
-    </Stack>
+    <>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      ) : (
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            // Add animation config to make transitions smoother
+            animation: 'slide_from_right',
+            // Prevent gesture-based dismissal which can cause blank screens
+            gestureEnabled: false,
+            // Ensure screens are always mounted
+            presentation: 'card',
+          }}
+        >
+          <Stack.Screen 
+            name="login" 
+            options={{
+              // Prevent this screen from being removed from stack
+              gestureEnabled: false,
+            }}
+          />
+          <Stack.Screen 
+            name="create-account"
+            options={{
+              animation: 'slide_from_right',
+            }}
+          />
+          <Stack.Screen 
+            name="forgot-password"
+            options={{
+              animation: 'slide_from_right',
+            }}
+          />
+        </Stack>
+      )}
+    </>
   );
-} 
+}
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.light.generalBG,
+  },
+}); 
