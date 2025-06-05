@@ -3,12 +3,12 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '../../../app/providers/theme-provider';
-import { VersionDisplay } from '../../../components/common/VersionDisplay';
-import { SettingsItem } from '../../../components/settings/SettingsItem';
-import { SettingsSection } from '../../../components/settings/SettingsSection';
+import { Colors } from '../../app/providers/theme-provider';
+import { VersionDisplay } from '../../components/common/VersionDisplay';
+import { SettingsItem } from '../../components/settings/SettingsItem';
+import { SettingsSection } from '../../components/settings/SettingsSection';
 
-function SettingsScreen() {
+export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -206,8 +206,6 @@ function SettingsScreen() {
   );
 }
 
-export default SettingsScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -217,11 +215,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flex: 1,
     padding: 16,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: '600',
     color: Colors.light.textPrimary,
     marginBottom: 24,
@@ -232,6 +229,5 @@ const styles = StyleSheet.create({
   },
   settingValue: {
     color: Colors.light.textSecondary,
-    fontSize: 14,
   },
 }); 
