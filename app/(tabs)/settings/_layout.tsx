@@ -4,7 +4,7 @@ export default function SettingsLayout() {
   return (
     <Stack>
       <Stack.Screen 
-        name="test" 
+        name="index" 
         options={{
           headerShown: false,
         }}
