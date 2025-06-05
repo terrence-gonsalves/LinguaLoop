@@ -1,6 +1,6 @@
-import { createContext, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
 
-// Define the color scheme type
+// define the color scheme type
 type ColorScheme = {
   text: string;
   textPrimary: string;
@@ -20,35 +20,36 @@ type ColorScheme = {
   fossil: string;
 };
 
-// Define the theme type
+// define the theme type
 type Theme = {
   light: ColorScheme;
   dark: Partial<ColorScheme>;
 };
 
-// Define the actual colors
-const theme: Theme = {
+// define the base colors that will always be available
+const baseColors: Theme = {
   light: {
-    // Text colors
+
+    // text colors
     text: '#1B1C20',
     textPrimary: '#1B1C20',
     textSecondary: '#6E8CA0',
     textTertiary: '#FFFFFF',
 
-    // Background colors
+    // background colors
     background: '#FFFFFF',
     generalBG: '#F0F3F4',
     formInputBG: '#F0F3F4',
 
-    // Tab colors
+    // tab colors
     tabIconDefault: '#324755',
     tabIconSelected: '#D97D54',
 
-    // Button colors
+    // button colors
     buttonPrimary: '#324755',
     buttonSecondary: '#6E8CA0',
 
-    // Accent colors
+    // accent colors
     rust: '#D97D54',
     link: '#324755',
     border: '#E5E5E5',
@@ -60,26 +61,35 @@ const theme: Theme = {
   },
 };
 
-// Create the context
-const ThemeContext = createContext<Theme>(theme);
+// create the context with default values
+const ThemeContext = createContext<Theme>(baseColors);
 
-// Create the provider component
+// create the provider component
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeContext.Provider value={theme}>
+    <ThemeContext.Provider value={baseColors}>
       {children}
     </ThemeContext.Provider>
   );
 }
 
-// Create a hook to use the theme
+// create a hook to use the theme
 export function useTheme() {
   const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+  if (!context) {
+    // If context is not available, return the base colors
+    return baseColors;
   }
   return context;
 }
 
-// Export the theme object for static usage
-export const Colors = theme; 
+// export a safe version of Colors that always has a value
+export const Colors = baseColors;
+
+// export a hook for dynamic theme values
+export function useColors() {
+  return useTheme();
+}
+
+// export the ThemeProvider as default
+export default ThemeProvider; 
