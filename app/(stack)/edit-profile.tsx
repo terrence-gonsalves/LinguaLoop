@@ -261,7 +261,6 @@ export default function EditProfileScreen() {
           </View>
 
           {/* Save Button Section */}
-          <View style={styles.card}>
             <Button 
               title={isLoading ? 'Saving...' : 'Save Changes'}
               onPress={handleSubmit}
@@ -269,7 +268,6 @@ export default function EditProfileScreen() {
               loading={isLoading}
               style={styles.saveButton}
             />
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
