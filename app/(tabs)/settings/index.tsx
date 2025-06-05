@@ -5,7 +5,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultAvatar from '../../../components/DefaultAvatar';
 
-// Default colors as fallback
+// default colors as fallback
 const defaultColors = {
   light: {
     background: '#FFFFFF',
@@ -89,6 +89,7 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
+
         {/* Profile Section */}
         <View style={styles.profileSection}>
           <DefaultAvatar 
@@ -97,7 +98,7 @@ export default function SettingsScreen() {
           />
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{profile?.name || 'User'}</Text>
-            <Text style={styles.email}>{profile?.email || ''}</Text>
+            <Text style={styles.username}>@{profile?.user_name || ''}</Text>
           </View>
         </View>
 
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
     color: defaultColors.light.text,
     marginBottom: 4,
   },
-  email: {
+  username: {
     fontSize: 14,
     color: defaultColors.light.textSecondary,
   },

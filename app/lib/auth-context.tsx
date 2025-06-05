@@ -91,10 +91,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error('Error loading profile:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error loading profile',
-      });
+      // Toast.show({
+      //   type: 'error',
+      //   text1: 'Error loading profile',
+      // });
     }
   }
 
