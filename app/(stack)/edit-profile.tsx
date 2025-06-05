@@ -159,7 +159,7 @@ export default function EditProfileScreen() {
       });
 
       // navigate to settings screen
-      router.replace('/(tabs)/(settings)');
+      router.replace('/(tabs)/settings');
     } catch (error) {
       console.error('Error saving profile:', error);
       Toast.show({
