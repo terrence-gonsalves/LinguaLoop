@@ -4,30 +4,32 @@ import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { FormInput } from '../../components/forms/FormInput';
 import { Language, LanguageDropdown } from '../../components/forms/LanguageDropdown';
 
 export default function EditProfileScreen() {
-  const { profile } = useAuth();
+  const { profile, reloadProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [languages, setLanguages] = useState<Language[]>([]);
   
-  // Form state
+  // form state
   const [displayName, setDisplayName] = useState(profile?.name || '');
   const [username, setUsername] = useState(profile?.user_name || '');
   const [aboutMe, setAboutMe] = useState(profile?.about_me || '');
   const [nativeLanguage, setNativeLanguage] = useState<string | null>(profile?.native_language || null);
-  const [targetLanguages, setTargetLanguages] = useState<string[]>(['']);
   
-  // Form errors
+  // form errors
   const [usernameError, setUsernameError] = useState('');
   const [aboutMeError, setAboutMeError] = useState('');
 
+  // check if username was set during onboarding
+  const isUsernameSetDuringOnboarding = Boolean(profile?.user_name);
+
   useEffect(() => {
     loadLanguages();
-    loadTargetLanguages();
   }, []);
 
   async function loadLanguages() {
@@ -45,24 +47,11 @@ export default function EditProfileScreen() {
     }
   }
 
-  async function loadTargetLanguages() {
-    if (!profile?.id) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('languages')
-        .select('master_language_id')
-        .eq('user_id', profile.id);
-
-      if (error) throw error;
-      setTargetLanguages(data.map(lang => lang.master_language_id));
-    } catch (error) {
-      console.error('Error loading target languages:', error);
-      Alert.alert('Error', 'Failed to load your target languages.');
-    }
-  }
-
   function validateUsername(value: string) {
+    if (!value) {
+      setUsernameError('Username is required');
+      return false;
+    }
     if (value.length < 3) {
       setUsernameError('Username must be at least 3 characters');
       return false;
@@ -88,61 +77,38 @@ export default function EditProfileScreen() {
     return true;
   }
 
-  function addTargetLanguage() {
-    if (targetLanguages.length < 5) {
-      setTargetLanguages([...targetLanguages, '']);
-    }
-  }
-
-  function removeTargetLanguage(index: number) {
-    const newTargetLanguages = targetLanguages.filter((_, i) => i !== index);
-    setTargetLanguages(newTargetLanguages);
-  }
-
-  function updateTargetLanguage(index: number, value: string) {
-    const newTargetLanguages = [...targetLanguages];
-    newTargetLanguages[index] = value;
-    setTargetLanguages(newTargetLanguages);
-  }
-
   async function handleSubmit() {
-    if (!profile?.id) return;
+    if (!profile?.id) {
+      console.error('No profile ID found');
+      return;
+    }
     
-    // Validate required fields
+    // validate required fields
     if (!nativeLanguage) {
       Alert.alert('Error', 'Please select your native language');
       return;
     }
 
-    if (!targetLanguages[0]) {
-      Alert.alert('Error', 'Please select at least one target language');
+    if (!isUsernameSetDuringOnboarding && !username) {
+      Alert.alert('Error', 'Please enter a username');
       return;
     }
 
     if (username && !validateUsername(username)) return;
     if (aboutMe && !validateAboutMe(aboutMe)) return;
 
-    // Remove empty target languages
-    const validTargetLanguages = targetLanguages.filter(lang => lang);
-
-    // Check for duplicate target languages
-    const uniqueTargets = new Set(validTargetLanguages);
-    if (uniqueTargets.size !== validTargetLanguages.length) {
-      Alert.alert('Error', 'Please select different languages for each target language');
-      return;
-    }
-
-    // Check if native language is selected as target
-    if (validTargetLanguages.includes(nativeLanguage)) {
-      Alert.alert('Error', 'Your native language cannot be a target language');
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      // Check if username is unique
-      if (username) {
+      console.log('Updating profile with data:', {
+        name: displayName,
+        user_name: isUsernameSetDuringOnboarding ? profile.user_name : username,
+        about_me: aboutMe,
+        native_language: nativeLanguage,
+      });
+
+      // check if username is unique (only if it's being changed)
+      if (username && username !== profile.user_name) {
         const { data: existingUser, error: userCheckError } = await supabase
           .from('profiles')
           .select('id')
@@ -151,54 +117,55 @@ export default function EditProfileScreen() {
           .single();
 
         if (userCheckError && userCheckError.code !== 'PGRST116') {
+          console.error('Error checking username uniqueness:', userCheckError);
           throw userCheckError;
         }
 
         if (existingUser) {
           setUsernameError('This username is already taken');
+          setIsLoading(false);
           return;
         }
       }
 
-      // Update profile
-      const { error: profileError } = await supabase
+      // update profile
+      const { data, error: profileError } = await supabase
         .from('profiles')
         .update({
           name: displayName || null,
-          user_name: username || null,
+          user_name: isUsernameSetDuringOnboarding ? profile.user_name : username || null,
           about_me: aboutMe || null,
           native_language: nativeLanguage,
         })
-        .eq('id', profile.id);
+        .eq('id', profile.id)
+        .select();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+        throw profileError;
+      }
 
-      // Delete existing target languages
-      const { error: deleteError } = await supabase
-        .from('languages')
-        .delete()
-        .eq('user_id', profile.id);
+      console.log('Profile updated successfully:', data);
 
-      if (deleteError) throw deleteError;
+      // Reload the profile in the auth context to reflect changes
+      await reloadProfile();
 
-      // Insert new target languages
-      const languageInserts = validTargetLanguages.map(langId => ({
-        user_id: profile.id,
-        master_language_id: langId,
-        name: languages.find(l => l.id === langId)?.name || '',
-      }));
+      // Show success toast and navigate to settings
+      Toast.show({
+        type: 'success',
+        text1: 'Profile Updated',
+        text2: 'Your profile has been updated successfully',
+      });
 
-      const { error: languagesError } = await supabase
-        .from('languages')
-        .insert(languageInserts);
-
-      if (languagesError) throw languagesError;
-
-      // Navigate back
-      router.back();
+      // Navigate to settings screen
+      router.replace('/(tabs)/(settings)');
     } catch (error) {
       console.error('Error saving profile:', error);
-      Alert.alert('Error', 'Failed to save your profile. Please try again.');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to save your profile. Please try again.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -206,90 +173,106 @@ export default function EditProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Edit Profile</Text>
-        <Pressable style={styles.saveButton} onPress={handleSubmit} disabled={isLoading}>
-          <Text style={styles.saveButtonText}>{isLoading ? 'Saving...' : 'Save'}</Text>
-        </Pressable>
-      </View>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}
+      >
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
+          </Pressable>
+          <Text style={styles.headerTitle}>Edit Profile</Text>
+          <View style={styles.backButton} />
+        </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.form}>
-          <FormInput
-            label="Display Name (optional)"
-            value={displayName}
-            onChangeText={setDisplayName}
-            placeholder="Enter your display name"
-          />
-
-          <FormInput
-            label="Username (optional)"
-            value={username}
-            onChangeText={(text) => {
-              setUsername(text);
-              validateUsername(text);
-            }}
-            placeholder="Choose a username"
-            error={usernameError}
-          />
-
-          <LanguageDropdown
-            label="Native Language"
-            data={languages}
-            value={nativeLanguage}
-            onChange={setNativeLanguage}
-          />
-
-          <View style={styles.targetLanguagesContainer}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Target Languages</Text>
-              {targetLanguages.length < 5 && (
-                <Pressable onPress={addTargetLanguage} style={styles.addButton}>
-                  <MaterialIcons name="add-circle-outline" size={24} color={Colors.light.rust} />
-                </Pressable>
-              )}
-            </View>
-
-            {targetLanguages.map((lang, index) => (
-              <View key={index} style={styles.targetLanguageRow}>
-                <View style={styles.targetLanguageDropdown}>
-                  <LanguageDropdown
-                    label={`Target Language ${index + 1}`}
-                    data={languages}
-                    value={lang}
-                    onChange={(value) => updateTargetLanguage(index, value)}
-                    excludeValues={[nativeLanguage || '', ...targetLanguages.filter((_, i) => i !== index)]}
-                  />
-                </View>
-                {index > 0 && (
-                  <Pressable
-                    onPress={() => removeTargetLanguage(index)}
-                    style={styles.removeButton}
-                  >
-                    <MaterialIcons name="remove-circle-outline" size={24} color={Colors.light.error} />
-                  </Pressable>
-                )}
+        <ScrollView 
+          style={styles.scrollView} 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollViewContent}
+        >
+          {/* Profile Photo Section */}
+          <View style={styles.card}>
+            <View style={styles.photoSection}>
+              <View style={styles.photoPlaceholder}>
+                <Text style={styles.photoPlaceholderText}>
+                  {displayName ? displayName[0].toUpperCase() : '?'}
+                </Text>
               </View>
-            ))}
+              <Pressable style={styles.changePhotoButton}>
+                <MaterialIcons name="camera-alt" size={16} color={Colors.light.background} />
+                <Text style={styles.changePhotoText}>Change Photo</Text>
+              </Pressable>
+            </View>
           </View>
 
-          <FormInput
-            label="About Me (optional)"
-            value={aboutMe}
-            onChangeText={(text) => {
-              setAboutMe(text);
-              validateAboutMe(text);
-            }}
-            placeholder="Tell us about yourself (250 characters max)"
-            multiline
-            numberOfLines={4}
-            error={aboutMeError}
-          />
-        </View>
-      </ScrollView>
+          {/* Profile Details Section */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Profile Details</Text>
+            
+            <FormInput
+              label="Display Name"
+              value={displayName}
+              onChangeText={setDisplayName}
+              placeholder="Enter your display name"
+            />
+
+            <FormInput
+              label={isUsernameSetDuringOnboarding ? "Username" : "Username (required)"}
+              value={username}
+              onChangeText={(text) => {
+                setUsername(text);
+                if (!isUsernameSetDuringOnboarding) {
+                  validateUsername(text);
+                }
+              }}
+              placeholder={isUsernameSetDuringOnboarding ? "Username cannot be changed" : "Choose a username"}
+              error={usernameError}
+              editable={!isUsernameSetDuringOnboarding}
+              helperText={isUsernameSetDuringOnboarding ? "Your username cannot be changed" : undefined}
+            />
+
+            <LanguageDropdown
+              label="Native Language"
+              data={languages}
+              value={nativeLanguage}
+              onChange={setNativeLanguage}
+            />
+          </View>
+
+          {/* About Me Section */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>About Me</Text>
+            <FormInput
+              label="About Me"
+              value={aboutMe}
+              onChangeText={(text) => {
+                setAboutMe(text);
+                validateAboutMe(text);
+              }}
+              placeholder="Tell us about yourself..."
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+              style={styles.aboutMeInput}
+              error={aboutMeError}
+              helperText={`${aboutMe.length}/250 characters`}
+            />
+          </View>
+
+          {/* Save Button Section */}
+          <View style={styles.card}>
+            <Pressable 
+              style={[styles.saveButton, isLoading && styles.saveButtonDisabled]} 
+              onPress={handleSubmit}
+              disabled={isLoading}
+            >
+              <Text style={styles.saveButtonText}>
+                {isLoading ? 'Saving...' : 'Save Changes'}
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -299,12 +282,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.light.generalBG,
   },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
+    backgroundColor: Colors.light.background,
   },
   headerTitle: {
     fontSize: 18,
@@ -312,49 +301,79 @@ const styles = StyleSheet.create({
     color: Colors.light.textPrimary,
   },
   backButton: {
-    padding: 8,
-  },
-  saveButton: {
-    padding: 8,
-  },
-  saveButtonText: {
-    color: Colors.light.rust,
-    fontSize: 16,
-    fontWeight: '600',
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollView: {
     flex: 1,
   },
-  form: {
+  scrollViewContent: {
     padding: 16,
+    gap: 24,
   },
-  targetLanguagesContainer: {
+  card: {
+    backgroundColor: Colors.light.background,
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+  },
+  photoSection: {
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  photoPlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: Colors.light.formInputBG,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 16,
   },
-  sectionHeader: {
+  photoPlaceholderText: {
+    fontSize: 36,
+    fontWeight: '600',
+    color: Colors.light.textSecondary,
+  },
+  changePhotoButton: {
+    backgroundColor: Colors.light.rust,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    gap: 8,
+  },
+  changePhotoText: {
+    color: Colors.light.background,
+    fontSize: 14,
+    fontWeight: '600',
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 20,
+    fontWeight: '600',
     color: Colors.light.textPrimary,
+    marginBottom: 16,
   },
-  addButton: {
-    padding: 4,
+  aboutMeInput: {
+    height: 120,
+    paddingTop: 12,
   },
-  targetLanguageRow: {
-    flexDirection: 'row',
+  saveButton: {
+    backgroundColor: Colors.light.rust,
+    borderRadius: 8,
+    paddingVertical: 16,
     alignItems: 'center',
   },
-  targetLanguageDropdown: {
-    flex: 1,
+  saveButtonDisabled: {
+    opacity: 0.5,
   },
-  removeButton: {
-    padding: 8,
-    marginLeft: 8,
-    marginTop: -8,
+  saveButtonText: {
+    color: Colors.light.background,
+    fontSize: 16,
+    fontWeight: '600',
   },
 }); 

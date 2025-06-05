@@ -1,12 +1,13 @@
 import Colors from '@/constants/Colors';
 import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
 
-interface FormInputProps extends TextInputProps {
+export interface FormInputProps extends TextInputProps {
   label: string;
   error?: string;
+  helperText?: string;
 }
 
-export function FormInput({ label, error, ...props }: FormInputProps) {
+export function FormInput({ label, error, helperText, style, ...props }: FormInputProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>{label}</Text>
@@ -14,12 +15,16 @@ export function FormInput({ label, error, ...props }: FormInputProps) {
         style={[
           styles.input,
           error ? styles.inputError : null,
-          props.multiline ? styles.multiline : null,
+          style,
         ]}
         placeholderTextColor={Colors.light.textSecondary}
         {...props}
       />
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : helperText ? (
+        <Text style={styles.helperText}>{helperText}</Text>
+      ) : null}
     </View>
   );
 }
@@ -54,6 +59,11 @@ const styles = StyleSheet.create({
   errorText: {
     color: Colors.light.error,
     fontSize: 14,
+    marginTop: 4,
+  },
+  helperText: {
+    color: Colors.light.textSecondary,
+    fontSize: 12,
     marginTop: 4,
   },
 }); 
