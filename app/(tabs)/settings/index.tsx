@@ -48,7 +48,7 @@ export default function SettingsScreen() {
           href: '/(stack)/edit-profile',
         },
         {
-          label: 'Language Settings',
+          label: 'Languages',
           icon: 'language',
           href: '/(stack)/language-settings',
         },
@@ -78,9 +78,14 @@ export default function SettingsScreen() {
           href: '/(stack)/help',
         },
         {
-          label: 'Contact Us',
-          icon: 'mail',
+          label: 'Feedback',
+          icon: 'feedback',
           href: '/(stack)/contact',
+        },
+        {
+          label: 'About',
+          icon: 'info',
+          href: '/(stack)/about',
         },
       ],
     },
