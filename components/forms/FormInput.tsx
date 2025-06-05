@@ -1,5 +1,5 @@
-import Colors from '@/constants/Colors';
 import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
+import { Colors } from '../../app/providers/theme-provider';
 
 export interface FormInputProps extends TextInputProps {
   label: string;
@@ -36,18 +36,18 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '500',
-    color: Colors.light.textPrimary,
+    color: Colors.light.text,
     marginBottom: 8,
   },
   input: {
-    height: 50,
     backgroundColor: Colors.light.formInputBG,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: Colors.light.textPrimary,
     borderWidth: 1,
-    borderColor: Colors.light.formInputBorder,
+    borderColor: Colors.light.border,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: Colors.light.text,
   },
   inputError: {
     borderColor: Colors.light.error,
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: Colors.light.error,
-    fontSize: 14,
+    fontSize: 12,
     marginTop: 4,
   },
   helperText: {

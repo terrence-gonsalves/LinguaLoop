@@ -1,8 +1,14 @@
-import Colors from '@/constants/Colors';
 import { useAuth } from '@/lib/auth-context';
-import { router, Tabs } from 'expo-router';
+import { router } from 'expo-router';
+import { Tabs } from 'expo-router/tabs';
 import { useEffect } from 'react';
+import { Colors } from '../../app/providers/theme-provider';
 import TabBarIcon from '../../components/navigation/TabBarIcons';
+
+interface TabIconProps {
+    color: string;
+    focused: boolean;
+}
 
 export default function TabLayout() {
     const { session, profile, isLoading } = useAuth();
@@ -23,16 +29,23 @@ export default function TabLayout() {
     }
 
     return (
-        <Tabs screenOptions={{ 
-            headerShown: false, 
-            tabBarShowLabel: false,
-            tabBarActiveTintColor: Colors.light.tabIconSelected,
-            tabBarInactiveTintColor: Colors.light.tabIconDefault }}>
+        <Tabs 
+            screenOptions={{ 
+                headerShown: false, 
+                tabBarShowLabel: false,
+                tabBarActiveTintColor: Colors.light.tabIconSelected,
+                tabBarInactiveTintColor: Colors.light.tabIconDefault,
+                tabBarStyle: {
+                    backgroundColor: Colors.light.background,
+                    borderTopColor: Colors.light.border,
+                },
+            }}
+        >
             <Tabs.Screen
                 name="index"
                 options={{
                     title: 'Dashboard',
-                    tabBarIcon: ({ color, focused }) => (
+                    tabBarIcon: ({ color, focused }: TabIconProps) => (
                         <TabBarIcon type="material" name="dashboard" color={color} />
                     ),
                 }}
@@ -41,7 +54,7 @@ export default function TabLayout() {
                 name="track"
                 options={{
                     title: 'Track Activity',
-                    tabBarIcon: ({ color, focused }) => (
+                    tabBarIcon: ({ color, focused }: TabIconProps) => (
                         <TabBarIcon type="material-community" name="plus-circle-outline" color={color} />
                     ),
                 }}
@@ -50,7 +63,7 @@ export default function TabLayout() {
                 name="reports"
                 options={{
                     title: 'Reports',
-                    tabBarIcon: ({ color, focused }) => (
+                    tabBarIcon: ({ color, focused }: TabIconProps) => (
                         <TabBarIcon type="material" name="bar-chart" color={color} />
                     ),
                 }}
@@ -59,16 +72,16 @@ export default function TabLayout() {
                 name="profile"
                 options={{
                     title: 'Profile',
-                    tabBarIcon: ({ color, focused }) => (
+                    tabBarIcon: ({ color, focused }: TabIconProps) => (
                         <TabBarIcon type="material" name="person" color={color} />
                     ),
                 }}
             />
             <Tabs.Screen
-                name="(settings)/index"
+                name="(settings)"
                 options={{
                     title: 'Settings',
-                    tabBarIcon: ({ color, focused }) => (
+                    tabBarIcon: ({ color, focused }: TabIconProps) => (
                         <TabBarIcon type="material" name="settings" color={color} />
                     ),
                 }}

@@ -3,12 +3,12 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '../../../app/providers/theme-provider';
 import { VersionDisplay } from '../../../components/common/VersionDisplay';
 import { SettingsItem } from '../../../components/settings/SettingsItem';
 import { SettingsSection } from '../../../components/settings/SettingsSection';
-import Colors from '../../../constants/Colors';
 
-export default function SettingsScreen() {
+function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -205,6 +205,8 @@ export default function SettingsScreen() {
     </SafeAreaView>
   );
 }
+
+export default SettingsScreen;
 
 const styles = StyleSheet.create({
   container: {

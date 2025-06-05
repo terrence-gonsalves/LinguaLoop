@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { Button } from '../../components/common/Button';
 import { FormInput } from '../../components/forms/FormInput';
 import { Language, LanguageDropdown } from '../../components/forms/LanguageDropdown';
 
@@ -147,17 +148,17 @@ export default function EditProfileScreen() {
 
       console.log('Profile updated successfully:', data);
 
-      // Reload the profile in the auth context to reflect changes
+      // reload the profile in the auth context to reflect changes
       await reloadProfile();
 
-      // Show success toast and navigate to settings
+      // show success toast and navigate to settings
       Toast.show({
         type: 'success',
         text1: 'Profile Updated',
         text2: 'Your profile has been updated successfully',
       });
 
-      // Navigate to settings screen
+      // navigate to settings screen
       router.replace('/(tabs)/(settings)');
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -261,15 +262,13 @@ export default function EditProfileScreen() {
 
           {/* Save Button Section */}
           <View style={styles.card}>
-            <Pressable 
-              style={[styles.saveButton, isLoading && styles.saveButtonDisabled]} 
+            <Button 
+              title={isLoading ? 'Saving...' : 'Save Changes'}
               onPress={handleSubmit}
               disabled={isLoading}
-            >
-              <Text style={styles.saveButtonText}>
-                {isLoading ? 'Saving...' : 'Save Changes'}
-              </Text>
-            </Pressable>
+              loading={isLoading}
+              style={styles.saveButton}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -339,7 +338,7 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
   },
   changePhotoButton: {
-    backgroundColor: Colors.light.rust,
+    backgroundColor: Colors.light.buttonPrimary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -363,17 +362,6 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   saveButton: {
-    backgroundColor: Colors.light.rust,
-    borderRadius: 8,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  saveButtonDisabled: {
-    opacity: 0.5,
-  },
-  saveButtonText: {
-    color: Colors.light.background,
-    fontSize: 16,
-    fontWeight: '600',
+    width: '100%',
   },
 }); 
