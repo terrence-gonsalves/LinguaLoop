@@ -1,93 +1,82 @@
-import Colors from '@/constants/Colors';
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { Link, router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useAuth } from '@/lib/auth-context';
+import { FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import Link from 'expo-router/link';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../lib/auth-context';
+import { Colors } from '../../app/providers/theme-provider';
+import { Button } from '../../components/common/Button';
+import { FormInput } from '../../components/forms/FormInput';
 
 export default function LoginScreen() {
-  const { signIn, isLoading, session } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (session) {
-      router.replace('/(tabs)');
-    }
-  }, [session]);
+  const { signIn } = useAuth();
 
   const handleLogin = async () => {
-    if (!email || !password) return;
-    await signIn(email, password);
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      await signIn(email, password);
+      router.replace('/(tabs)');
+    } catch (err) {
+      setError('Invalid email or password');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* Placeholder Logo */}
         <View style={styles.logoContainer}>
           <View style={styles.logoPlaceholder} />
         </View>
 
-        <Text style={styles.title}>Login to LinguaLoop</Text>
+        <Text style={styles.title}>Welcome Back</Text>
+        <Text style={styles.subtitle}>Sign in to continue learning</Text>
 
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="name@example.com"
-              placeholderTextColor={Colors.light.textSecondary}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              editable={!isLoading}
-            />
-          </View>
+          <FormInput
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter your email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+          />
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, styles.passwordInput]}
-                placeholder="••••••••"
-                placeholderTextColor={Colors.light.textSecondary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                editable={!isLoading}
-              />
-              <Pressable
-                style={styles.eyeIcon}
-                onPress={() => setShowPassword(!showPassword)}
-                disabled={isLoading}
-              >
-                <MaterialIcons
-                  name={showPassword ? 'visibility' : 'visibility-off'}
-                  size={24}
-                  color={Colors.light.textSecondary}
-                />
-              </Pressable>
-            </View>
-            <Link href="../forgot-password" style={styles.forgotPassword}>
-              Forgot Password?
-            </Link>
-          </View>
+          <FormInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter your password"
+            secureTextEntry
+          />
 
-          <Pressable 
-            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          <Button
+            title="Sign In"
             onPress={handleLogin}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color={Colors.light.text} />
-            ) : (
-              <Text style={styles.loginButtonText}>Login</Text>
-            )}
-          </Pressable>
+            loading={loading}
+            style={styles.button}
+          />
+
+          <Link href="/(auth)/forgot-password" style={styles.forgotPassword}>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </Link>
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
@@ -96,25 +85,25 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.socialButtons}>
-            <Pressable style={styles.socialButton} disabled={isLoading}>
+            <Pressable style={styles.socialButton}>
               <FontAwesome name="google" size={24} color={Colors.light.textPrimary} />
             </Pressable>
 
-            <Pressable style={styles.socialButton} disabled={isLoading}>
+            <Pressable style={styles.socialButton}>
               <FontAwesome name="apple" size={24} color={Colors.light.textPrimary} />
             </Pressable>
 
-            <Pressable style={styles.socialButton} disabled={isLoading}>
+            <Pressable style={styles.socialButton}>
               <FontAwesome name="facebook" size={24} color={Colors.light.textPrimary} />
             </Pressable>
           </View>
+        </View>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
-            <Link href="../create-account" style={styles.createAccountLink}>
-              Create Account
-            </Link>
-          </View>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Don't have an account?</Text>
+          <Link href="/(auth)/create-account">
+            <Text style={styles.footerLink}>Create Account</Text>
+          </Link>
         </View>
       </View>
     </SafeAreaView>
@@ -128,12 +117,11 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center',
+    padding: 24,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 24,
   },
   logoPlaceholder: {
     width: 48,
@@ -142,72 +130,46 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.rust,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.light.textPrimary,
+    fontSize: 32,
+    fontWeight: '700',
+    color: Colors.light.text,
+    marginBottom: 8,
     textAlign: 'center',
-    marginBottom: 24,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: Colors.light.textSecondary,
+    marginBottom: 32,
+    textAlign: 'center',
   },
   form: {
     gap: 16,
   },
-  inputContainer: {
-    gap: 4,
-  },
-  label: {
+  error: {
+    color: Colors.light.error,
     fontSize: 14,
-    color: Colors.light.textPrimary,
-    marginBottom: 2,
+    marginTop: -8,
   },
-  input: {
-    backgroundColor: Colors.light.formInputBG,
-    borderWidth: 1,
-    borderColor: Colors.light.formInputBorder,
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 16,
-    color: Colors.light.textPrimary,
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  passwordInput: {
-    paddingRight: 50,
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 12,
-    top: 10,
+  button: {
+    marginTop: 8,
   },
   forgotPassword: {
+    alignSelf: 'center',
+    marginTop: 16,
+  },
+  forgotPasswordText: {
+    color: Colors.light.textSecondary,
     fontSize: 14,
-    color: Colors.light.link,
-    textAlign: 'right',
-    marginTop: 4,
-  },
-  loginButton: {
-    backgroundColor: Colors.light.rust,
-    borderRadius: 8,
-    padding: 14,
-    alignItems: 'center',
-  },
-  loginButtonText: {
-    color: Colors.light.text,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  loginButtonDisabled: {
-    opacity: 0.7,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 16,
+    marginTop: 24,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: Colors.light.formInputBorder,
+    backgroundColor: Colors.light.border,
   },
   dividerText: {
     marginHorizontal: 16,
@@ -217,29 +179,31 @@ const styles = StyleSheet.create({
   socialButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 20,
+    gap: 16,
+    marginTop: 24,
   },
   socialButton: {
-    backgroundColor: Colors.light.background,
-    borderRadius: 8,
-    padding: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.light.formInputBorder,
     width: 56,
+    height: 56,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    gap: 8,
+    marginTop: 'auto',
+    paddingVertical: 16,
   },
   footerText: {
     color: Colors.light.textSecondary,
     fontSize: 14,
   },
-  createAccountLink: {
+  footerLink: {
     color: Colors.light.rust,
     fontSize: 14,
     fontWeight: '600',

@@ -1,5 +1,5 @@
-import Colors from '@/constants/Colors';
 import { StyleSheet, Text, View } from 'react-native';
+import { Colors } from '../../app/providers/theme-provider';
 
 interface SettingsSectionProps {
   title: string;
@@ -22,14 +22,15 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
-    color: Colors.light.textPrimary,
+    color: Colors.light.textSecondary,
     marginBottom: 8,
+    paddingHorizontal: 16,
   },
   content: {
-    borderRadius: 12,
     backgroundColor: Colors.light.background,
+    borderRadius: 12,
     overflow: 'hidden',
   },
 }); 
