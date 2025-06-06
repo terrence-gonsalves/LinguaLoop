@@ -2,9 +2,9 @@ import Colors from '@/constants/Colors';
 import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Stack } from 'expo-router/stack';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Language {
   id: string;
@@ -21,9 +21,12 @@ export default function AddLanguageScreen() {
     fetchAvailableLanguages();
   }, []);
 
+  const handleClose = useCallback(() => {
+    router.back();
+  }, []);
+
   const fetchAvailableLanguages = async () => {
     try {
-      // Get all available languages
       const { data: masterLanguages, error: masterError } = await supabase
         .from('master_languages')
         .select('id, name')
@@ -31,7 +34,6 @@ export default function AddLanguageScreen() {
 
       if (masterError) throw masterError;
 
-      // Get user's current languages to exclude them
       const { data: userLanguages, error: userError } = await supabase
         .from('languages')
         .select('master_language_id');
@@ -78,6 +80,7 @@ export default function AddLanguageScreen() {
         .insert(
           selectedLanguages.map(lang => ({
             master_language_id: lang.id,
+            name: lang.name
           }))
         );
 
@@ -95,96 +98,110 @@ export default function AddLanguageScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <Stack.Screen 
-        options={{
-          title: 'Add target language',
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: Colors.light.generalBG },
-        }} 
-      />
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Add target language</Text>
+        </View>
 
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholderTextColor={Colors.light.textSecondary}
-        />
-      </View>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor={Colors.light.textSecondary}
+          />
+        </View>
 
-      <ScrollView style={styles.content}>
-        {filteredLanguages.map((language) => (
-          <Pressable
-            key={language.id}
-            style={styles.languageItem}
-            onPress={() => handleToggleLanguage(language.id)}
-          >
-            <View style={styles.languageInfo}>
-              <View style={styles.flagPlaceholder}>
-                <Text style={styles.flagPlaceholderText}>
-                  {language.name[0]}
-                </Text>
+        <ScrollView style={styles.languageList}>
+          {filteredLanguages.map((language) => (
+            <Pressable
+              key={language.id}
+              style={styles.languageItem}
+              onPress={() => handleToggleLanguage(language.id)}
+            >
+              <View style={styles.languageInfo}>
+                <View style={styles.flagPlaceholder}>
+                  <Text style={styles.flagPlaceholderText}>
+                    {language.name[0]}
+                  </Text>
+                </View>
+                <Text style={styles.languageName}>{language.name}</Text>
               </View>
-              <Text style={styles.languageName}>{language.name}</Text>
-            </View>
-            <MaterialIcons
-              name={language.selected ? "check-box" : "check-box-outline-blank"}
-              size={24}
-              color={language.selected ? Colors.light.rust : Colors.light.textSecondary}
-            />
-          </Pressable>
-        ))}
-      </ScrollView>
+              <MaterialIcons
+                name={language.selected ? "check-box" : "check-box-outline-blank"}
+                size={24}
+                color={language.selected ? Colors.light.rust : Colors.light.textSecondary}
+              />
+            </Pressable>
+          ))}
+        </ScrollView>
 
-      <View style={styles.footer}>
-        <Pressable
-          style={styles.cancelButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.addButton,
-            selectedCount === 0 && styles.addButtonDisabled
-          ]}
-          onPress={handleAddLanguages}
-          disabled={selectedCount === 0}
-        >
-          <Text style={[
-            styles.addButtonText,
-            selectedCount === 0 && styles.addButtonTextDisabled
-          ]}>
-            Add Language
-          </Text>
-        </Pressable>
+        <View style={styles.footer}>
+          <Pressable
+            style={styles.cancelButton}
+            onPress={handleClose}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.addButton,
+              selectedCount === 0 && styles.addButtonDisabled
+            ]}
+            onPress={handleAddLanguages}
+            disabled={selectedCount === 0}
+          >
+            <Text style={[
+              styles.addButtonText,
+              selectedCount === 0 && styles.addButtonTextDisabled
+            ]}>
+              Add Language
+            </Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.generalBG,
-  },
-  searchContainer: {
-    padding: 16,
     backgroundColor: Colors.light.background,
+  },
+  content: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,
   },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: Colors.light.text,
+    textAlign: 'center',
+  },
+  searchContainer: {
+    margin: 16,
+  },
   searchInput: {
     backgroundColor: Colors.light.generalBG,
-    padding: 8,
+    padding: 12,
     borderRadius: 8,
     color: Colors.light.text,
     fontSize: 16,
   },
-  content: {
+  languageList: {
     flex: 1,
+    marginHorizontal: 16,
   },
   languageItem: {
     flexDirection: 'row',

@@ -1,5 +1,7 @@
 import Colors from '@/constants/Colors';
-import { Stack } from 'expo-router';
+import { Stack } from 'expo-router/stack';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export const unstable_settings = {
   initialRouteName: 'onboarding',
@@ -7,22 +9,39 @@ export const unstable_settings = {
 
 export default function StackLayout() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: Colors.light.generalBG },
-        animation: 'slide_from_right',
-      }}
-    >
-      <Stack.Screen name="languages" />
-      <Stack.Screen name="connections" />
-      <Stack.Screen name="achievements" />
-      <Stack.Screen
-        name="onboarding"
-        options={{
-          headerShown: false,
+    <GestureHandlerRootView style={styles.container}>
+      <Stack
+        screenOptions={{
+          headerShadowVisible: false,
+          contentStyle: { backgroundColor: Colors.light.generalBG },
+          animation: 'slide_from_right',
         }}
-      />
-    </Stack>
+      >
+        <Stack.Screen name="language-settings/index" />
+        <Stack.Screen 
+          name="language-settings/add" 
+          options={{
+            presentation: 'modal',
+            animation: 'slide_from_bottom',
+            animationDuration: 200,
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen name="connections" />
+        <Stack.Screen name="achievements" />
+        <Stack.Screen
+          name="onboarding"
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
+    </GestureHandlerRootView>
   );
-} 
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+}); 
