@@ -109,7 +109,7 @@ export default function SettingsScreen() {
 
         {/* Settings Sections */}
         {settingsItems.map((section, index) => (
-          <View key={section.title} style={[styles.section, index === 0 && styles.firstSection]}>
+          <View key={section.title} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
             {section.items.map((item, itemIndex) => (
               <Pressable 
