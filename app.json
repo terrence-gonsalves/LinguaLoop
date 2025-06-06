@@ -40,7 +40,8 @@
         "backgroundColor": "#F0F3F4"
       },
       "versionCode": 1,
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.terrence.gonsalves.LinguaLoop"
     },
     "web": {
       "bundler": "metro",
