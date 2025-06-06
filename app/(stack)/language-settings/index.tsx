@@ -1,9 +1,10 @@
 import Colors from '@/constants/Colors';
 import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { Stack } from 'expo-router/stack';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 interface Language {
@@ -50,6 +51,12 @@ export default function LanguageSettingsScreen() {
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserLanguages();
+    }, [])
+  );
+
   const handleRemoveLanguage = (language: Language) => {
     Alert.alert(
       'Remove Language',
@@ -71,9 +78,8 @@ export default function LanguageSettingsScreen() {
 
               if (error) throw error;
 
-              setSelectedLanguages(prev => 
-                prev.filter(lang => lang.id !== language.id)
-              );
+              // Refresh the language list after successful deletion
+              fetchUserLanguages();
             } catch (error) {
               console.error('Error removing language:', error);
               Alert.alert('Error', 'Failed to remove language');
@@ -90,44 +96,55 @@ export default function LanguageSettingsScreen() {
         options={{
           title: 'Languages',
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: Colors.light.generalBG },
+          headerStyle: { backgroundColor: Colors.light.background },
         }} 
       />
 
       <ScrollView style={styles.content}>
-        <Text style={styles.sectionTitle}>Target Languages</Text>
-        
-        <View style={styles.languageList}>
-          {selectedLanguages.map((language) => (
-            <View key={language.id} style={styles.languageItem}>
-              <View style={styles.languageInfo}>
-                <View style={styles.flagPlaceholder}>
-                  <Text style={styles.flagPlaceholderText}>
-                    {language.name[0]}
-                  </Text>
-                </View>
-                <Text style={styles.languageName}>{language.name}</Text>
-              </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Target Languages</Text>
+          
+          <View style={styles.languageList}>
+            {selectedLanguages.map((language) => (
               <Pressable
-                onPress={() => handleRemoveLanguage(language)}
-                hitSlop={8}
+                key={language.id}
+                style={styles.languageItem}
               >
-                <MaterialIcons 
-                  name="remove-circle-outline" 
-                  size={24} 
-                  color={Colors.light.textSecondary} 
-                />
+                <View style={styles.languageInfo}>
+                  <View style={styles.flagPlaceholder}>
+                    <Text style={styles.flagPlaceholderText}>
+                      {language.name[0]}
+                    </Text>
+                  </View>
+                  <Text style={styles.languageName}>{language.name}</Text>
+                </View>
+                <Pressable
+                  onPress={() => handleRemoveLanguage(language)}
+                  hitSlop={8}
+                  disabled={selectedLanguages.length === 1}
+                  style={({ pressed }) => [
+                    styles.removeButton,
+                    selectedLanguages.length === 1 && styles.removeButtonDisabled,
+                    pressed && { opacity: 0.7 }
+                  ]}
+                >
+                  <MaterialIcons 
+                    name="remove-circle-outline" 
+                    size={24} 
+                    color={selectedLanguages.length === 1 ? Colors.light.border : Colors.light.textSecondary} 
+                  />
+                </Pressable>
               </Pressable>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
 
-        <Pressable 
-          style={styles.addButton}
-          onPress={() => router.push('/(stack)/language-settings/add')}
-        >
-          <Text style={styles.addButtonText}>+ Add New Language</Text>
-        </Pressable>
+          <Pressable 
+            style={styles.addButton}
+            onPress={() => router.push('/(stack)/language-settings/add')}
+          >
+            <Text style={styles.addButtonText}>+ Add New Language</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </View>
   );
@@ -136,18 +153,20 @@ export default function LanguageSettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.generalBG,
+    backgroundColor: Colors.light.background,
   },
   content: {
     flex: 1,
   },
+  section: {
+    marginTop: 16,
+  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.light.text,
-    marginHorizontal: 16,
-    marginTop: 16,
+    color: Colors.light.textSecondary,
     marginBottom: 8,
+    marginHorizontal: 16,
   },
   languageList: {
     backgroundColor: Colors.light.background,
@@ -157,6 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
+    backgroundColor: Colors.light.background,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,
   },
@@ -189,5 +209,11 @@ const styles = StyleSheet.create({
     color: Colors.light.rust,
     fontSize: 16,
     fontWeight: '500',
+  },
+  removeButton: {
+    padding: 4,
+  },
+  removeButtonDisabled: {
+    opacity: 0.5,
   },
 }); 

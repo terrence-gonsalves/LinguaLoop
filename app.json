@@ -4,14 +4,14 @@
     "slug": "LinguaLoop",
     "version": "0.2.0",
     "orientation": "portrait",
-    "icon": "./assets/images/linguaLoopLogo.png",
+    "icon": "./assets/images/logo.png",
     "scheme": "lingualoop",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/linguaLoopLogo.png",
+      "image": "./assets/images/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FFFFFF"
+      "backgroundColor": "#F0F3F4"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -24,20 +24,20 @@
       "supportsTablet": true,
       "buildNumber": "1",
       "splash": {
-        "image": "./assets/images/linguaLoopLogo.png",
+        "image": "./assets/images/logo.png",
         "resizeMode": "contain",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#F0F3F4"
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/linguaLoopLogo.png",
-        "backgroundColor": "#FFFFFF"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#F0F3F4"
       },
       "splash": {
-        "image": "./assets/images/linguaLoopLogo.png",
+        "image": "./assets/images/logo.png",
         "resizeMode": "contain",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#F0F3F4"
       },
       "versionCode": 1,
       "edgeToEdgeEnabled": true
@@ -45,16 +45,16 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/linguaLoopLogo.png"
+      "favicon": "./assets/images/logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/linguaLoopLogo.png",
+          "image": "./assets/images/logo.png",
           "imageResizeMode": "contain",
-          "backgroundColor": "#FFFFFF"
+          "backgroundColor": "#F0F3F4"
         }
       ],
       "expo-secure-store"
