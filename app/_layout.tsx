@@ -6,9 +6,14 @@ import { View } from "react-native";
 import AuthProvider from './providers/auth-provider';
 import { ThemeProvider } from './providers/theme-provider';
 
-// keep the splash screen visible while we fetch resources
+// configure splash screen
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */
+});
+
+// configure splash screen to show only the logo
+SplashScreen.hideAsync().catch(() => {
+  /* ignore errors */
 });
 
 export default function RootLayout() {
@@ -17,8 +22,8 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepare() {
       try {
+
         // add any initialization logic here
-        // for example, loading fonts, making API calls, etc.
         await new Promise(resolve => setTimeout(resolve, 1000)); // ensure splash screen shows for at least 1 second
       } catch (e) {
         console.warn(e);
