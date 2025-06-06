@@ -42,6 +42,7 @@ export default function NotificationsScreen() {
 
       if (error) {
         if (error.code === 'PGRST116') {
+
           // no settings found, create default settings
           const { data: newSettings, error: createError } = await supabase
             .from('notification_settings')
@@ -57,19 +58,35 @@ export default function NotificationsScreen() {
 
           if (createError) throw createError;
           setSettings(newSettings);
+          setDisplayTime('Set reminder time');
         } else {
           throw error;
         }
       } else {
         setSettings(data);
         if (data.study_reminder_time) {
-          // Convert database time to display format
-          const timeDate = new Date(`2000-01-01T${data.study_reminder_time}`);
-          setDisplayTime(timeDate.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: true
-          }));
+          try {
+
+            // the database time comes in format "HH:MM:SS+00"
+            // we need to parse it and format it for display
+            const [time] = data.study_reminder_time.split('+'); // Remove timezone
+            const [hours, minutes] = time.split(':');
+            const date = new Date();
+            date.setHours(parseInt(hours, 10));
+            date.setMinutes(parseInt(minutes, 10));
+            
+            const formattedTime = date.toLocaleTimeString('en-US', {
+              hour: 'numeric',
+              minute: 'numeric',
+              hour12: true
+            });
+            setDisplayTime(formattedTime);
+          } catch (e) {
+            console.error('Error parsing time:', e);
+            setDisplayTime('Set reminder time');
+          }
+        } else {
+          setDisplayTime('Set reminder time');
         }
       }
     } catch (error) {
@@ -104,13 +121,13 @@ export default function NotificationsScreen() {
   const handleTimeChange = (event: any, selectedTime?: Date) => {
     setShowTimePicker(false);
     
-    // On Android, cancelling returns undefined
-    // On iOS, cancelling returns the previously selected time
+    // on Android, cancelling returns undefined
+    // on iOS, cancelling returns the previously selected time
     if (event.type === 'dismissed' || !selectedTime) {
       return;
     }
 
-    // Update display time
+    // update display time
     const timeString = selectedTime.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: 'numeric',
@@ -118,7 +135,7 @@ export default function NotificationsScreen() {
     });
     setDisplayTime(timeString);
 
-    // Format time for database (HH:MM:SS+00)
+    // ormat time for database (HH:MM:SS+00)
     const dbTimeString = selectedTime.toLocaleTimeString('en-US', {
       hour12: false,
       hour: '2-digit',
@@ -285,7 +302,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: 5,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,
   },
@@ -297,7 +315,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    padding: 5,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: Colors.light.border,
