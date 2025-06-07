@@ -32,6 +32,7 @@ export default function StackLayout() {
         <Stack.Screen name="achievements" />
         <Stack.Screen name="about" options={{ title: 'About' }} />
         <Stack.Screen name="feedback" options={{ title: 'Feedback' }} />
+        <Stack.Screen name="help" options={{ title: 'Help Center' }} />
         <Stack.Screen
           name="onboarding"
           options={{
