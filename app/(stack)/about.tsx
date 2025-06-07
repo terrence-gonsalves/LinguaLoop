@@ -41,10 +41,16 @@ export default function AboutScreen() {
             <Text style={styles.infoLabel}>Version</Text>
             <Text style={styles.infoValue}>{version}</Text>
           </View>
-          <View style={[styles.infoItem, styles.lastItem]}>
+          <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Build Number</Text>
             <Text style={styles.infoValue}>{buildNumber}</Text>
           </View>
+          <Link href="https://trello.com/b/MpwbSoZP/lingualoop" asChild>
+            <Pressable style={styles.lastItem}>
+              <Text style={styles.infoLabel}>Roadmap</Text>
+              <MaterialIcons name="chevron-right" size={24} color={Colors.light.textSecondary} />
+            </Pressable>
+          </Link>
         </SettingsSection>
 
         <SettingsSection title="Acknowledgements">

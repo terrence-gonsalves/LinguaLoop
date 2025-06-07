@@ -6,14 +6,14 @@ import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import { Stack } from 'expo-router/stack';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    ToastAndroid,
-    View
+  Alert,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  ToastAndroid,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -74,7 +74,7 @@ export default function FeedbackScreen() {
       if (feedbackArray.length === 0) return;
 
       const { error } = await supabase
-        .from('Feedback')
+        .from('feedback')
         .insert(feedbackArray);
 
       if (error) throw error;
@@ -102,7 +102,7 @@ export default function FeedbackScreen() {
 
     try {
       const { error } = await supabase
-        .from('Feedback')
+        .from('feedback')
         .insert({
           feedback,
           user_name: profile?.name || '',
