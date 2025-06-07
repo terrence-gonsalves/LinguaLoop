@@ -2,13 +2,13 @@ import Colors from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-    LayoutAnimation,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    UIManager,
-    View
+  LayoutAnimation,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  UIManager,
+  View
 } from 'react-native';
 
 if (Platform.OS === 'android') {
@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingTop: 0,
     borderTopWidth: 1,
     borderTopColor: Colors.light.border,
   },
