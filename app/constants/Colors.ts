@@ -18,6 +18,7 @@ export default {
     // Button colors
     buttonPrimary: '#324755',
     buttonSecondary: '#6E8CA0',
+    buttonText: '#F0F3F4',
 
     // Accent colors
     rust: '#D97D54', // Keep rust as our accent color but update it
