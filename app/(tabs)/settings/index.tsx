@@ -80,7 +80,7 @@ export default function SettingsScreen() {
         {
           label: 'Feedback',
           icon: 'feedback',
-          href: '/(stack)/contact',
+          href: '/(stack)/feedback',
         },
         {
           label: 'About',
