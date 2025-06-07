@@ -33,6 +33,8 @@ export default function StackLayout() {
         <Stack.Screen name="about" options={{ title: 'About' }} />
         <Stack.Screen name="feedback" options={{ title: 'Feedback' }} />
         <Stack.Screen name="help" options={{ title: 'Help Center' }} />
+        <Stack.Screen name="terms" options={{ title: 'Terms & Conditions' }} />
+        <Stack.Screen name="privacy" options={{ title: 'Privacy Policy' }} />
         <Stack.Screen
           name="onboarding"
           options={{
