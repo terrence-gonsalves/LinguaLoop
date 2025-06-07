@@ -62,11 +62,11 @@ export default function SettingsScreen() {
           icon: 'notifications',
           href: '/(stack)/notifications',
         },
-        {
-          label: 'Privacy',
-          icon: 'lock',
-          href: '/(stack)/privacy',
-        },
+        // {
+        //   label: 'Privacy',
+        //   icon: 'lock',
+        //   href: '/(stack)/privacy',
+        // },
       ],
     },
     {
@@ -80,7 +80,7 @@ export default function SettingsScreen() {
         {
           label: 'Feedback',
           icon: 'feedback',
-          href: '/(stack)/contact',
+          href: '/(stack)/feedback',
         },
         {
           label: 'About',

@@ -1,9 +1,10 @@
+import Colors from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Link } from 'expo-router/build/link/Link';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SettingsSection } from '../../components/settings/SettingsSection';
-import { Colors } from '../providers/theme-provider';
 
 const tools = [
   {
@@ -40,10 +41,16 @@ export default function AboutScreen() {
             <Text style={styles.infoLabel}>Version</Text>
             <Text style={styles.infoValue}>{version}</Text>
           </View>
-          <View style={[styles.infoItem, styles.lastItem]}>
+          <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Build Number</Text>
             <Text style={styles.infoValue}>{buildNumber}</Text>
           </View>
+          <Link href="https://trello.com/b/MpwbSoZP/lingualoop" asChild>
+            <Pressable style={styles.lastItem}>
+              <Text style={styles.infoLabel}>Roadmap</Text>
+              <MaterialIcons name="chevron-right" size={24} color={Colors.light.textSecondary} />
+            </Pressable>
+          </Link>
         </SettingsSection>
 
         <SettingsSection title="Acknowledgements">
@@ -64,6 +71,21 @@ export default function AboutScreen() {
               <Text style={styles.toolDescription}>{tool.description}</Text>
             </View>
           ))}
+        </SettingsSection>
+
+        <SettingsSection title="Legal">
+          <Link href="../terms" asChild>
+            <Pressable style={styles.legalItem}>
+              <Text style={styles.legalText}>Terms & Conditions</Text>
+              <MaterialIcons name="chevron-right" size={24} color={Colors.light.textSecondary} />
+            </Pressable>
+          </Link>
+          <Link href="../privacy" asChild>
+            <Pressable style={styles.lastItem}>
+              <Text style={styles.legalText}>Privacy Policy</Text>
+              <MaterialIcons name="chevron-right" size={24} color={Colors.light.textSecondary} />
+            </Pressable>
+          </Link>
         </SettingsSection>
       </ScrollView>
     </SafeAreaView>
@@ -122,5 +144,23 @@ const styles = StyleSheet.create({
   },
   lastItem: {
     borderBottomWidth: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: Colors.light.background,
+  },
+  legalItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: Colors.light.background,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
+  },
+  legalText: {
+    fontSize: 16,
+    color: Colors.light.text,
   },
 }); 
