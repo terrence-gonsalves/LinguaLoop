@@ -8,9 +8,17 @@ interface AchievementItemProps {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
   progress: number;
   isCompleted?: boolean;
+  date?: string;
 }
 
-export function AchievementItem({ title, description, icon, progress, isCompleted = false }: AchievementItemProps) {
+export function AchievementItem({ 
+  title, 
+  description, 
+  icon, 
+  progress, 
+  isCompleted = false,
+  date = 'October 2023'
+}: AchievementItemProps) {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -22,8 +30,8 @@ export function AchievementItem({ title, description, icon, progress, isComplete
       </View>
       <View style={styles.content}>
         <View style={styles.header}>
+          <Text style={styles.date}>{date}</Text>
           <Text style={styles.title}>{title}</Text>
-          <Text style={styles.progressText}>{progress}%</Text>
         </View>
         <Text style={styles.description}>{description}</Text>
         <View style={styles.progressBar}>
@@ -40,7 +48,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
   },
   iconContainer: {
     width: 48,
@@ -55,9 +62,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    marginBottom: 8,
+  },
+  date: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
     marginBottom: 4,
   },
   title: {
@@ -65,14 +74,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.light.text,
   },
-  progressText: {
-    fontSize: 14,
-    color: Colors.light.textSecondary,
-  },
   description: {
     fontSize: 14,
     color: Colors.light.textSecondary,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   progressBar: {
     height: 4,
