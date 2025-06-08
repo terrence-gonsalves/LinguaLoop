@@ -1,3 +1,4 @@
+import { useAuth } from '@/lib/auth-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -9,29 +10,53 @@ import { ConnectionCard } from '../../components/profile/ConnectionCard';
 import { LanguageProgressCard } from '../../components/profile/LanguageProgressCard';
 
 export default function ProfileScreen() {
+  const { profile } = useAuth();
+  const isOwnProfile = true; // TODO: Add logic to determine if viewing own profile
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <Pressable style={styles.notificationButton}>
+          <Text style={styles.headerTitle}>My Profile</Text>
+          <Pressable 
+            style={styles.notificationButton}
+            onPress={() => router.push('/(stack)/notifications')}
+          >
             <MaterialIcons name="notifications" size={24} color={Colors.light.textPrimary} />
           </Pressable>
         </View>
 
         <View style={styles.profileSection}>
           <DefaultAvatar size={100} />
-          <Text style={styles.profileName}>Alice Smith</Text>
-          <Text style={styles.username}>@alice.sm</Text>
-          <Text style={styles.bio}>
-            Passionate language learner on a journey to explore diverse cultures through communication. Currently diving deep into Spanish and Japanese!
-          </Text>
+          <View style={styles.profileInfo}>
+            <Text style={styles.profileName}>{profile?.name || 'User'}</Text>
+            <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>
+            <Text style={styles.nativeLanguage}>Native: English</Text>
+            <Text style={styles.bio}>
+              Passionate language learner on a journey to explore diverse cultures through communication. Currently diving deep into Spanish and Japanese!
+            </Text>
+            <Pressable 
+              style={styles.actionButton}
+              onPress={() => {
+                if (isOwnProfile) {
+                  router.push('/(stack)/edit-profile');
+                } else {
+                  // TODO: Implement follow functionality
+                  console.log('Follow user');
+                }
+              }}
+            >
+              <Text style={styles.actionButtonText}>
+                {isOwnProfile ? 'Edit Profile' : 'Follow'}
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Language Summary</Text>
-            <Pressable style={styles.viewAllLink} onPress={() => router.push('../languages')}>
+            <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/languages')}>
               <Text style={styles.viewAllText}>View All</Text>
             </Pressable>
           </View>
@@ -54,19 +79,19 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Active Connections</Text>
-            <Pressable style={styles.viewAllLink} onPress={() => router.push('../connections')}>
+            <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
               <Text style={styles.viewAllText}>View All</Text>
             </Pressable>
           </View>
           <View style={styles.connectionCards}>
             <ConnectionCard
               name="Sarah Johnson"
-              languages={['English', 'French', 'Spanish']}
+              languages={['French']}
               streak={12}
             />
             <ConnectionCard
               name="David Lee"
-              languages={['Mandarin', 'English', 'Spanish']}
+              languages={['Mandarin']}
               streak={23}
             />
           </View>
@@ -74,8 +99,8 @@ export default function ProfileScreen() {
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Learning Journey</Text>
-            <Pressable style={styles.viewAllLink} onPress={() => router.push('../achievements')}>
+            <Text style={styles.sectionTitle}>Achievements</Text>
+            <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/achievements')}>
               <Text style={styles.viewAllText}>History</Text>
             </Pressable>
           </View>
@@ -120,7 +145,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '600',
     color: Colors.light.textPrimary,
-    marginBottom: 24,
   },
   notificationButton: {
     padding: 8,
@@ -129,6 +153,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 24,
     paddingHorizontal: 16,
+    backgroundColor: Colors.light.background,
+    marginBottom: 16,
+  },
+  profileInfo: {
+    alignItems: 'center',
+    marginTop: 16,
   },
   profileName: {
     fontSize: 24,
@@ -139,6 +169,11 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 16,
     color: Colors.light.textSecondary,
+    marginBottom: 8,
+  },
+  nativeLanguage: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
     marginBottom: 12,
   },
   bio: {
@@ -146,6 +181,18 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 32,
+    marginBottom: 16,
+  },
+  actionButton: {
+    backgroundColor: Colors.light.buttonPrimary,
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+  },
+  actionButtonText: {
+    color: Colors.light.background,
+    fontSize: 16,
+    fontWeight: '600',
   },
   section: {
     paddingHorizontal: 16,
@@ -171,16 +218,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   languageCards: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
+    gap: 12,
   },
   connectionCards: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
+    gap: 12,
   },
   achievements: {
-    marginTop: 8,
+    gap: 12,
   },
 }); 

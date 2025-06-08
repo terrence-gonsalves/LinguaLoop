@@ -8,9 +8,18 @@ interface ConnectionCardProps {
   languages: string[];
   streak: number;
   avatarUrl?: string;
+  nativeLanguage?: string;
+  username?: string;
 }
 
-export function ConnectionCard({ name, languages, streak, avatarUrl }: ConnectionCardProps) {
+export function ConnectionCard({ 
+  name, 
+  languages, 
+  streak, 
+  avatarUrl,
+  nativeLanguage = 'French',
+  username = '@sarah.j'
+}: ConnectionCardProps) {
   return (
     <View style={styles.container}>
       <View style={styles.leftContent}>
@@ -21,7 +30,15 @@ export function ConnectionCard({ name, languages, streak, avatarUrl }: Connectio
         )}
         <View style={styles.info}>
           <Text style={styles.name}>{name}</Text>
-          <Text style={styles.languages}>{languages.join(' • ')}</Text>
+          <Text style={styles.username}>{username}</Text>
+          <Text style={styles.nativeLanguage}>Native: {nativeLanguage}</Text>
+          <View style={styles.languagesContainer}>
+            {languages.map((language, index) => (
+              <View key={language} style={styles.languageTag}>
+                <Text style={styles.languageText}>{language}</Text>
+              </View>
+            ))}
+          </View>
         </View>
       </View>
       <View style={styles.streakContainer}>
@@ -44,8 +61,7 @@ const styles = StyleSheet.create({
   },
   leftContent: {
     flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
+    alignItems: 'flex-start',
   },
   avatar: {
     width: 48,
@@ -62,7 +78,28 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
     marginBottom: 4,
   },
-  languages: {
+  username: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    marginBottom: 4,
+  },
+  nativeLanguage: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    marginBottom: 8,
+  },
+  languagesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  languageTag: {
+    backgroundColor: Colors.light.generalBG,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  languageText: {
     fontSize: 14,
     color: Colors.light.textSecondary,
   },
