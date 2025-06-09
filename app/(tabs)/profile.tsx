@@ -1,6 +1,8 @@
 import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../app/providers/theme-provider';
@@ -12,12 +14,36 @@ import { LanguageProgressCard } from '../../components/profile/LanguageProgressC
 export default function ProfileScreen() {
   const { profile } = useAuth();
   const isOwnProfile = true; // TODO: Add logic to determine if viewing own profile
+  const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
+
+  useEffect(() => {
+    if (profile?.native_language) {
+      loadNativeLanguage();
+    }
+  }, [profile?.native_language]);
+
+  async function loadNativeLanguage() {
+    try {
+      const { data, error } = await supabase
+        .from('master_languages')
+        .select('name')
+        .eq('id', profile?.native_language)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setNativeLanguageName(data.name);
+      }
+    } catch (error) {
+      console.error('Error loading native language:', error);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Profile</Text>
+          <Text style={styles.headerTitle}>Profile</Text>
           <Pressable 
             style={styles.notificationButton}
             onPress={() => router.push('/(stack)/notifications')}
@@ -31,9 +57,9 @@ export default function ProfileScreen() {
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{profile?.name || 'User'}</Text>
             <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>
-            <Text style={styles.nativeLanguage}>Native: English</Text>
+            <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
             <Text style={styles.bio}>
-              Passionate language learner on a journey to explore diverse cultures through communication. Currently diving deep into Spanish and Japanese!
+              {profile?.about_me || ''}
             </Text>
             <Pressable 
               style={styles.actionButton}
