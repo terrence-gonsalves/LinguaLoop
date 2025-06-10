@@ -77,7 +77,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-    // If context is not available, return the base colors
+
+    // if context is not available, return the base colors
     return baseColors;
   }
   return context;
