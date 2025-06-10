@@ -27,37 +27,50 @@ export function ImageUpload({
 
   const processImage = async (uri: string): Promise<string> => {
     try {
+      console.log('Processing image:', uri);
 
-      // first resize the image to max 512x512 while maintaining aspect ratio
-      const resized = await ImageManipulator.manipulateAsync(
+      // First compress the image to reduce size
+      const compressed = await ImageManipulator.manipulateAsync(
         uri,
-        [{ resize: { width: 512, height: 512 } }],
-        { format: ImageManipulator.SaveFormat.JPEG, compress: 1 }
+        [],
+        { format: ImageManipulator.SaveFormat.JPEG, compress: 0.7 }
       );
 
-      // get image dimensions
-      const { width, height } = await new Promise<{ width: number; height: number }>((resolve, reject) => {
-        RNImage.getSize(resized.uri, 
+      console.log('Compressed image URI:', compressed.uri);
+
+      // Get dimensions of compressed image
+      const { width: originalWidth, height: originalHeight } = await new Promise<{ width: number; height: number }>((resolve, reject) => {
+        RNImage.getSize(compressed.uri, 
           (w: number, h: number) => resolve({ width: w, height: h }),
           (error: Error) => reject(error)
         );
       });
 
-      if (width !== height) {
-        const size = Math.min(width, height);
-        const originX = (width - size) / 2;
-        const originY = (height - size) / 2;
+      console.log('Original dimensions:', { width: originalWidth, height: originalHeight });
 
-        const cropped = await ImageManipulator.manipulateAsync(
-          resized.uri,
-          [{ crop: { originX, originY, width: size, height: size } }],
-          { format: ImageManipulator.SaveFormat.JPEG, compress: 0.8 }
-        );
+      // Calculate the crop dimensions for a square
+      const cropSize = Math.min(originalWidth, originalHeight);
+      const originX = Math.round((originalWidth - cropSize) / 2);
+      const originY = Math.round((originalHeight - cropSize) / 2);
 
-        return cropped.uri;
-      }
+      // Crop to square
+      const cropped = await ImageManipulator.manipulateAsync(
+        compressed.uri,
+        [{ crop: { originX, originY, width: cropSize, height: cropSize } }],
+        { format: ImageManipulator.SaveFormat.JPEG, compress: 0.9 }
+      );
 
-      return resized.uri;
+      console.log('Cropped image URI:', cropped.uri);
+
+      // Finally resize to target size (512x512)
+      const final = await ImageManipulator.manipulateAsync(
+        cropped.uri,
+        [{ resize: { width: 512, height: 512 } }],
+        { format: ImageManipulator.SaveFormat.JPEG, compress: 0.9 }
+      );
+
+      console.log('Final image URI:', final.uri);
+      return final.uri;
     } catch (error) {
       console.error('Error processing image:', error);
       throw new Error('Failed to process image');
@@ -68,12 +81,16 @@ export function ImageUpload({
     try {
       setIsLoading(true);
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
+        mediaTypes: 'images',
+        allowsEditing: true,
+        aspect: [1, 1],
         quality: 1,
       });
 
+      console.log('Image picker result:', result);
+
       if (!result.canceled && result.assets[0]) {
+        console.log('Selected image URI:', result.assets[0].uri);
         const processedUri = await processImage(result.assets[0].uri);
         setSelectedImage(processedUri);
         await onImageSelected(processedUri);
@@ -112,9 +129,11 @@ export function ImageUpload({
       ) : imageSource ? (
         <>
           <ExpoImage
-            source={imageSource}
+            source={{ uri: imageSource }}
             style={styles.image}
             contentFit="cover"
+            transition={200}
+            cachePolicy="memory-disk"
           />
           <Pressable
             style={styles.removeButton}

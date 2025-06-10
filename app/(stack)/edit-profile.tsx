@@ -102,7 +102,6 @@ export default function EditProfileScreen() {
     setIsLoading(true);
 
     try {
-      
       // check if username is unique (only if it's being changed)
       if (username && username !== profile.user_name) {
         const { data: existingUser, error: userCheckError } = await supabase
@@ -125,7 +124,7 @@ export default function EditProfileScreen() {
       }
 
       // update profile
-      const { data, error: profileError } = await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           name: displayName || null,
@@ -133,8 +132,7 @@ export default function EditProfileScreen() {
           about_me: aboutMe || null,
           native_language: nativeLanguage,
         })
-        .eq('id', profile.id)
-        .select();
+        .eq('id', profile.id);
 
       if (profileError) {
         console.error('Error updating profile:', profileError);
@@ -169,7 +167,6 @@ export default function EditProfileScreen() {
     if (!profile?.id) return;
 
     try {
-
       // upload the image to Supabase Storage
       const publicUrl = await uploadAvatar(profile.id, imageUri);
 
@@ -203,7 +200,7 @@ export default function EditProfileScreen() {
     if (!profile?.id) return;
 
     try {
-
+      
       // delete the image from Supabase Storage
       await deleteAvatar(profile.id);
 
@@ -238,87 +235,85 @@ export default function EditProfileScreen() {
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
       >
         <ScrollView 
           style={styles.scrollView} 
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollViewContent}
+          keyboardShouldPersistTaps="handled"
         >
-          {/* Profile Photo Section */}
-          <View style={styles.card}>
-            <View style={styles.photoSection}>
-              <ImageUpload
-                size={120}
-                currentImageUrl={profile?.avatar_url}
-                onImageSelected={handleImageSelected}
-                onImageRemoved={handleImageRemoved}
-                letter={displayName ? displayName[0].toUpperCase() : '?'}
+          <View style={styles.content}>
+            {/* Profile Photo Section */}
+            <View style={styles.card}>
+              <View style={styles.photoSection}>
+                <ImageUpload
+                  size={120}
+                  currentImageUrl={profile?.avatar_url}
+                  onImageSelected={handleImageSelected}
+                  onImageRemoved={handleImageRemoved}
+                  letter={profile?.name?.[0] || profile?.user_name?.[0] || '?'}
+                />
+              </View>
+            </View>
+
+            {/* Form Fields */}
+            <View style={styles.card}>
+              <FormInput
+                label="Display Name"
+                value={displayName}
+                onChangeText={setDisplayName}
+                placeholder="Enter your display name"
+                autoCapitalize="words"
+              />
+
+              <FormInput
+                label="Username"
+                value={username}
+                onChangeText={(text) => {
+                  setUsername(text);
+                  validateUsername(text);
+                }}
+                placeholder="Enter your username"
+                autoCapitalize="none"
+                error={usernameError}
+                editable={!isUsernameSetDuringOnboarding}
+              />
+
+              <FormInput
+                label="About Me"
+                value={aboutMe}
+                onChangeText={(text) => {
+                  setAboutMe(text);
+                  validateAboutMe(text);
+                }}
+                placeholder="Tell us about yourself"
+                multiline
+                maxLength={250}
+                error={aboutMeError}
+                style={styles.aboutMeInput}
+                textAlignVertical="top"
+              />
+              {aboutMe ? (
+                <Text style={styles.characterCount}>
+                  {aboutMe.length}/250
+                </Text>
+              ) : null}
+
+              <LanguageDropdown
+                label="Native Language"
+                data={languages}
+                value={nativeLanguage}
+                onChange={setNativeLanguage}
               />
             </View>
-          </View>
 
-          {/* Profile Details Section */}
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Profile Details</Text>
-            
-            <FormInput
-              label="Display Name"
-              value={displayName}
-              onChangeText={setDisplayName}
-              placeholder="Enter your display name"
-            />
-
-            <FormInput
-              label={isUsernameSetDuringOnboarding ? "Username" : "Username (required)"}
-              value={username}
-              onChangeText={(text) => {
-                setUsername(text);
-                if (!isUsernameSetDuringOnboarding) {
-                  validateUsername(text);
-                }
-              }}
-              placeholder={isUsernameSetDuringOnboarding ? "Username cannot be changed" : "Choose a username"}
-              error={usernameError}
-              editable={!isUsernameSetDuringOnboarding}
-              helperText={isUsernameSetDuringOnboarding ? "Your username cannot be changed" : undefined}
-            />
-
-            <LanguageDropdown
-              label="Native Language"
-              data={languages}
-              value={nativeLanguage}
-              onChange={setNativeLanguage}
+            <Button
+              title="Save Changes"
+              onPress={handleSubmit}
+              loading={isLoading}
+              style={styles.submitButton}
             />
           </View>
-
-          {/* About Me Section */}
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>About Me</Text>
-            <FormInput
-              label="About Me"
-              value={aboutMe}
-              onChangeText={(text) => {
-                setAboutMe(text);
-                validateAboutMe(text);
-              }}
-              placeholder="Tell us about yourself..."
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-              style={styles.aboutMeInput}
-              error={aboutMeError}
-            />
-            <Text style={styles.characterCount}>
-              {aboutMe.length}/250 characters
-            </Text>
-          </View>
-
-          <Button
-            title="Save Changes"
-            onPress={handleSubmit}
-            loading={isLoading}
-            style={styles.submitButton}
-          />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -328,7 +323,7 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.generalBG,
+    backgroundColor: Colors.light.background,
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -336,28 +331,30 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  scrollViewContent: {
+  content: {
     padding: 16,
-    gap: 16,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
   },
   card: {
     backgroundColor: Colors.light.background,
     borderRadius: 12,
     padding: 16,
-    gap: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   photoSection: {
     alignItems: 'center',
-    gap: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.light.text,
   },
   aboutMeInput: {
     height: 120,
-    textAlignVertical: 'top',
+    paddingTop: 12,
   },
   characterCount: {
     fontSize: 12,
