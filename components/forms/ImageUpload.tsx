@@ -29,7 +29,7 @@ export function ImageUpload({
     try {
       console.log('Processing image:', uri);
 
-      // First compress the image to reduce size
+      // first compress the image to reduce size
       const compressed = await ImageManipulator.manipulateAsync(
         uri,
         [],
@@ -38,7 +38,7 @@ export function ImageUpload({
 
       console.log('Compressed image URI:', compressed.uri);
 
-      // Get dimensions of compressed image
+      // get dimensions of compressed image
       const { width: originalWidth, height: originalHeight } = await new Promise<{ width: number; height: number }>((resolve, reject) => {
         RNImage.getSize(compressed.uri, 
           (w: number, h: number) => resolve({ width: w, height: h }),
@@ -48,12 +48,12 @@ export function ImageUpload({
 
       console.log('Original dimensions:', { width: originalWidth, height: originalHeight });
 
-      // Calculate the crop dimensions for a square
+      // calculate the crop dimensions for a square
       const cropSize = Math.min(originalWidth, originalHeight);
       const originX = Math.round((originalWidth - cropSize) / 2);
       const originY = Math.round((originalHeight - cropSize) / 2);
 
-      // Crop to square
+      // crop to square
       const cropped = await ImageManipulator.manipulateAsync(
         compressed.uri,
         [{ crop: { originX, originY, width: cropSize, height: cropSize } }],
@@ -62,7 +62,7 @@ export function ImageUpload({
 
       console.log('Cropped image URI:', cropped.uri);
 
-      // Finally resize to target size (512x512)
+      // finally resize to target size (512x512)
       const final = await ImageManipulator.manipulateAsync(
         cropped.uri,
         [{ resize: { width: 512, height: 512 } }],

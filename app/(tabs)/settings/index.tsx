@@ -1,21 +1,11 @@
 import { useAuth } from '@/lib/auth-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors as defaultColors } from '../../../app/providers/theme-provider';
 import DefaultAvatar from '../../../components/DefaultAvatar';
-
-// default colors as fallback
-const defaultColors = {
-  light: {
-    background: '#FFFFFF',
-    generalBG: '#F3F4F6',
-    text: '#111827',
-    textSecondary: '#6B7280',
-    border: '#E5E7EB',
-    buttonPrimary: '#E86C00',
-  }
-};
 
 export default function SettingsScreen() {
   const { signOut, profile } = useAuth();
@@ -97,10 +87,19 @@ export default function SettingsScreen() {
 
         {/* Profile Section */}
         <View style={styles.profileSection}>
-          <DefaultAvatar 
-            size={80} 
-            letter={profile?.name ? profile.name[0].toUpperCase() : '?'} 
-          />
+          {profile?.avatar_url ? (
+            <ExpoImage
+              source={{ uri: profile.avatar_url }}
+              style={styles.avatar}
+              contentFit="cover"
+              transition={200}
+            />
+          ) : (
+            <DefaultAvatar 
+              size={80} 
+              letter={profile?.name ? profile.name[0].toUpperCase() : '?'} 
+            />
+          )}
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{profile?.name || 'User'}</Text>
             <Text style={styles.username}>@{profile?.user_name || ''}</Text>
@@ -214,5 +213,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: defaultColors.light.buttonPrimary,
     fontWeight: '600',
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
 }); 

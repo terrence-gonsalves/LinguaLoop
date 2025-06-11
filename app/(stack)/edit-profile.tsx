@@ -102,6 +102,7 @@ export default function EditProfileScreen() {
     setIsLoading(true);
 
     try {
+
       // check if username is unique (only if it's being changed)
       if (username && username !== profile.user_name) {
         const { data: existingUser, error: userCheckError } = await supabase
@@ -167,6 +168,7 @@ export default function EditProfileScreen() {
     if (!profile?.id) return;
 
     try {
+      
       // upload the image to Supabase Storage
       const publicUrl = await uploadAvatar(profile.id, imageUri);
 

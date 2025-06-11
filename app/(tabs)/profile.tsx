@@ -1,6 +1,7 @@
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -53,7 +54,16 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.profileSection}>
-          <DefaultAvatar size={100} />
+          {profile?.avatar_url ? (
+            <ExpoImage
+              source={{ uri: profile.avatar_url }}
+              style={styles.avatar}
+              contentFit="cover"
+              transition={200}
+            />
+          ) : (
+            <DefaultAvatar size={100} letter={profile?.name?.[0] || profile?.user_name?.[0] || '?'} />
+          )}
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{profile?.name || 'User'}</Text>
             <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>
@@ -251,5 +261,10 @@ const styles = StyleSheet.create({
   },
   achievements: {
     gap: 12,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
 }); 
