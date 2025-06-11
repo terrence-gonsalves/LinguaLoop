@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useContext, useEffect, useState } from 'react';
 import Toast from 'react-native-toast-message';
+import { getAvatarUrl } from '../../lib/supabase/storage';
 import { supabase, type Profile } from './supabase';
 
 type AuthContextType = {
@@ -80,7 +81,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
       
-      console.log('Profile loaded:', profile);
+      // get the signed URL for the avatar if it exists
+      if (profile) {
+        const avatarUrl = await getAvatarUrl(userId);
+        if (avatarUrl) {
+          profile.avatar_url = avatarUrl;
+        }
+      }
+
+      console.log('Profile loaded with avatar:', profile);
       setProfile(profile);
 
       // only handle navigation if skipNavigation is false
