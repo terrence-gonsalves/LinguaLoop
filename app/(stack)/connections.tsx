@@ -1,87 +1,60 @@
-import Colors from '@/constants/Colors';
+import { useActiveConnections } from '@/hooks/useActiveConnections';
+import { useAuth } from '@/lib/auth-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '../../app/providers/theme-provider';
 import { ConnectionCard } from '../../components/profile/ConnectionCard';
 
-const connections = [
-  {
-    name: 'Sarah Johnson',
-    username: '@sarah.j',
-    nativeLanguage: 'French',
-    interests: ['English', 'Travel', 'Culture'],
-  },
-  {
-    name: 'David Lee',
-    username: '@david.lingua',
-    nativeLanguage: 'Mandarin',
-    interests: ['Spanish', 'Tech', 'Music'],
-  },
-  {
-    name: 'Maria Garcia',
-    username: '@maria.g',
-    nativeLanguage: 'Spanish',
-    interests: ['Japanese', 'Art', 'Food'],
-  },
-  {
-    name: 'Yuki Tanaka',
-    username: '@yuki.t',
-    nativeLanguage: 'Japanese',
-    interests: ['English', 'Gaming', 'Anime'],
-  },
-];
-
 export default function ConnectionsScreen() {
+  const { profile } = useAuth();
+  const { connections, isLoading, error } = useActiveConnections(profile?.id || '');
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      );
+    }
+
+    if (error) {
+      return <Text style={styles.errorText}>Error loading connections: {error}</Text>;
+    }
+
+    if (connections.length === 0) {
+      return <Text style={styles.noDataText}>No active connections yet</Text>;
+    }
+
+    return connections.map((connection) => (
+      <ConnectionCard
+        key={connection.id}
+        name={connection.name || ''}
+        username={connection.user_name || ''}
+        nativeLanguage={connection.native_language || 'Unknown'}
+        avatarUrl={connection.avatar_url || undefined}
+        aboutMe={connection.about_me || ''}
+      />
+    ));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
         </Pressable>
-        <Text style={styles.headerTitle}>Language Partners</Text>
-        <Pressable style={styles.searchButton}>
-          <MaterialIcons name="search" size={24} color={Colors.light.textPrimary} />
-        </Pressable>
+        <Text style={styles.headerTitle}>Active Connections</Text>
+        <View style={styles.placeholder} />
       </View>
-
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <MaterialIcons name="search" size={20} color={Colors.light.textSecondary} />
-          <TextInput
-            placeholder="Search by language, interests..."
-            style={styles.searchInput}
-            placeholderTextColor={Colors.light.textSecondary}
-          />
-        </View>
-      </View>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Connections</Text>
-          <View style={styles.connectionGrid}>
-            {connections.slice(0, 2).map((connection, index) => (
-              <ConnectionCard
-                key={index}
-                {...connection}
-                onMessage={() => {}}
-              />
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Suggested Partners</Text>
-          <View style={styles.connectionGrid}>
-            {connections.slice(2).map((connection, index) => (
-              <ConnectionCard
-                key={index}
-                {...connection}
-                onMessage={() => {}}
-              />
-            ))}
-          </View>
-        </View>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {renderContent()}
       </ScrollView>
     </SafeAreaView>
   );
@@ -94,55 +67,44 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.light.textPrimary,
+    backgroundColor: Colors.light.background,
   },
   backButton: {
     padding: 8,
   },
-  searchButton: {
-    padding: 8,
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.light.background,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 16,
-    color: Colors.light.textPrimary,
-  },
-  content: {
-    flex: 1,
-  },
-  section: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
+  headerTitle: {
+    fontSize: 20,
     fontWeight: '600',
     color: Colors.light.textPrimary,
-    marginBottom: 16,
   },
-  connectionGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+  placeholder: {
+    width: 40,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    padding: 16,
+    gap: 12,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: Colors.light.error,
+    textAlign: 'center',
+    padding: 16,
+  },
+  noDataText: {
+    color: Colors.light.textSecondary,
+    textAlign: 'center',
+    padding: 16,
   },
 }); 
