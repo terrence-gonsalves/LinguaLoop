@@ -1,10 +1,13 @@
+import { useAchievements } from '@/hooks/useAchievements';
+import { useActiveConnections } from '@/hooks/useActiveConnections';
+import { useLanguageSummary, type LanguageSummary } from '@/hooks/useLanguageSummary';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../app/providers/theme-provider';
 import DefaultAvatar from '../../components/DefaultAvatar';
@@ -14,8 +17,11 @@ import { LanguageProgressCard } from '../../components/profile/LanguageProgressC
 
 export default function ProfileScreen() {
   const { profile } = useAuth();
-  const isOwnProfile = true; // TODO: Add logic to determine if viewing own profile
+  const isOwnProfile = true; // TODO: add logic to determine if viewing own profile
   const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
+  const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(profile?.id || '');
+  const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError } = useActiveConnections(profile?.id || '');
+  const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError } = useAchievements(profile?.id || '');
 
   useEffect(() => {
     if (profile?.native_language) {
@@ -39,6 +45,91 @@ export default function ProfileScreen() {
       console.error('Error loading native language:', error);
     }
   }
+
+  const renderLanguageCards = () => {
+    if (isLoadingLanguages) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      );
+    }
+
+    if (languagesError) {
+      return <Text style={styles.errorText}>Error loading languages: {languagesError}</Text>;
+    }
+
+    if (languages.length === 0) {
+      return <Text style={styles.noDataText}>No languages added yet</Text>;
+    }
+
+    return languages.map((lang: LanguageSummary) => (
+      <LanguageProgressCard
+        key={lang.id}
+        language={lang.name}
+        level={lang.level}
+        activities={lang.activities}
+      />
+    ));
+  };
+
+  const renderConnections = () => {
+    if (isLoadingConnections) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      );
+    }
+
+    if (connectionsError) {
+      return <Text style={styles.errorText}>Error loading connections: {connectionsError}</Text>;
+    }
+
+    if (connections.length === 0) {
+      return <Text style={styles.noDataText}>No active connections yet</Text>;
+    }
+
+    return connections.map((connection) => (
+      <ConnectionCard
+        key={connection.id}
+        name={connection.name || ''}
+        username={connection.user_name || ''}
+        nativeLanguage={connection.native_language || 'Unknown'}
+        avatarUrl={connection.avatar_url || undefined}
+        aboutMe={connection.about_me || ''}
+      />
+    ));
+  };
+
+  const renderAchievements = () => {
+    if (isLoadingAchievements) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      );
+    }
+
+    if (achievementsError) {
+      return <Text style={styles.errorText}>Error loading achievements: {achievementsError}</Text>;
+    }
+
+    if (achievements.length === 0) {
+      return <Text style={styles.noDataText}>No achievements yet</Text>;
+    }
+
+    return achievements.map((achievement) => (
+      <AchievementItem
+        key={achievement.id}
+        title={achievement.title}
+        description={achievement.description}
+        icon={achievement.icon}
+        progress={achievement.progress}
+        isCompleted={achievement.is_completed}
+      />
+    ));
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -77,6 +168,7 @@ export default function ProfileScreen() {
                 if (isOwnProfile) {
                   router.push('/(stack)/edit-profile');
                 } else {
+
                   // TODO: Implement follow functionality
                   console.log('Follow user');
                 }
@@ -92,69 +184,42 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Language Summary</Text>
-            <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/languages')}>
-              <Text style={styles.viewAllText}>View All</Text>
-            </Pressable>
+            {languages.length > 2 && (
+              <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/languages')}>
+                <Text style={styles.viewAllText}>View All</Text>
+              </Pressable>
+            )}
           </View>
           <View style={styles.languageCards}>
-            <LanguageProgressCard
-              language="Spanish"
-              level="Intermediate"
-              progress={75}
-              streak={15}
-            />
-            <LanguageProgressCard
-              language="Japanese"
-              level="Beginner"
-              progress={40}
-              streak={8}
-            />
+            {renderLanguageCards()}
           </View>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Active Connections</Text>
-            <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
-              <Text style={styles.viewAllText}>View All</Text>
-            </Pressable>
+            {connectionsCount > 2 && (
+              <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
+                <Text style={styles.viewAllText}>View All</Text>
+              </Pressable>
+            )}
           </View>
           <View style={styles.connectionCards}>
-            <ConnectionCard
-              name="Sarah Johnson"
-              languages={['French']}
-              streak={12}
-            />
-            <ConnectionCard
-              name="David Lee"
-              languages={['Mandarin']}
-              streak={23}
-            />
+            {renderConnections()}
           </View>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Achievements</Text>
-            <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/achievements')}>
-              <Text style={styles.viewAllText}>History</Text>
-            </Pressable>
+            {achievementsCount > 2 && (
+              <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/achievements')}>
+                <Text style={styles.viewAllText}>History</Text>
+              </Pressable>
+            )}
           </View>
           <View style={styles.achievements}>
-            <AchievementItem
-              title="Achieved A1 Spanish Proficiency"
-              description="Successfully completed all A1 level lessons and passed the speaking assessment."
-              icon="trophy"
-              progress={100}
-              isCompleted={true}
-            />
-            <AchievementItem
-              title="Mastered Japanese Hiragana"
-              description="Learned and memorized all Hiragana characters and pronunciations."
-              icon="book-education"
-              progress={100}
-              isCompleted={true}
-            />
+            {renderAchievements()}
           </View>
         </View>
       </ScrollView>
@@ -223,7 +288,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.buttonPrimary,
     paddingVertical: 8,
     paddingHorizontal: 24,
-    borderRadius: 20,
+    borderRadius: 5,
   },
   actionButtonText: {
     color: Colors.light.background,
@@ -266,5 +331,19 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: Colors.light.error,
+    textAlign: 'center',
+    padding: 16,
+  },
+  noDataText: {
+    color: Colors.light.textSecondary,
+    textAlign: 'center',
+    padding: 16,
   },
 }); 
