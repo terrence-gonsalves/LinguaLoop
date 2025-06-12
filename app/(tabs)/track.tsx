@@ -1,8 +1,12 @@
 import Colors from '@/constants/Colors';
+import { useUserLanguages } from '@/hooks/useUserLanguages';
+import { useAuth } from '@/lib/auth-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import { LanguageDropdown } from '../../components/forms/LanguageDropdown';
 
 interface ActivityOptionProps {
   title: string;
@@ -31,14 +35,27 @@ const ActivityOption = ({ title, icon, isSelected, onPress }: ActivityOptionProp
 );
 
 export default function TrackActivityScreen() {
+  const { profile } = useAuth();
+  const { languages, isLoading: isLoadingLanguages } = useUserLanguages(profile?.id || '');
   const [selectedActivity, setSelectedActivity] = useState<string>('');
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [duration, setDuration] = useState<number>(30);
   const [notes, setNotes] = useState<string>('');
 
   const handleSaveActivity = () => {
+    if (!selectedLanguage) {
+      Toast.show({
+        type: 'error',
+        text1: 'Language Required',
+        text2: 'Please select a language for this activity',
+      });
+      return;
+    }
+
     // TODO: Implement save functionality
     console.log({
       activity: selectedActivity,
+      languageId: selectedLanguage,
       duration,
       notes,
       date: new Date()
@@ -67,6 +84,19 @@ export default function TrackActivityScreen() {
                 <MaterialCommunityIcons name="calendar" size={20} color={Colors.light.textSecondary} />
                 <Text style={styles.dateText}>May 31st, 2025</Text>
               </Pressable>
+            </View>
+
+            {/* Language Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Language</Text>
+              <LanguageDropdown
+                label=""
+                data={languages}
+                value={selectedLanguage}
+                onChange={setSelectedLanguage}
+                dropdownStyle={styles.dateButton}
+                style={styles.dropdownContainer}
+              />
             </View>
 
             {/* Activity Type Section */}
@@ -107,14 +137,14 @@ export default function TrackActivityScreen() {
                 <View style={styles.durationInputContainer}>
                   <Pressable 
                     style={styles.durationButton}
-                    onPress={() => setDuration(prev => Math.max(0, prev - 5))}
+                    onPress={() => setDuration(prev => Math.max(0, prev - 1))}
                   >
                     <Text style={styles.durationButtonText}>−</Text>
                   </Pressable>
                   <Text style={styles.durationValue}>{duration}</Text>
                   <Pressable 
                     style={styles.durationButton}
-                    onPress={() => setDuration(prev => prev + 5)}
+                    onPress={() => setDuration(prev => prev + 1)}
                   >
                     <Text style={styles.durationButtonText}>+</Text>
                   </Pressable>
@@ -188,7 +218,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 10,
+    marginTop: 10,
   },
   sectionTitle: {
     fontSize: 16,
@@ -276,7 +307,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     backgroundColor: Colors.light.ice,
-    borderRadius: 20,
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -303,7 +334,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.light.background,
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 5,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -340,7 +371,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 5,
     gap: 8,
     marginTop: 24,
     shadowColor: '#000',
@@ -353,5 +384,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: Colors.light.textTertiary,
+  },
+  languageContainer: {
+    marginTop: -16, // compensate for the LanguageDropdown's built-in margin
+  },
+  dropdownContainer: {
+    marginTop: 0,
   },
 });

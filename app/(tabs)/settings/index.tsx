@@ -83,7 +83,7 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
 
         {/* Profile Section */}
         <View style={styles.profileSection}>
