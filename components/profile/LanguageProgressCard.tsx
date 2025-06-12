@@ -1,32 +1,52 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 import { Colors } from '../../app/providers/theme-provider';
 
 interface LanguageProgressCardProps {
   language: string;
   level: string;
-  progress: number;
-  streak: number;
+  activities: {
+    reading: number;
+    writing: number;
+    speaking: number;
+    listening: number;
+  };
 }
 
-export function LanguageProgressCard({ language, level, progress, streak }: LanguageProgressCardProps) {
+export function LanguageProgressCard({ language, level, activities }: LanguageProgressCardProps) {
+
+  // convert seconds to hours and minutes
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${hours}h ${minutes}m`;
+  };
+
+  const activityList = [
+    { type: 'Reading', time: formatTime(activities.reading), icon: 'book' },
+    { type: 'Writing', time: formatTime(activities.writing), icon: 'create' },
+    { type: 'Speaking', time: formatTime(activities.speaking), icon: 'mic' },
+    { type: 'Listening', time: formatTime(activities.listening), icon: 'headset' },
+  ] as const;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
           <Text style={styles.language}>{language}</Text>
-          <Text style={styles.level}>{level}</Text>
-        </View>
-        <View style={styles.streakContainer}>
-          <MaterialCommunityIcons name="fire" size={20} color={Colors.light.rust} />
-          <Text style={styles.streakText}>{streak} days</Text>
+          <View style={styles.levelContainer}>
+            <Text style={styles.level}>{level}</Text>
+          </View>
         </View>
       </View>
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${progress}%` }]} />
-        </View>
-        <Text style={styles.progressText}>{progress}%</Text>
+      <View style={styles.activitiesContainer}>
+        {activityList.map((activity) => (
+          <View key={activity.type} style={styles.activityItem}>
+            <MaterialIcons name={activity.icon} size={24} color={Colors.light.rust} />
+            <Text style={styles.activityTime}>{activity.time}</Text>
+            <Text style={styles.activityLabel}>{activity.type}</Text>
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -37,62 +57,54 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   titleContainer: {
-    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   language: {
     fontSize: 18,
     fontWeight: '600',
     color: Colors.light.text,
-    marginBottom: 4,
+  },
+  levelContainer: {
+    backgroundColor: Colors.light.generalBG,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   level: {
     fontSize: 14,
     color: Colors.light.textSecondary,
   },
-  streakContainer: {
+  activitiesContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.light.generalBG,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 16,
+    flexWrap: 'wrap',
+    gap: 16,
+    justifyContent: 'space-between',
   },
-  streakText: {
-    marginLeft: 4,
-    fontSize: 14,
-    fontWeight: '500',
+  activityItem: {
+    alignItems: 'center',
+    width: '45%',
+    marginBottom: 8,
+  },
+  activityTime: {
+    fontSize: 16,
+    fontWeight: '600',
     color: Colors.light.text,
+    marginTop: 8,
+    marginBottom: 4,
   },
-  progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  progressBar: {
-    flex: 1,
-    height: 8,
-    backgroundColor: Colors.light.generalBG,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: Colors.light.rust,
-    borderRadius: 4,
-  },
-  progressText: {
+  activityLabel: {
     fontSize: 14,
-    fontWeight: '500',
     color: Colors.light.textSecondary,
-    minWidth: 40,
   },
 }); 

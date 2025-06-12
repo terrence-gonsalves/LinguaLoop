@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useContext, useEffect, useState } from 'react';
 import Toast from 'react-native-toast-message';
+import { getAvatarUrl } from '../../lib/supabase/storage';
 import { supabase, type Profile } from './supabase';
 
 type AuthContextType = {
@@ -37,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           // add a small delay to ensure the profile has been created
           await new Promise(resolve => setTimeout(resolve, 1000));
-          await loadProfile(session.user.id);
+          await loadProfile(session.user.id, false); // don't skip navigation on initial sign in
         }
       } else {
         await SecureStore.deleteItemAsync(SESSION_KEY);
@@ -57,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (storedSession) {
         const session = JSON.parse(storedSession);
         setSession(session);
-        await loadProfile(session.user.id);
+        await loadProfile(session.user.id, false); // don't skip navigation on initial load
       }
     } catch (error) {
       console.error('Error loading session:', error);
@@ -66,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  async function loadProfile(userId: string) {
+  async function loadProfile(userId: string, skipNavigation: boolean = false) {
     console.log('Loading profile for user:', userId);
     try {
       const { data: profile, error } = await supabase
@@ -80,28 +81,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
       
-      console.log('Profile loaded:', profile);
+      // get the signed URL for the avatar if it exists
+      if (profile) {
+        const avatarUrl = await getAvatarUrl(userId);
+        if (avatarUrl) {
+          profile.avatar_url = avatarUrl;
+        }
+      }
+
+      console.log('Profile loaded with avatar:', profile);
       setProfile(profile);
 
-      // check if onboarding is needed
-      if (profile && !profile.onboarding_completed) {
-        router.push('/(stack)/onboarding');
-      } else if (profile && profile.onboarding_completed) {
-        router.replace('/(tabs)');
+      // only handle navigation if skipNavigation is false
+      if (!skipNavigation) {
+        
+        // check if onboarding is needed
+        if (profile && !profile.onboarding_completed) {
+          router.push('/(stack)/onboarding');
+        } else if (profile && profile.onboarding_completed) {
+          router.replace('/(tabs)');
+        }
       }
     } catch (error) {
       console.error('Error loading profile:', error);
-      // Toast.show({
-      //   type: 'error',
-      //   text1: 'Error loading profile',
-      // });
     }
   }
 
-  // Add reloadProfile function
+  // add reloadProfile function with skipNavigation
   async function reloadProfile() {
     if (!session?.user?.id) return;
-    await loadProfile(session.user.id);
+    await loadProfile(session.user.id, true); // pass true to skip navigation
   }
 
   async function signIn(email: string, password: string) {

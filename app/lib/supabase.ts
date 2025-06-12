@@ -1,3 +1,5 @@
+import 'react-native-url-polyfill/auto';
+//import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import Constants from 'expo-constants';
 
@@ -19,6 +21,7 @@ export type Profile = {
   onboarding_completed: boolean;
   native_language: string;
   about_me: string | null;
+  avatar_url: string | null;
 };
 
 export type Language = {
