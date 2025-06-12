@@ -1,6 +1,13 @@
+import { useAchievements } from '@/hooks/useAchievements';
+import { useActiveConnections } from '@/hooks/useActiveConnections';
+import { useLanguageSummary, type LanguageSummary } from '@/hooks/useLanguageSummary';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../app/providers/theme-provider';
 import DefaultAvatar from '../../components/DefaultAvatar';
@@ -9,91 +16,210 @@ import { ConnectionCard } from '../../components/profile/ConnectionCard';
 import { LanguageProgressCard } from '../../components/profile/LanguageProgressCard';
 
 export default function ProfileScreen() {
+  const { profile } = useAuth();
+  const isOwnProfile = true; // TODO: add logic to determine if viewing own profile
+  const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
+  const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(profile?.id || '');
+  const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError } = useActiveConnections(profile?.id || '');
+  const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError } = useAchievements(profile?.id || '');
+
+  useEffect(() => {
+    if (profile?.native_language) {
+      loadNativeLanguage();
+    }
+  }, [profile?.native_language]);
+
+  async function loadNativeLanguage() {
+    try {
+      const { data, error } = await supabase
+        .from('master_languages')
+        .select('name')
+        .eq('id', profile?.native_language)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setNativeLanguageName(data.name);
+      }
+    } catch (error) {
+      console.error('Error loading native language:', error);
+    }
+  }
+
+  const renderLanguageCards = () => {
+    if (isLoadingLanguages) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      );
+    }
+
+    if (languagesError) {
+      return <Text style={styles.errorText}>Error loading languages: {languagesError}</Text>;
+    }
+
+    if (languages.length === 0) {
+      return <Text style={styles.noDataText}>No languages added yet</Text>;
+    }
+
+    return languages.map((lang: LanguageSummary) => (
+      <LanguageProgressCard
+        key={lang.id}
+        language={lang.name}
+        level={lang.level}
+        activities={lang.activities}
+      />
+    ));
+  };
+
+  const renderConnections = () => {
+    if (isLoadingConnections) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      );
+    }
+
+    if (connectionsError) {
+      return <Text style={styles.errorText}>Error loading connections: {connectionsError}</Text>;
+    }
+
+    if (connections.length === 0) {
+      return <Text style={styles.noDataText}>No active connections yet</Text>;
+    }
+
+    return connections.map((connection) => (
+      <ConnectionCard
+        key={connection.id}
+        name={connection.name || ''}
+        username={connection.user_name || ''}
+        nativeLanguage={connection.native_language || 'Unknown'}
+        avatarUrl={connection.avatar_url || undefined}
+        aboutMe={connection.about_me || ''}
+      />
+    ));
+  };
+
+  const renderAchievements = () => {
+    if (isLoadingAchievements) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      );
+    }
+
+    if (achievementsError) {
+      return <Text style={styles.errorText}>Error loading achievements: {achievementsError}</Text>;
+    }
+
+    if (achievements.length === 0) {
+      return <Text style={styles.noDataText}>No achievements yet</Text>;
+    }
+
+    return achievements.map((achievement) => (
+      <AchievementItem
+        key={achievement.id}
+        title={achievement.title}
+        description={achievement.description}
+        icon={achievement.icon}
+        progress={achievement.progress}
+        isCompleted={achievement.is_completed}
+      />
+    ));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile</Text>
-          <Pressable style={styles.notificationButton}>
+          <Pressable 
+            style={styles.notificationButton}
+            onPress={() => router.push('/(stack)/notifications')}
+          >
             <MaterialIcons name="notifications" size={24} color={Colors.light.textPrimary} />
           </Pressable>
         </View>
 
         <View style={styles.profileSection}>
-          <DefaultAvatar size={100} />
-          <Text style={styles.profileName}>Alice Smith</Text>
-          <Text style={styles.username}>@alice.sm</Text>
-          <Text style={styles.bio}>
-            Passionate language learner on a journey to explore diverse cultures through communication. Currently diving deep into Spanish and Japanese!
-          </Text>
+          {profile?.avatar_url ? (
+            <ExpoImage
+              source={{ uri: profile.avatar_url }}
+              style={styles.avatar}
+              contentFit="cover"
+              transition={200}
+            />
+          ) : (
+            <DefaultAvatar size={100} letter={profile?.name?.[0] || profile?.user_name?.[0] || '?'} />
+          )}
+          <View style={styles.profileInfo}>
+            <Text style={styles.profileName}>{profile?.name || 'User'}</Text>
+            <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>
+            <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
+            <Text style={styles.bio}>
+              {profile?.about_me || ''}
+            </Text>
+            <Pressable 
+              style={styles.actionButton}
+              onPress={() => {
+                if (isOwnProfile) {
+                  router.push('/(stack)/edit-profile');
+                } else {
+
+                  // TODO: Implement follow functionality
+                  console.log('Follow user');
+                }
+              }}
+            >
+              <Text style={styles.actionButtonText}>
+                {isOwnProfile ? 'Edit Profile' : 'Follow'}
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Language Summary</Text>
-            <Pressable style={styles.viewAllLink} onPress={() => router.push('../languages')}>
-              <Text style={styles.viewAllText}>View All</Text>
-            </Pressable>
+            {languages.length > 2 && (
+              <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/languages')}>
+                <Text style={styles.viewAllText}>View All</Text>
+              </Pressable>
+            )}
           </View>
           <View style={styles.languageCards}>
-            <LanguageProgressCard
-              language="Spanish"
-              level="Intermediate"
-              progress={75}
-              streak={15}
-            />
-            <LanguageProgressCard
-              language="Japanese"
-              level="Beginner"
-              progress={40}
-              streak={8}
-            />
+            {renderLanguageCards()}
           </View>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Active Connections</Text>
-            <Pressable style={styles.viewAllLink} onPress={() => router.push('../connections')}>
-              <Text style={styles.viewAllText}>View All</Text>
-            </Pressable>
+            {connectionsCount > 2 && (
+              <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
+                <Text style={styles.viewAllText}>View All</Text>
+              </Pressable>
+            )}
           </View>
           <View style={styles.connectionCards}>
-            <ConnectionCard
-              name="Sarah Johnson"
-              languages={['English', 'French', 'Spanish']}
-              streak={12}
-            />
-            <ConnectionCard
-              name="David Lee"
-              languages={['Mandarin', 'English', 'Spanish']}
-              streak={23}
-            />
+            {renderConnections()}
           </View>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Learning Journey</Text>
-            <Pressable style={styles.viewAllLink} onPress={() => router.push('../achievements')}>
-              <Text style={styles.viewAllText}>History</Text>
-            </Pressable>
+            <Text style={styles.sectionTitle}>Achievements</Text>
+            {achievementsCount > 2 && (
+              <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/achievements')}>
+                <Text style={styles.viewAllText}>History</Text>
+              </Pressable>
+            )}
           </View>
           <View style={styles.achievements}>
-            <AchievementItem
-              title="Achieved A1 Spanish Proficiency"
-              description="Successfully completed all A1 level lessons and passed the speaking assessment."
-              icon="trophy"
-              progress={100}
-              isCompleted={true}
-            />
-            <AchievementItem
-              title="Mastered Japanese Hiragana"
-              description="Learned and memorized all Hiragana characters and pronunciations."
-              icon="book-education"
-              progress={100}
-              isCompleted={true}
-            />
+            {renderAchievements()}
           </View>
         </View>
       </ScrollView>
@@ -120,7 +246,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '600',
     color: Colors.light.textPrimary,
-    marginBottom: 24,
   },
   notificationButton: {
     padding: 8,
@@ -129,6 +254,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 24,
     paddingHorizontal: 16,
+    backgroundColor: Colors.light.background,
+    marginBottom: 16,
+  },
+  profileInfo: {
+    alignItems: 'center',
+    marginTop: 16,
   },
   profileName: {
     fontSize: 24,
@@ -139,6 +270,11 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 16,
     color: Colors.light.textSecondary,
+    marginBottom: 8,
+  },
+  nativeLanguage: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
     marginBottom: 12,
   },
   bio: {
@@ -146,6 +282,18 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     textAlign: 'center',
     paddingHorizontal: 32,
+    marginBottom: 16,
+  },
+  actionButton: {
+    backgroundColor: Colors.light.buttonPrimary,
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+    borderRadius: 5,
+  },
+  actionButtonText: {
+    color: Colors.light.background,
+    fontSize: 16,
+    fontWeight: '600',
   },
   section: {
     paddingHorizontal: 16,
@@ -171,16 +319,31 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   languageCards: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
+    gap: 12,
   },
   connectionCards: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
+    gap: 12,
   },
   achievements: {
-    marginTop: 8,
+    gap: 12,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: Colors.light.error,
+    textAlign: 'center',
+    padding: 16,
+  },
+  noDataText: {
+    color: Colors.light.textSecondary,
+    textAlign: 'center',
+    padding: 16,
   },
 }); 

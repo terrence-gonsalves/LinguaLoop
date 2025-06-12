@@ -1,15 +1,16 @@
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
-import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { Button } from '../../components/common/Button';
 import { FormInput } from '../../components/forms/FormInput';
+import { ImageUpload } from '../../components/forms/ImageUpload';
 import { Language, LanguageDropdown } from '../../components/forms/LanguageDropdown';
+import { deleteAvatar, uploadAvatar } from '../../lib/supabase/storage';
 
 export default function EditProfileScreen() {
   const { profile, reloadProfile } = useAuth();
@@ -101,12 +102,6 @@ export default function EditProfileScreen() {
     setIsLoading(true);
 
     try {
-      console.log('Updating profile with data:', {
-        name: displayName,
-        user_name: isUsernameSetDuringOnboarding ? profile.user_name : username,
-        about_me: aboutMe,
-        native_language: nativeLanguage,
-      });
 
       // check if username is unique (only if it's being changed)
       if (username && username !== profile.user_name) {
@@ -130,7 +125,7 @@ export default function EditProfileScreen() {
       }
 
       // update profile
-      const { data, error: profileError } = await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           name: displayName || null,
@@ -138,15 +133,12 @@ export default function EditProfileScreen() {
           about_me: aboutMe || null,
           native_language: nativeLanguage,
         })
-        .eq('id', profile.id)
-        .select();
+        .eq('id', profile.id);
 
       if (profileError) {
         console.error('Error updating profile:', profileError);
         throw profileError;
       }
-
-      console.log('Profile updated successfully:', data);
 
       // reload the profile in the auth context to reflect changes
       await reloadProfile();
@@ -172,94 +164,158 @@ export default function EditProfileScreen() {
     }
   }
 
+  async function handleImageSelected(imageUri: string) {
+    if (!profile?.id) return;
+
+    try {
+      
+      // upload the image to Supabase Storage
+      const publicUrl = await uploadAvatar(profile.id, imageUri);
+
+      // update the profile with the new avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', profile.id);
+
+      if (updateError) throw updateError;
+
+      // reload the profile to update the UI
+      await reloadProfile();
+
+      Toast.show({
+        type: 'success',
+        text1: 'Profile Photo Updated',
+        text2: 'Your profile photo has been updated successfully',
+      });
+    } catch (error) {
+      console.error('Error updating profile photo:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to update profile photo. Please try again.',
+      });
+    }
+  }
+
+  async function handleImageRemoved() {
+    if (!profile?.id) return;
+
+    try {
+      
+      // delete the image from Supabase Storage
+      await deleteAvatar(profile.id);
+
+      // update the profile to remove the avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', profile.id);
+
+      if (updateError) throw updateError;
+
+      // reload the profile to update the UI
+      await reloadProfile();
+
+      Toast.show({
+        type: 'success',
+        text1: 'Profile Photo Removed',
+        text2: 'Your profile photo has been removed successfully',
+      });
+    } catch (error) {
+      console.error('Error removing profile photo:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to remove profile photo. Please try again.',
+      });
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
       >
         <ScrollView 
           style={styles.scrollView} 
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollViewContent}
+          keyboardShouldPersistTaps="handled"
         >
-          {/* Profile Photo Section */}
-          <View style={styles.card}>
-            <View style={styles.photoSection}>
-              <View style={styles.photoPlaceholder}>
-                <Text style={styles.photoPlaceholderText}>
-                  {displayName ? displayName[0].toUpperCase() : '?'}
-                </Text>
+          <View style={styles.content}>
+            {/* Profile Photo Section */}
+            <View style={styles.card}>
+              <View style={styles.photoSection}>
+                <ImageUpload
+                  size={120}
+                  currentImageUrl={profile?.avatar_url}
+                  onImageSelected={handleImageSelected}
+                  onImageRemoved={handleImageRemoved}
+                  letter={profile?.name?.[0] || profile?.user_name?.[0] || '?'}
+                />
               </View>
-              <Pressable style={styles.changePhotoButton}>
-                <MaterialIcons name="camera-alt" size={16} color={Colors.light.background} />
-                <Text style={styles.changePhotoText}>Change Photo</Text>
-              </Pressable>
             </View>
-          </View>
 
-          {/* Profile Details Section */}
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Profile Details</Text>
-            
-            <FormInput
-              label="Display Name"
-              value={displayName}
-              onChangeText={setDisplayName}
-              placeholder="Enter your display name"
-            />
+            {/* Form Fields */}
+            <View style={styles.card}>
+              <FormInput
+                label="Display Name"
+                value={displayName}
+                onChangeText={setDisplayName}
+                placeholder="Enter your display name"
+                autoCapitalize="words"
+              />
 
-            <FormInput
-              label={isUsernameSetDuringOnboarding ? "Username" : "Username (required)"}
-              value={username}
-              onChangeText={(text) => {
-                setUsername(text);
-                if (!isUsernameSetDuringOnboarding) {
+              <FormInput
+                label="Username"
+                value={username}
+                onChangeText={(text) => {
+                  setUsername(text);
                   validateUsername(text);
-                }
-              }}
-              placeholder={isUsernameSetDuringOnboarding ? "Username cannot be changed" : "Choose a username"}
-              error={usernameError}
-              editable={!isUsernameSetDuringOnboarding}
-              helperText={isUsernameSetDuringOnboarding ? "Your username cannot be changed" : undefined}
-            />
+                }}
+                placeholder="Enter your username"
+                autoCapitalize="none"
+                error={usernameError}
+                editable={!isUsernameSetDuringOnboarding}
+              />
 
-            <LanguageDropdown
-              label="Native Language"
-              data={languages}
-              value={nativeLanguage}
-              onChange={setNativeLanguage}
-            />
-          </View>
+              <FormInput
+                label="About Me"
+                value={aboutMe}
+                onChangeText={(text) => {
+                  setAboutMe(text);
+                  validateAboutMe(text);
+                }}
+                placeholder="Tell us about yourself"
+                multiline
+                maxLength={250}
+                error={aboutMeError}
+                style={styles.aboutMeInput}
+                textAlignVertical="top"
+              />
+              {aboutMe ? (
+                <Text style={styles.characterCount}>
+                  {aboutMe.length}/250
+                </Text>
+              ) : null}
 
-          {/* About Me Section */}
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>About Me</Text>
-            <FormInput
-              label="About Me"
-              value={aboutMe}
-              onChangeText={(text) => {
-                setAboutMe(text);
-                validateAboutMe(text);
-              }}
-              placeholder="Tell us about yourself..."
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-              style={styles.aboutMeInput}
-              error={aboutMeError}
-              helperText={`${aboutMe.length}/250 characters`}
-            />
-          </View>
+              <LanguageDropdown
+                label="Native Language"
+                data={languages}
+                value={nativeLanguage}
+                onChange={setNativeLanguage}
+              />
+            </View>
 
-          {/* Save Button Section */}
-            <Button 
-              title={isLoading ? 'Saving...' : 'Save Changes'}
+            <Button
+              title="Save Changes"
               onPress={handleSubmit}
-              disabled={isLoading}
               loading={isLoading}
-              style={styles.saveButton}
+              style={styles.submitButton}
             />
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -269,7 +325,7 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.generalBG,
+    backgroundColor: Colors.light.background,
   },
   keyboardAvoidingView: {
     flex: 1,
@@ -277,60 +333,38 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  scrollViewContent: {
+  content: {
     padding: 16,
-    gap: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
   },
   card: {
     backgroundColor: Colors.light.background,
     borderRadius: 12,
     padding: 16,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   photoSection: {
     alignItems: 'center',
-    paddingVertical: 8,
-  },
-  photoPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: Colors.light.formInputBG,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  photoPlaceholderText: {
-    fontSize: 36,
-    fontWeight: '600',
-    color: Colors.light.textSecondary,
-  },
-  changePhotoButton: {
-    backgroundColor: Colors.light.buttonPrimary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  changePhotoText: {
-    color: Colors.light.background,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: Colors.light.textPrimary,
-    marginBottom: 16,
   },
   aboutMeInput: {
     height: 120,
     paddingTop: 12,
   },
-  saveButton: {
-    width: '100%',
+  characterCount: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    textAlign: 'right',
+    marginTop: -12,
+  },
+  submitButton: {
+    marginTop: 8,
   },
 }); 
