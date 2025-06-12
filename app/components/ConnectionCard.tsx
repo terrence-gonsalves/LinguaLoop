@@ -13,7 +13,7 @@ export default function ConnectionCard({ name, username, nativeLanguage, avatarU
     <View style={styles.card}>
       <View style={styles.avatarContainer}>
         <Image
-          source={avatarUrl ? { uri: avatarUrl } : require('@/assets/images/default-avatar.png')}
+          source={avatarUrl ? { uri: avatarUrl } : require('../../assets/images/default-avatar.png')}
           style={styles.avatar}
         />
       </View>
