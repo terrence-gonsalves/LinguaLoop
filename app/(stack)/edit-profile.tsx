@@ -306,6 +306,7 @@ export default function EditProfileScreen() {
                 data={languages}
                 value={nativeLanguage}
                 onChange={setNativeLanguage}
+                dropdownStyle={styles.profileDropdown}
               />
             </View>
 
@@ -366,5 +367,13 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 8,
+  },
+  profileDropdown: {
+    height: 44,
+    backgroundColor: Colors.light.formInputBG,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
   },
 }); 

@@ -1,6 +1,6 @@
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveConnections } from '@/hooks/useActiveConnections';
-import { useLanguageSummary, type LanguageSummary } from '@/hooks/useLanguageSummary';
+import { useLanguageSummary } from '@/hooks/useLanguageSummary';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -63,7 +63,8 @@ export default function ProfileScreen() {
       return <Text style={styles.noDataText}>No languages added yet</Text>;
     }
 
-    return languages.map((lang: LanguageSummary) => (
+    // only show up to 2 languages
+    return languages.slice(0, 2).map((lang: any) => (
       <LanguageProgressCard
         key={lang.id}
         language={lang.name}
@@ -97,7 +98,8 @@ export default function ProfileScreen() {
         username={connection.user_name || ''}
         nativeLanguage={connection.native_language || 'Unknown'}
         avatarUrl={connection.avatar_url || undefined}
-        aboutMe={connection.about_me || ''}
+        languages={[]}
+        streak={0}
       />
     ));
   };

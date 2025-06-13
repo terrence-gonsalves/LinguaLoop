@@ -18,7 +18,8 @@ export default function CreateAccountScreen() {
   const handleSignUp = async () => {
     if (!email || !password || !confirmPassword || !acceptedTerms) return;
     if (password !== confirmPassword) {
-      // You might want to show an error message here
+
+      // you might want to show an error message here
       return;
     }
     await signUp(email, password);
