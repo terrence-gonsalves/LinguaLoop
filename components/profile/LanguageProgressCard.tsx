@@ -1,16 +1,11 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 import { Colors } from '../../app/providers/theme-provider';
 
 interface LanguageProgressCardProps {
   language: string;
   level: string;
-  activities: {
-    reading: number;
-    writing: number;
-    speaking: number;
-    listening: number;
-  };
+  activities: Record<string, number>;
 }
 
 export function LanguageProgressCard({ language, level, activities }: LanguageProgressCardProps) {
@@ -22,12 +17,19 @@ export function LanguageProgressCard({ language, level, activities }: LanguagePr
     return `${hours}h ${minutes}m`;
   };
 
-  const activityList = [
-    { type: 'Reading', time: formatTime(activities.reading), icon: 'book' },
-    { type: 'Writing', time: formatTime(activities.writing), icon: 'create' },
-    { type: 'Speaking', time: formatTime(activities.speaking), icon: 'mic' },
-    { type: 'Listening', time: formatTime(activities.listening), icon: 'headset' },
-  ] as const;
+  // map activity names to MaterialCommunityIcons
+  const iconMap: Record<string, string> = {
+    Reading: 'book-outline',
+    Writing: 'pencil-outline',
+    Listening: 'headphones',
+    Speaking: 'microphone-outline',
+  };
+
+  const activityList = Object.entries(activities).map(([type, seconds]) => ({
+    type,
+    time: formatTime(seconds),
+    icon: iconMap[type] || 'star-outline', // default icon for unknown activities
+  }));
 
   return (
     <View style={styles.container}>
@@ -41,10 +43,12 @@ export function LanguageProgressCard({ language, level, activities }: LanguagePr
       </View>
       <View style={styles.activitiesContainer}>
         {activityList.map((activity) => (
-          <View key={activity.type} style={styles.activityItem}>
-            <MaterialIcons name={activity.icon} size={24} color={Colors.light.rust} />
-            <Text style={styles.activityTime}>{activity.time}</Text>
-            <Text style={styles.activityLabel}>{activity.type}</Text>
+          <View key={activity.type} style={styles.activityItemRow}>
+            <MaterialCommunityIcons name={activity.icon as any} size={28} color={Colors.light.rust} style={styles.activityIcon} />
+            <View style={styles.activityItem}>
+              <Text style={styles.activityTime}>{activity.time}</Text>
+              <Text style={styles.activityLabel}>{activity.type}</Text>
+            </View>
           </View>
         ))}
       </View>
@@ -86,15 +90,20 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
   },
   activitiesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
     gap: 16,
     justifyContent: 'space-between',
   },
-  activityItem: {
+  activityItemRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    width: '45%',
     marginBottom: 8,
+  },
+  activityIcon: {
+    marginRight: 12,
+  },
+  activityItem: {
+    alignItems: 'flex-start',
   },
   activityTime: {
     fontSize: 16,
