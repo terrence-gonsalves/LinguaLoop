@@ -35,7 +35,7 @@ export default function AchievementsScreen() {
       <AchievementItem
         key={achievement.id}
         title={achievement.title}
-        description={achievement.description}
+        notes={achievement.notes}
         icon={achievement.icon}
         progress={achievement.progress}
         isCompleted={achievement.is_completed}
