@@ -2,14 +2,17 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { useAuth } from '@/lib/auth-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../app/providers/theme-provider';
 import { AchievementItem } from '../../components/profile/AchievementItem';
+import AddAchievementModal from '../../components/profile/AddAchievementModal';
 
 export default function AchievementsScreen() {
   const { profile } = useAuth();
   const { achievements, isLoading, error } = useAchievements(profile?.id || '');
+  const [showAddAchievement, setShowAddAchievement] = useState(false);
 
   const renderContent = () => {
     if (isLoading) {
@@ -47,7 +50,9 @@ export default function AchievementsScreen() {
           <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
         </Pressable>
         <Text style={styles.headerTitle}>Achievements</Text>
-        <View style={styles.placeholder} />
+        <Pressable style={styles.addAchievementButton} onPress={() => setShowAddAchievement(true)}>
+          <Text style={styles.addAchievementButtonText}>Add Achievement</Text>
+        </Pressable>
       </View>
       <ScrollView 
         style={styles.scrollView} 
@@ -56,6 +61,7 @@ export default function AchievementsScreen() {
       >
         {renderContent()}
       </ScrollView>
+      <AddAchievementModal visible={showAddAchievement} onClose={() => setShowAddAchievement(false)} onAdded={() => setShowAddAchievement(false)} />
     </SafeAreaView>
   );
 }
@@ -106,5 +112,17 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     textAlign: 'center',
     padding: 16,
+  },
+  addAchievementButton: {
+    backgroundColor: Colors.light.buttonPrimary,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+    marginLeft: 8,
+  },
+  addAchievementButtonText: {
+    color: Colors.light.background,
+    fontSize: 14,
+    fontWeight: '600',
   },
 }); 
