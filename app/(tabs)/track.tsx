@@ -270,7 +270,6 @@ export default function TrackActivityScreen() {
 
             {/* Save Button */}
             <Pressable style={styles.saveButton} onPress={handleSaveActivity}>
-              <MaterialCommunityIcons name="check-circle-outline" size={24} color={Colors.light.textTertiary} />
               <Text style={styles.saveButtonText}>Save Activity</Text>
             </Pressable>
           </View>
@@ -486,7 +485,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.light.textTertiary,
+    color: Colors.light.buttonPrimary,
   },
   languageDropdownContainer: {
     flexDirection: 'row',

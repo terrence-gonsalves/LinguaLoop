@@ -12,6 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../app/providers/theme-provider';
 import DefaultAvatar from '../../components/DefaultAvatar';
 import { AchievementItem } from '../../components/profile/AchievementItem';
+import AddAchievementModal from '../../components/profile/AddAchievementModal';
+import AddConnectionModal from '../../components/profile/AddConnectionModal';
 import { ConnectionCard } from '../../components/profile/ConnectionCard';
 import { LanguageProgressCard } from '../../components/profile/LanguageProgressCard';
 
@@ -20,8 +22,10 @@ export default function ProfileScreen() {
   const isOwnProfile = true; // TODO: add logic to determine if viewing own profile
   const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
   const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(profile?.id || '');
-  const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError } = useActiveConnections(profile?.id || '');
+  const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError, refresh: refreshConnections } = useActiveConnections(profile?.id || '');
   const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError } = useAchievements(profile?.id || '');
+  const [showAddConnection, setShowAddConnection] = useState(false);
+  const [showAddAchievement, setShowAddAchievement] = useState(false);
 
   useEffect(() => {
     if (profile?.native_language) {
@@ -209,6 +213,9 @@ export default function ProfileScreen() {
           <View style={styles.connectionCards}>
             {renderConnections()}
           </View>
+          <Pressable style={styles.addConnectionButton} onPress={() => setShowAddConnection(true)}>
+              <Text style={styles.addConnectionButtonText}>Add Connection</Text>
+            </Pressable>
         </View>
 
         <View style={styles.section}>
@@ -223,8 +230,13 @@ export default function ProfileScreen() {
           <View style={styles.achievements}>
             {renderAchievements()}
           </View>
+          <Pressable style={styles.addAchievementButton} onPress={() => setShowAddAchievement(true)}>
+            <Text style={styles.addAchievementButtonText}>Add Achievement</Text>
+          </Pressable>
         </View>
       </ScrollView>
+      <AddConnectionModal visible={showAddConnection} onClose={() => { setShowAddConnection(false); refreshConnections(); }} />
+      <AddAchievementModal visible={showAddAchievement} onClose={() => setShowAddAchievement(false)} onAdded={() => setShowAddAchievement(false)} saveLabel="Save" />
     </SafeAreaView>
   );
 }
@@ -347,5 +359,33 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     textAlign: 'center',
     padding: 16,
+  },
+  addConnectionButton: {
+    backgroundColor: Colors.light.buttonPrimary,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    alignSelf: 'center',
+    marginVertical: 8,
+  },
+  addConnectionButtonText: {
+    color: Colors.light.background,
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  addAchievementButton: {
+    backgroundColor: Colors.light.buttonPrimary,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    alignSelf: 'center',
+    marginLeft: 8,
+  },
+  addAchievementButtonText: {
+    color: Colors.light.background,
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
 }); 

@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Colors } from '../../app/providers/theme-provider';
 
@@ -9,6 +10,7 @@ interface LanguageProgressCardProps {
 }
 
 export function LanguageProgressCard({ language, level, activities }: LanguageProgressCardProps) {
+  const [showAll, setShowAll] = useState(false);
 
   // convert seconds to hours and minutes
   const formatTime = (seconds: number) => {
@@ -31,6 +33,15 @@ export function LanguageProgressCard({ language, level, activities }: LanguagePr
     icon: iconMap[type] || 'star-outline', // default icon for unknown activities
   }));
 
+  // only show up to 4 activities unless expanded
+  const visibleActivities = showAll ? activityList : activityList.slice(0, 4);
+
+  // split into rows of 2
+  const rows: typeof activityList[][] = [];
+  for (let i = 0; i < visibleActivities.length; i += 2) {
+    rows.push(visibleActivities.slice(i, i + 2));
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -42,15 +53,33 @@ export function LanguageProgressCard({ language, level, activities }: LanguagePr
         </View>
       </View>
       <View style={styles.activitiesContainer}>
-        {activityList.map((activity) => (
-          <View key={activity.type} style={styles.activityItemRow}>
-            <MaterialCommunityIcons name={activity.icon as any} size={28} color={Colors.light.rust} style={styles.activityIcon} />
-            <View style={styles.activityItem}>
-              <Text style={styles.activityTime}>{activity.time}</Text>
-              <Text style={styles.activityLabel}>{activity.type}</Text>
-            </View>
+        {rows.map((row, rowIdx) => (
+          <View
+            key={rowIdx}
+            style={[
+              styles.activityRow,
+              row.length === 1 ? styles.centeredRow : undefined,
+            ]}
+          >
+            {row.map((activity) => (
+              <View key={activity.type} style={styles.activityItemRow}>
+                <MaterialCommunityIcons name={activity.icon as any} size={28} color={Colors.light.rust} style={styles.activityIcon} />
+                <View style={styles.activityItem}>
+                  <Text style={styles.activityTime}>{activity.time}</Text>
+                  <Text style={styles.activityLabel}>{activity.type}</Text>
+                </View>
+              </View>
+            ))}
           </View>
         ))}
+        {activityList.length > 4 && (
+          <Text
+            style={styles.showMore}
+            onPress={() => setShowAll((prev) => !prev)}
+          >
+            {showAll ? 'Show less' : 'Show more'}
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -91,13 +120,22 @@ const styles = StyleSheet.create({
   },
   activitiesContainer: {
     flexDirection: 'column',
-    gap: 16,
+    gap: 8,
     justifyContent: 'space-between',
+  },
+  activityRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  centeredRow: {
+    justifyContent: 'center',
   },
   activityItemRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    flex: 1,
+    marginHorizontal: 4,
   },
   activityIcon: {
     marginRight: 12,
@@ -115,5 +153,12 @@ const styles = StyleSheet.create({
   activityLabel: {
     fontSize: 14,
     color: Colors.light.textSecondary,
+  },
+  showMore: {
+    color: Colors.light.rust,
+    textAlign: 'center',
+    marginTop: 8,
+    fontWeight: '600',
+    fontSize: 14,
   },
 }); 
