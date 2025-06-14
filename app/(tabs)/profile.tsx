@@ -23,7 +23,7 @@ export default function ProfileScreen() {
   const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
   const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(profile?.id || '');
   const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError, refresh: refreshConnections } = useActiveConnections(profile?.id || '');
-  const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError } = useAchievements(profile?.id || '');
+  const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError, refresh: refreshAchievements } = useAchievements(profile?.id || '');
   const [showAddConnection, setShowAddConnection] = useState(false);
   const [showAddAchievement, setShowAddAchievement] = useState(false);
 
@@ -236,7 +236,7 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
       <AddConnectionModal visible={showAddConnection} onClose={() => { setShowAddConnection(false); refreshConnections(); }} />
-      <AddAchievementModal visible={showAddAchievement} onClose={() => setShowAddAchievement(false)} onAdded={() => setShowAddAchievement(false)} saveLabel="Save" />
+      <AddAchievementModal visible={showAddAchievement} onClose={() => { setShowAddAchievement(false); refreshAchievements(); }} onAdded={() => { setShowAddAchievement(false); refreshAchievements(); }} saveLabel="Save" />
     </SafeAreaView>
   );
 }
