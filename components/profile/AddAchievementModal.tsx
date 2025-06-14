@@ -39,6 +39,15 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
     setError(null);
   }
 
+  // format date as 'month day, year' and localize
+  function formatDate(date: Date) {
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+
   async function handleSave() {
     if (!title.trim() || !type || !date) {
       setError('Please fill in all required fields.');
@@ -109,7 +118,7 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
             <Text style={styles.label}>Date Obtained *</Text>
             <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
               <MaterialCommunityIcons name="calendar" size={20} color={Colors.light.textSecondary} />
-              <Text style={styles.dateText}>{date.toLocaleDateString()}</Text>
+              <Text style={styles.dateText}>{formatDate(date)}</Text>
             </TouchableOpacity>
             {showDatePicker && (
               <DateTimePicker
@@ -131,7 +140,7 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
               value={notes}
               onChangeText={setNotes}
               multiline
-              numberOfLines={4}
+              numberOfLines={8}
               maxLength={200}
             />
             {error && <Text style={styles.errorText}>{error}</Text>}
