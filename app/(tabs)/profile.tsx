@@ -3,7 +3,7 @@ import { useActiveConnections } from '@/hooks/useActiveConnections';
 import { useLanguageSummary } from '@/hooks/useLanguageSummary';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -16,6 +16,14 @@ import AddAchievementModal from '../../components/profile/AddAchievementModal';
 import AddConnectionModal from '../../components/profile/AddConnectionModal';
 import { ConnectionCard } from '../../components/profile/ConnectionCard';
 import { LanguageProgressCard } from '../../components/profile/LanguageProgressCard';
+
+const ACHIEVEMENT_TYPE_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+  award: 'trophy-outline',
+  certificate: 'certificate-outline',
+  course: 'book-open-outline',
+  badge: 'shield-star-outline',
+  other: 'star-outline',
+};
 
 export default function ProfileScreen() {
   const { profile } = useAuth();
@@ -125,14 +133,15 @@ export default function ProfileScreen() {
       return <Text style={styles.noDataText}>No achievements yet</Text>;
     }
 
-    return achievements.map((achievement) => (
+    return achievements.map((achievement: any) => (
       <AchievementItem
         key={achievement.id}
         title={achievement.title}
-        description={achievement.description}
-        icon={achievement.icon}
-        progress={achievement.progress}
-        isCompleted={achievement.is_completed}
+        notes={achievement.notes || ''}
+        icon={ACHIEVEMENT_TYPE_ICONS[achievement.type] || 'star-outline'}
+        progress={0}
+        isCompleted={false}
+        date={achievement.obtained_date || achievement.created_at}
       />
     ));
   };
@@ -381,6 +390,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignSelf: 'center',
     marginLeft: 8,
+    marginTop: 10
   },
   addAchievementButtonText: {
     color: Colors.light.background,

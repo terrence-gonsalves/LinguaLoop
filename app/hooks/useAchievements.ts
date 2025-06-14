@@ -5,11 +5,13 @@ import { useEffect, useState } from 'react';
 export interface Achievement {
   id: string;
   title: string;
-  description: string;
+  notes: string;
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
   progress: number;
   is_completed: boolean;
   created_at: string;
+  type: string;
+  obtained_date: string;
 }
 
 export function useAchievements(userId: string) {
