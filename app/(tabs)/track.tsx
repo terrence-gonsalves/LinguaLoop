@@ -1,8 +1,14 @@
 import Colors from '@/constants/Colors';
+import { useUserLanguages } from '@/hooks/useUserLanguages';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useState } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
+import { LanguageDropdown } from '../../components/forms/LanguageDropdown';
 
 interface ActivityOptionProps {
   title: string;
@@ -31,18 +37,99 @@ const ActivityOption = ({ title, icon, isSelected, onPress }: ActivityOptionProp
 );
 
 export default function TrackActivityScreen() {
+  const { profile } = useAuth();
+  const { languages, isLoading: isLoadingLanguages } = useUserLanguages(profile?.id || '');
   const [selectedActivity, setSelectedActivity] = useState<string>('');
-  const [duration, setDuration] = useState<number>(30);
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [duration, setDuration] = useState<number>(0);
   const [notes, setNotes] = useState<string>('');
+  const [date, setDate] = useState<Date>(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  const handleSaveActivity = () => {
-    // TODO: Implement save functionality
-    console.log({
-      activity: selectedActivity,
-      duration,
-      notes,
-      date: new Date()
+  // helper to reset all fields
+  function resetFields() {
+    setDate(new Date());
+    setSelectedLanguage(null);
+    setSelectedActivity('');
+    setDuration(0);
+    setNotes('');
+
+    // scroll to top
+    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+  }
+
+  // format date as 'month day, year' and localize
+  function formatDate(date: Date) {
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
+  }
+
+  // save handler
+  const handleSaveActivity = async () => {
+    if (!selectedLanguage) {
+      Toast.show({ type: 'error', text1: 'Language Required', text2: 'Please select a language.' });
+      return;
+    }
+
+    if (!selectedActivity) {
+      Toast.show({ type: 'error', text1: 'Activity Type Required', text2: 'Please select an activity type.' });
+      return;
+    }
+
+    if (!duration || duration <= 0) {
+      Toast.show({ type: 'error', text1: 'Duration Required', text2: 'Please enter a duration greater than 0.' });
+      return;
+    }
+
+    if (!profile?.id) {
+      Toast.show({ type: 'error', text1: 'User Error', text2: 'User not found.' });
+      return;
+    }
+
+    // lookup activity_id from activities table
+    let activityId: string | null = null;
+
+    try {
+      const { data: activityData, error: activityError } = await supabase
+        .from('activities')
+        .select('id')
+        .eq('name', selectedActivity.charAt(0).toUpperCase() + selectedActivity.slice(1))
+        .single();
+
+      if (activityError || !activityData) {
+        throw activityError || new Error('Activity not found');
+      }
+
+      activityId = activityData.id;
+    } catch (err) {
+      Toast.show({ type: 'error', text1: 'Activity Error', text2: 'Could not find activity type in database.' });
+      return;
+    }
+
+    // insert into time_entries
+    try {
+      const { error } = await supabase
+        .from('time_entries')
+        .insert({
+          user_id: profile.id,
+          language_id: selectedLanguage,
+          activity_id: activityId,
+          duration_seconds: duration * 60,
+          notes: notes || null,
+          activity_date: date,
+        });
+
+      if (error) throw error;
+
+      Toast.show({ type: 'success', text1: 'Activity Saved', text2: 'Your activity has been tracked.' });
+      resetFields();
+    } catch (err: any) {
+      Toast.show({ type: 'error', text1: 'Save Error', text2: err.message || 'Failed to save activity.' });
+    }
   };
 
   return (
@@ -52,6 +139,7 @@ export default function TrackActivityScreen() {
         style={styles.keyboardAvoidingView}
       >
         <ScrollView 
+          ref={scrollViewRef}
           style={styles.scrollView} 
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollViewContent}
@@ -63,10 +151,40 @@ export default function TrackActivityScreen() {
             {/* Date Section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Date of Activity</Text>
-              <Pressable style={styles.dateButton}>
+              <Pressable style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
                 <MaterialCommunityIcons name="calendar" size={20} color={Colors.light.textSecondary} />
-                <Text style={styles.dateText}>May 31st, 2025</Text>
+                <Text style={styles.dateText}>{formatDate(date)}</Text>
               </Pressable>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                  maximumDate={new Date()}
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) setDate(selectedDate);
+                  }}
+                  locale={undefined}
+                  style={styles.datePicker}
+                />
+              )}
+            </View>
+
+            {/* Language Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Language</Text>
+              <View style={styles.languageDropdownContainer}>
+                <MaterialCommunityIcons name="translate" size={20} color={Colors.light.textSecondary} style={styles.languageIcon} />
+                <LanguageDropdown
+                  label=""
+                  data={languages}
+                  value={selectedLanguage}
+                  onChange={setSelectedLanguage}
+                  dropdownStyle={styles.dropdownButton}
+                  style={styles.languageDropdown}
+                />
+              </View>
             </View>
 
             {/* Activity Type Section */}
@@ -107,28 +225,28 @@ export default function TrackActivityScreen() {
                 <View style={styles.durationInputContainer}>
                   <Pressable 
                     style={styles.durationButton}
-                    onPress={() => setDuration(prev => Math.max(0, prev - 5))}
+                    onPress={() => setDuration(prev => Math.max(0, prev - 1))}
                   >
                     <Text style={styles.durationButtonText}>−</Text>
                   </Pressable>
                   <Text style={styles.durationValue}>{duration}</Text>
                   <Pressable 
                     style={styles.durationButton}
-                    onPress={() => setDuration(prev => prev + 5)}
+                    onPress={() => setDuration(prev => prev + 1)}
                   >
                     <Text style={styles.durationButtonText}>+</Text>
                   </Pressable>
                   <Text style={styles.durationUnit}>minutes</Text>
                 </View>
                 <View style={styles.quickDurationContainer}>
-                  <Pressable style={styles.quickDurationButton} onPress={() => setDuration(15)}>
-                    <Text style={styles.quickDurationText}>+15 min</Text>
+                  <Pressable style={styles.quickDurationButton} onPress={() => setDuration(prev => prev +15)}>
+                    <Text style={styles.quickDurationText}>+ 15 min</Text>
                   </Pressable>
-                  <Pressable style={styles.quickDurationButton} onPress={() => setDuration(30)}>
-                    <Text style={styles.quickDurationText}>+30 min</Text>
+                  <Pressable style={styles.quickDurationButton} onPress={() => setDuration(prev => prev +30)}>
+                    <Text style={styles.quickDurationText}>+ 30 min</Text>
                   </Pressable>
-                  <Pressable style={styles.quickDurationButton} onPress={() => setDuration(60)}>
-                    <Text style={styles.quickDurationText}>+60 min</Text>
+                  <Pressable style={styles.quickDurationButton} onPress={() => setDuration(prev => prev +60)}>
+                    <Text style={styles.quickDurationText}>+ 60 min</Text>
                   </Pressable>
                 </View>
               </View>
@@ -152,7 +270,6 @@ export default function TrackActivityScreen() {
 
             {/* Save Button */}
             <Pressable style={styles.saveButton} onPress={handleSaveActivity}>
-              <MaterialCommunityIcons name="check-circle-outline" size={24} color={Colors.light.textTertiary} />
               <Text style={styles.saveButtonText}>Save Activity</Text>
             </Pressable>
           </View>
@@ -188,7 +305,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 10,
+    marginTop: 10,
   },
   sectionTitle: {
     fontSize: 16,
@@ -208,6 +326,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  dropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    borderRadius: 0,
+    paddingTop: 15,
+    paddingLeft: 40,
+    marginLeft: -30,
+    gap: 10,
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   dateText: {
     fontSize: 16,
@@ -276,7 +409,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     backgroundColor: Colors.light.ice,
-    borderRadius: 20,
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -303,7 +436,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.light.background,
     padding: 12,
-    borderRadius: 12,
+    borderRadius: 5,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -340,7 +473,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 5,
     gap: 8,
     marginTop: 24,
     shadowColor: '#000',
@@ -352,6 +485,34 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.light.textTertiary,
+    color: Colors.light.buttonPrimary,
+  },
+  languageDropdownContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.background,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    marginTop: 0,
+    height: 56,
+  },
+  languageIcon: {
+    marginRight: 0,
+  },
+  languageDropdown: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    paddingHorizontal: 0,
+  },
+  datePicker: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
   },
 });

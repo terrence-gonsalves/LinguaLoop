@@ -4,7 +4,7 @@ import { Colors } from '../../app/providers/theme-provider';
 
 interface AchievementItemProps {
   title: string;
-  description: string;
+  notes: string;
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
   progress: number;
   isCompleted?: boolean;
@@ -13,7 +13,7 @@ interface AchievementItemProps {
 
 export function AchievementItem({ 
   title, 
-  description, 
+  notes, 
   icon, 
   progress, 
   isCompleted = false,
@@ -33,9 +33,9 @@ export function AchievementItem({
           <Text style={styles.date}>{date}</Text>
           <Text style={styles.title}>{title}</Text>
         </View>
-        <Text style={styles.description}>{description}</Text>
+        <Text style={styles.description}>{notes}</Text>
         <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${progress}%` }]} />
+          <View style={[styles.progressFill, { width: '100%' }]} />
         </View>
       </View>
     </View>
