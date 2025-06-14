@@ -1,9 +1,9 @@
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveConnections } from '@/hooks/useActiveConnections';
-import { useLanguageSummary, type LanguageSummary } from '@/hooks/useLanguageSummary';
+import { useLanguageSummary } from '@/hooks/useLanguageSummary';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -12,16 +12,28 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../app/providers/theme-provider';
 import DefaultAvatar from '../../components/DefaultAvatar';
 import { AchievementItem } from '../../components/profile/AchievementItem';
+import AddAchievementModal from '../../components/profile/AddAchievementModal';
+import AddConnectionModal from '../../components/profile/AddConnectionModal';
 import { ConnectionCard } from '../../components/profile/ConnectionCard';
 import { LanguageProgressCard } from '../../components/profile/LanguageProgressCard';
+
+const ACHIEVEMENT_TYPE_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+  award: 'trophy-outline',
+  certificate: 'certificate-outline',
+  course: 'book-open-outline',
+  badge: 'shield-star-outline',
+  other: 'star-outline',
+};
 
 export default function ProfileScreen() {
   const { profile } = useAuth();
   const isOwnProfile = true; // TODO: add logic to determine if viewing own profile
   const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
   const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(profile?.id || '');
-  const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError } = useActiveConnections(profile?.id || '');
-  const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError } = useAchievements(profile?.id || '');
+  const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError, refresh: refreshConnections } = useActiveConnections(profile?.id || '');
+  const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError, refresh: refreshAchievements } = useAchievements(profile?.id || '');
+  const [showAddConnection, setShowAddConnection] = useState(false);
+  const [showAddAchievement, setShowAddAchievement] = useState(false);
 
   useEffect(() => {
     if (profile?.native_language) {
@@ -63,7 +75,8 @@ export default function ProfileScreen() {
       return <Text style={styles.noDataText}>No languages added yet</Text>;
     }
 
-    return languages.map((lang: LanguageSummary) => (
+    // only show up to 2 languages
+    return languages.slice(0, 2).map((lang: any) => (
       <LanguageProgressCard
         key={lang.id}
         language={lang.name}
@@ -97,7 +110,8 @@ export default function ProfileScreen() {
         username={connection.user_name || ''}
         nativeLanguage={connection.native_language || 'Unknown'}
         avatarUrl={connection.avatar_url || undefined}
-        aboutMe={connection.about_me || ''}
+        languages={[]}
+        streak={0}
       />
     ));
   };
@@ -119,14 +133,15 @@ export default function ProfileScreen() {
       return <Text style={styles.noDataText}>No achievements yet</Text>;
     }
 
-    return achievements.map((achievement) => (
+    return achievements.map((achievement: any) => (
       <AchievementItem
         key={achievement.id}
         title={achievement.title}
-        description={achievement.description}
-        icon={achievement.icon}
-        progress={achievement.progress}
-        isCompleted={achievement.is_completed}
+        notes={achievement.notes || ''}
+        icon={ACHIEVEMENT_TYPE_ICONS[achievement.type] || 'star-outline'}
+        progress={0}
+        isCompleted={false}
+        date={achievement.obtained_date || achievement.created_at}
       />
     ));
   };
@@ -207,6 +222,9 @@ export default function ProfileScreen() {
           <View style={styles.connectionCards}>
             {renderConnections()}
           </View>
+          <Pressable style={styles.addConnectionButton} onPress={() => setShowAddConnection(true)}>
+              <Text style={styles.addConnectionButtonText}>Add Connection</Text>
+            </Pressable>
         </View>
 
         <View style={styles.section}>
@@ -221,8 +239,13 @@ export default function ProfileScreen() {
           <View style={styles.achievements}>
             {renderAchievements()}
           </View>
+          <Pressable style={styles.addAchievementButton} onPress={() => setShowAddAchievement(true)}>
+            <Text style={styles.addAchievementButtonText}>Add Achievement</Text>
+          </Pressable>
         </View>
       </ScrollView>
+      <AddConnectionModal visible={showAddConnection} onClose={() => { setShowAddConnection(false); refreshConnections(); }} />
+      <AddAchievementModal visible={showAddAchievement} onClose={() => { setShowAddAchievement(false); refreshAchievements(); }} onAdded={() => { setShowAddAchievement(false); refreshAchievements(); }} saveLabel="Save" />
     </SafeAreaView>
   );
 }
@@ -345,5 +368,34 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     textAlign: 'center',
     padding: 16,
+  },
+  addConnectionButton: {
+    backgroundColor: Colors.light.buttonPrimary,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    alignSelf: 'center',
+    marginVertical: 8,
+  },
+  addConnectionButtonText: {
+    color: Colors.light.background,
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  addAchievementButton: {
+    backgroundColor: Colors.light.buttonPrimary,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    alignSelf: 'center',
+    marginLeft: 8,
+    marginTop: 10
+  },
+  addAchievementButtonText: {
+    color: Colors.light.background,
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
 }); 

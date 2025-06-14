@@ -31,7 +31,7 @@ export interface LanguageSummary {
 }
 
 export function useLanguageSummary(userId: string) {
-  const [languages, setLanguages] = useState<LanguageSummary[]>([]);
+  const [languages, setLanguages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +43,17 @@ export function useLanguageSummary(userId: string) {
         setIsLoading(true);
         setError(null);
 
-        // first, get the user's languages
+        // fetch all activities
+        const { data: activitiesData, error: activitiesError } = await supabase
+          .from('activities')
+          .select('id, name');
+        if (activitiesError) throw activitiesError;
+        const activitiesList = (activitiesData || []).map((a: any) => ({
+          id: a.id,
+          name: a.name,
+        }));
+
+        // get the user's languages
         const { data: languagesData, error: languagesError } = await supabase
           .from('languages')
           .select(`
@@ -55,57 +65,36 @@ export function useLanguageSummary(userId: string) {
               name
             )
           `)
-          .eq('user_id', userId)
-          .limit(2);
-
+          .eq('user_id', userId);
         if (languagesError) throw languagesError;
 
-        // for each language, get the time entries
+        // for each language, get the time entries and sum durations by activity
         const languagesWithTime = await Promise.all(
-          (languagesData || []).map(async (rawLanguage) => {
-
-            // type assertion for language data
+          (languagesData || []).map(async (rawLanguage: any) => {
             const language = {
               ...rawLanguage,
               master_languages: {
-                name: rawLanguage.master_languages[0]?.name || '',
+                name: rawLanguage.master_languages?.[0]?.name || rawLanguage.master_languages?.name || '',
               },
-            } as Language;
-
-            const { data: timeData, error: timeError } = await supabase
-              .from('time_entries')
-              .select(`
-                duration_seconds,
-                activities!inner (
-                  name
-                )
-              `)
-              .eq('user_id', userId)
-              .eq('language_id', language.id);
-
-            if (timeError) throw timeError;
-
-            // calculate total time for each activity type
-            const activities = {
-              reading: 0,
-              writing: 0,
-              speaking: 0,
-              listening: 0,
             };
 
-            (timeData || []).forEach((rawEntry) => {
+            // fetch time entries for this language
+            const { data: timeData, error: timeError } = await supabase
+              .from('time_entries')
+              .select('duration_seconds, activity_id')
+              .eq('user_id', userId)
+              .eq('language_id', language.id);
+            if (timeError) throw timeError;
 
-              // type assertion for time entry data
-              const entry = {
-                ...rawEntry,
-                activities: {
-                  name: rawEntry.activities[0]?.name || '',
-                },
-              } as TimeEntry;
-
-              const activityName = entry.activities.name.toLowerCase();
-              if (activityName in activities) {
-                activities[activityName as keyof typeof activities] += entry.duration_seconds;
+            // sum durations for each activity type
+            const activityDurations: Record<string, number> = {};
+            activitiesList.forEach((activity) => {
+              activityDurations[activity.name] = 0;
+            });
+            (timeData || []).forEach((entry: any) => {
+              const activity = activitiesList.find((a) => a.id === entry.activity_id);
+              if (activity) {
+                activityDurations[activity.name] += entry.duration_seconds;
               }
             });
 
@@ -116,7 +105,7 @@ export function useLanguageSummary(userId: string) {
               id: language.id,
               name: languageName,
               level: language.level || 'Beginner',
-              activities,
+              activities: activityDurations,
             };
           })
         );
@@ -130,10 +119,9 @@ export function useLanguageSummary(userId: string) {
       }
     }
 
-    // initial load
     loadLanguageSummary();
 
-    // set up real-time subscription
+    // real-time subscription (optional, can be kept as is)
     subscription = supabase
       .channel('language-summary-changes')
       .on(
@@ -145,8 +133,6 @@ export function useLanguageSummary(userId: string) {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-
-          // reload data when changes occur
           loadLanguageSummary();
         }
       )
@@ -159,8 +145,6 @@ export function useLanguageSummary(userId: string) {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-
-          // reload data when changes occur
           loadLanguageSummary();
         }
       )

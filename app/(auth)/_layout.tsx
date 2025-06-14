@@ -10,7 +10,8 @@ export default function AuthLayout() {
 
   useEffect(() => {
     if (!isLoading && session) {
-      // Redirect to dashboard if already authenticated
+
+      // redirect to dashboard if already authenticated
       router.replace('/(tabs)');
     }
   }, [session, isLoading]);
@@ -25,18 +26,22 @@ export default function AuthLayout() {
         <Stack
           screenOptions={{
             headerShown: false,
-            // Add animation config to make transitions smoother
+
+            // add animation config to make transitions smoother
             animation: 'slide_from_right',
-            // Prevent gesture-based dismissal which can cause blank screens
+
+            // prevent gesture-based dismissal which can cause blank screens
             gestureEnabled: false,
-            // Ensure screens are always mounted
+
+            // ensure screens are always mounted
             presentation: 'card',
           }}
         >
           <Stack.Screen 
             name="login" 
             options={{
-              // Prevent this screen from being removed from stack
+
+              // prevent this screen from being removed from stack
               gestureEnabled: false,
             }}
           />

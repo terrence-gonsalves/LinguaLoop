@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Colors } from '../../app/providers/theme-provider';
 
@@ -14,18 +14,28 @@ interface LanguageDropdownProps {
   value: string | null;
   onChange: (value: string) => void;
   excludeValues?: string[];
+  style?: ViewStyle;
+  dropdownStyle?: ViewStyle;
 }
 
-export function LanguageDropdown({ label, data, value, onChange, excludeValues = [] }: LanguageDropdownProps) {
+export function LanguageDropdown({ 
+  label, 
+  data, 
+  value, 
+  onChange, 
+  excludeValues = [], 
+  style,
+  dropdownStyle,
+}: LanguageDropdownProps) {
   const filteredData = data.filter(item => !excludeValues.includes(item.id));
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+    <View style={[styles.container, style]}>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
       <Dropdown
-        style={styles.dropdown}
-        placeholderStyle={styles.placeholderText}
-        selectedTextStyle={styles.selectedText}
+        style={[styles.dropdown, dropdownStyle]}
+        placeholderStyle={[styles.placeholderText, { color: Colors.light.textPrimary }]}
+        selectedTextStyle={[styles.selectedText, { color: Colors.light.textPrimary }]}
         containerStyle={styles.dropdownContainer}
         itemTextStyle={styles.itemText}
         iconStyle={styles.icon}
@@ -59,19 +69,21 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   dropdown: {
-    height: 44,
+    height: 56,
     backgroundColor: Colors.light.background,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
+    borderRadius: 12,
+    paddingHorizontal: 16,
   },
   dropdownContainer: {
     backgroundColor: Colors.light.background,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderRadius: 12,
     marginTop: 4,
+    borderWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   icon: {
     width: 24,
@@ -79,15 +91,13 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
   },
   selectedText: {
     fontSize: 16,
-    color: Colors.light.text,
   },
   itemText: {
     fontSize: 16,
-    color: Colors.light.text,
+    color: Colors.light.textPrimary,
     padding: 8,
   },
 }); 
