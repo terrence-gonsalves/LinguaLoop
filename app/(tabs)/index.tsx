@@ -1,6 +1,11 @@
 import Colors from '@/constants/Colors';
+import { useDailyQuote } from '@/hooks/useDailyQuote';
+import { useWeeklyStreak } from '@/hooks/useWeeklyStreak';
+import { useAuth } from '@/lib/auth-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
+import React from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultAvatar from '../../components/DefaultAvatar';
 
@@ -18,19 +23,66 @@ const ActivityCard = ({ title, icon }: ActivityCardProps) => (
 );
 
 export default function DashboardScreen() {
+  const { quote, isLoading } = useDailyQuote();
+  const { profile } = useAuth();
+  const { week, isLoading: isStreakLoading } = useWeeklyStreak(profile?.id);
+
+  // format current date as 'April 11, 2025'
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const weekDayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+
         {/* User Profile Section */}
         <View style={styles.profileSection}>
           <View style={styles.profileInfo}>
             <View>
-              <Text style={styles.welcomeText}>Welcome back,</Text>
-              <Text style={styles.userName}>Sarah</Text>
+              <Text style={styles.welcomeText}>Welcome</Text>
+              {profile?.name && <Text style={styles.userName}>{profile.name}</Text>}
             </View>
             <View style={styles.profileImageContainer}>
-              <DefaultAvatar size={50} />
+              {profile?.avatar_url ? (
+                <ExpoImage
+                  source={{ uri: profile.avatar_url }}
+                  style={styles.profileImage}
+                  contentFit="cover"
+                />
+              ) : (
+                <DefaultAvatar size={60} letter={profile?.name?.[0] || 'U'} />
+              )}
             </View>
+          </View>
+        </View>
+
+        {/* Daily Streak Section */}
+        <View style={styles.streakSection}>
+          <Text style={styles.streakDate}>{formattedDate}</Text>
+          <View style={styles.streakRow}>
+            {week.map((day, idx) => {
+              const isToday = day.date.toDateString() === today.toDateString();
+              return (
+                <View key={idx} style={[styles.streakDay, isToday && styles.streakDayToday]}>
+                  <Text style={[styles.streakDayLabel, isToday && styles.streakDayLabelToday]}>
+                    {weekDayLabels[idx]}
+                  </Text>
+                  <Text style={[styles.streakDayNum, isToday && styles.streakDayNumToday]}>
+                    {day.date.getDate().toString().padStart(2, '0')}
+                  </Text>
+                  {day.tracked ? (
+                    <MaterialCommunityIcons name="fire" size={24} color={Colors.light.rust} />
+                  ) : (
+                    <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color={Colors.light.textSecondary} />
+                  )}
+                </View>
+              );
+            })}
           </View>
         </View>
 
@@ -67,33 +119,19 @@ export default function DashboardScreen() {
         </View>
 
         {/* Daily Inspiration */}
-        <View style={styles.inspirationCard}>
-          <View style={styles.inspirationHeader}>
-            <MaterialCommunityIcons name="format-quote-open" size={24} color={Colors.light.rust} />
-            <Text style={styles.inspirationTitle}>Daily Inspiration</Text>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Daily Inspiration</Text>
           </View>
-          <Text style={styles.quoteText}>
-            "The beautiful thing about learning is that no one can take it away from you."
-          </Text>
-          <Text style={styles.quoteAuthor}>- B.B. King</Text>
-        </View>
-
-        {/* Learning Journey */}
-        <View style={styles.journeySection}>
-          <Text style={styles.sectionTitle}>Your Learning Journey</Text>
-          <View style={styles.journeyStats}>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Current Streak</Text>
-              <Text style={styles.statValue}>14 Days</Text>
-            </View>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Words Mastered</Text>
-              <Text style={styles.statValue}>523</Text>
-            </View>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Next Goal</Text>
-              <Text style={styles.statValue}>B2 Fluency</Text>
-            </View>
+          <View style={styles.quoteCard}>
+            {isLoading ? (
+              <ActivityIndicator size="small" color={Colors.light.rust} />
+            ) : (
+              <>
+                <Text style={styles.quoteText}>"{quote.quote}"</Text>
+                <Text style={styles.quoteAuthor}>- {quote.author}</Text>
+              </>
+            )}
           </View>
         </View>
 
@@ -133,7 +171,7 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 16,
-    color: Colors.light.textSecondary,
+    color: Colors.light.textPrimary,
   },
   userName: {
     fontSize: 24,
@@ -142,9 +180,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   profileImageContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 60,
+    height: 60,
+    borderRadius: 50,
     backgroundColor: Colors.light.background,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -216,22 +254,26 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     marginTop: 4,
   },
-  inspirationCard: {
+  section: {
     backgroundColor: Colors.light.background,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
   },
-  inspirationHeader: {
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
   },
-  inspirationTitle: {
-    fontSize: 16,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: '600',
-    color: Colors.light.rust,
-    marginLeft: 8,
+    color: Colors.light.textPrimary,
+  },
+  quoteCard: {
+    padding: 15,
+    borderRadius: 16,
+    backgroundColor: Colors.light.background,
   },
   quoteText: {
     fontSize: 16,
@@ -250,12 +292,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.light.textPrimary,
-    marginBottom: 16,
   },
   journeyStats: {
     gap: 12,
@@ -287,5 +323,57 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.light.textSecondary,
     lineHeight: 20,
+  },
+  streakSection: {
+    backgroundColor: Colors.light.background,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+  },
+  streakDate: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: Colors.light.textPrimary,
+    marginBottom: 12,
+  },
+  streakRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  streakDay: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    minWidth: 36,
+    padding: 2,
+  },
+  streakDayLabel: {
+    fontSize: 13,
+    color: Colors.light.textSecondary,
+    fontWeight: '500',
+  },
+  streakDayNum: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.light.textPrimary,
+    marginTop: 2,
+    marginBottom: 2,
+  },
+  streakDayToday: {
+    backgroundColor: Colors.light.rust,
+    borderRadius: 8,
+    padding: 4,
+  },
+  streakDayLabelToday: {
+    fontSize: 13,
+    color: Colors.light.text,
+    fontWeight: '700',
+  },
+  streakDayNumToday: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.light.text,
+    marginTop: 2,
+    marginBottom: 2,
   },
 });
