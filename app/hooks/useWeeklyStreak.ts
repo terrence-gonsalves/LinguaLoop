@@ -21,6 +21,7 @@ export function useWeeklyStreak(userId: string | undefined) {
 
   useEffect(() => {
     if (!userId) return;
+    let subscription: ReturnType<typeof supabase.channel>;
     async function fetchWeek() {
       setIsLoading(true);
       const today = new Date();
@@ -53,6 +54,27 @@ export function useWeeklyStreak(userId: string | undefined) {
       setIsLoading(false);
     }
     fetchWeek();
+
+    // real-time subscription for time_entries
+    subscription = supabase
+      .channel('weekly-streak-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'time_entries',
+          filter: `user_id=eq.${userId}`,
+        },
+        () => {
+          fetchWeek();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, [userId]);
 
   return { week, isLoading };
