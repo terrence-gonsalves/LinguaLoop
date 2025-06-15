@@ -7,6 +7,7 @@ export default {
     textTertiary: '#FFFFFF',
 
     // Background colors
+    callOutBG: '#1B1C20',
     background: '#FFFFFF',
     generalBG: '#F0F3F4',
     formInputBG: '#F0F3F4',

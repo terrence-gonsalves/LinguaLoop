@@ -76,9 +76,15 @@ export default function DashboardScreen() {
                     {day.date.getDate().toString().padStart(2, '0')}
                   </Text>
                   {day.tracked ? (
-                    <MaterialCommunityIcons name="fire" size={24} color={Colors.light.rust} />
+                    isToday ? (
+                      <View style={styles.streakTodayFireCircle}>
+                        <MaterialCommunityIcons name="fire" size={24} color={Colors.light.rust} />
+                      </View>
+                    ) : (
+                      <MaterialCommunityIcons name="fire" size={24} color={Colors.light.rust} />
+                    )
                   ) : (
-                    <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color={Colors.light.textSecondary} />
+                    <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color={Colors.light.textTertiary} />
                   )}
                 </View>
               );
@@ -325,15 +331,15 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   streakSection: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: Colors.light.callOutBG,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
   },
   streakDate: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
-    color: Colors.light.textPrimary,
+    color: Colors.light.textTertiary,
     marginBottom: 12,
   },
   streakRow: {
@@ -349,31 +355,40 @@ const styles = StyleSheet.create({
   },
   streakDayLabel: {
     fontSize: 13,
-    color: Colors.light.textSecondary,
+    color: Colors.light.textTertiary,
     fontWeight: '500',
   },
   streakDayNum: {
     fontSize: 15,
     fontWeight: '600',
-    color: Colors.light.textPrimary,
+    color: Colors.light.textTertiary,
     marginTop: 2,
     marginBottom: 2,
   },
   streakDayToday: {
     backgroundColor: Colors.light.rust,
-    borderRadius: 8,
+    borderRadius: 15,
     padding: 4,
   },
   streakDayLabelToday: {
     fontSize: 13,
-    color: Colors.light.text,
+    color: Colors.light.textTertiary,
     fontWeight: '700',
   },
   streakDayNumToday: {
     fontSize: 15,
     fontWeight: '700',
-    color: Colors.light.text,
+    color: Colors.light.textTertiary,
     marginTop: 2,
     marginBottom: 2,
+  },
+  streakTodayFireCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
   },
 });
