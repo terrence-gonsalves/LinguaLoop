@@ -13,6 +13,7 @@ export default {
     background: '#FFFFFF',
     generalBG: '#F0F3F4',
     formInputBG: '#F0F3F4',
+    buttonBG: '#D97D54',
 
     // tab colors
     tabIconDefault: '#324755',
