@@ -36,7 +36,8 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
 
   async function fetchUsers() {
     setLoading(true);
-    // Fetch all users except current user
+
+    // fetch all users except current user
     const { data: userData } = await supabase
       .from('profiles')
       .select('id, name, user_name, avatar_url, native_language')
