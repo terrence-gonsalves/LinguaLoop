@@ -232,9 +232,6 @@ export default function DashboardScreen() {
 
         {/* Daily Inspiration */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Daily Inspiration</Text>
-          </View>
           <View style={styles.quoteCard}>
             {isLoading ? (
               <ActivityIndicator size="small" color={Colors.light.rust} />
@@ -312,10 +309,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.light.rust,
     borderRadius: 16,
-    padding: 20,
+    padding: 10,
   },
   studyGoalLabel: {
-    color: Colors.light.textLight,
+    color: Colors.light.textPrimary,
     fontSize: 20,
     fontWeight: 'bold',
   },
@@ -381,7 +378,7 @@ const styles = StyleSheet.create({
   section: {
     backgroundColor: Colors.light.background,
     borderRadius: 16,
-    padding: 20,
+    padding: 10,
     marginBottom: 20,
   },
   sectionHeader: {
@@ -514,11 +511,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     borderRadius: 16,
     padding: 20,
+    /*
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    */
   },
   goalHeader: {
     flexDirection: 'row',
