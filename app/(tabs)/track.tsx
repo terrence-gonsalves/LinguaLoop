@@ -4,11 +4,16 @@ import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useRef, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { LanguageDropdown } from '../../components/forms/LanguageDropdown';
+
+interface TrackScreenParams {
+  activity?: string;
+}
 
 interface ActivityOptionProps {
   title: string;
@@ -46,6 +51,19 @@ export default function TrackActivityScreen() {
   const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+  const navigation = useNavigation();
+
+  // set initial activity from URL parameter
+  useEffect(() => {
+    const state = navigation.getState();
+    if (state) {
+      const route = state.routes.find(route => route.name === 'track');
+      const params = route?.params as TrackScreenParams | undefined;
+      if (params?.activity) {
+        setSelectedActivity(params.activity);
+      }
+    }
+  }, [navigation]);
 
   // helper to reset all fields
   function resetFields() {
@@ -192,6 +210,12 @@ export default function TrackActivityScreen() {
               <Text style={styles.sectionTitle}>Activity Type</Text>
               <View style={styles.activityGrid}>
                 <ActivityOption
+                  title="Listening"
+                  icon={<MaterialCommunityIcons name="headphones" size={24} color={selectedActivity === 'listening' ? Colors.light.textTertiary : Colors.light.rust} />}
+                  isSelected={selectedActivity === 'listening'}
+                  onPress={() => setSelectedActivity('listening')}
+                />
+                <ActivityOption
                   title="Reading"
                   icon={<Ionicons name="book-outline" size={24} color={selectedActivity === 'reading' ? Colors.light.textTertiary : Colors.light.rust} />}
                   isSelected={selectedActivity === 'reading'}
@@ -202,12 +226,6 @@ export default function TrackActivityScreen() {
                   icon={<MaterialCommunityIcons name="pencil-outline" size={24} color={selectedActivity === 'writing' ? Colors.light.textTertiary : Colors.light.rust} />}
                   isSelected={selectedActivity === 'writing'}
                   onPress={() => setSelectedActivity('writing')}
-                />
-                <ActivityOption
-                  title="Listening"
-                  icon={<MaterialCommunityIcons name="headphones" size={24} color={selectedActivity === 'listening' ? Colors.light.textTertiary : Colors.light.rust} />}
-                  isSelected={selectedActivity === 'listening'}
-                  onPress={() => setSelectedActivity('listening')}
                 />
                 <ActivityOption
                   title="Speaking"
@@ -408,7 +426,7 @@ const styles = StyleSheet.create({
   durationButton: {
     width: 40,
     height: 40,
-    backgroundColor: Colors.light.ice,
+    backgroundColor: Colors.light.background,
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
