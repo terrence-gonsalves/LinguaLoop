@@ -1,4 +1,5 @@
 import Colors from '@/constants/Colors';
+import { useActivities } from '@/hooks/useActivities';
 import { useDailyQuote } from '@/hooks/useDailyQuote';
 import { useStudyStats } from '@/hooks/useStudyStats';
 import { useWeeklyStreak } from '@/hooks/useWeeklyStreak';
@@ -12,17 +13,32 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import DefaultAvatar from '../../components/DefaultAvatar';
 
+// map activity names to their respective icons
+const ACTIVITY_ICONS: Record<string, { icon: keyof typeof MaterialCommunityIcons.glyphMap, type: 'material' | 'ionicon' }> = {
+  'Reading': { icon: 'book-outline', type: 'ionicon' },
+  'Writing': { icon: 'pencil-outline', type: 'material' },
+  'Listening': { icon: 'headphones', type: 'material' },
+  'Speaking': { icon: 'microphone-outline', type: 'material' },
+};
+
 interface ActivityCardProps {
   title: string;
   icon: React.ReactNode;
+  onPress: () => void;
 }
 
-const ActivityCard = ({ title, icon }: ActivityCardProps) => (
-  <View style={styles.activityCard}>
+const ActivityCard = ({ title, icon, onPress }: ActivityCardProps) => (
+  <Pressable 
+    style={({ pressed }) => [
+      styles.activityCard,
+      pressed && styles.activityCardPressed
+    ]}
+    onPress={onPress}
+  >
     {icon}
     <Text style={styles.activityTitle}>{title}</Text>
     <Text style={styles.activitySubtext}>Log your session</Text>
-  </View>
+  </Pressable>
 );
 
 export default function DashboardScreen() {
@@ -30,6 +46,7 @@ export default function DashboardScreen() {
   const { profile } = useAuth();
   const { week, isLoading: isStreakLoading } = useWeeklyStreak(profile?.id);
   const { stats, isLoading: isStatsLoading } = useStudyStats(profile?.id);
+  const { activities, isLoading: isActivitiesLoading } = useActivities();
 
   // format current date as 'April 11, 2025'
   const today = new Date();
@@ -75,6 +92,20 @@ export default function DashboardScreen() {
         <Text style={styles.goalProgressText}>{progress}%</Text>
       </View>
     );
+  };
+
+  const renderActivityIcon = (activityName: string) => {
+    const iconConfig = ACTIVITY_ICONS[activityName];
+    if (!iconConfig) return null;
+
+    if (iconConfig.type === 'ionicon') {
+      return <Ionicons name={iconConfig.icon as any} size={24} color={Colors.light.rust} />;
+    }
+    return <MaterialCommunityIcons name={iconConfig.icon} size={24} color={Colors.light.rust} />;
+  };
+
+  const handleActivityPress = (activityName: string) => {
+    router.push(`/(tabs)/track?activity=${activityName.toLowerCase()}`);
   };
 
   return (
@@ -133,71 +164,70 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Goal Section */}
-        <View style={styles.goalCard}>
-          {isStatsLoading ? (
-            <ActivityIndicator size="small" color={Colors.light.textPrimary} />
-          ) : (
-            <>
-              <Text style={styles.studyGoalLabel}>Study Goal</Text>
-              {stats.goal ? (
-                <>
-                  <View style={styles.goalHeader}>                    
-                    <Text style={styles.goalTitle}>{stats.goal.title}</Text>
-                    {renderGoalProgress(stats.goal.progress)}
-                  </View>
-                  {stats.goal.description && (
-                    <Text style={styles.goalDescription}>{stats.goal.description}</Text>
-                  )}
-                </>
-              ) : (
-                <Pressable
-                  onPress={() => router.push('/(stack)/goals')}
-                  style={styles.createGoalButton}
-                >
-                  <Text style={styles.createGoalText}>Create a goal</Text>
-                </Pressable>
-              )}
-            </>
-          )}
-        </View>
+        {/* Goal and Study Time Section */}
+        <View style={styles.statsRow}>
+          {/* Goal Section */}
+          <View style={styles.goalCard}>
+            {isStatsLoading ? (
+              <ActivityIndicator size="small" color={Colors.light.textPrimary} />
+            ) : (
+              <>
+                <Text style={styles.studyGoalLabel}>Study Goal</Text>
+                {stats.goal ? (
+                  <>
+                    <View style={styles.goalHeader}>
+                      <Text style={styles.goalTitle}>{stats.goal.title}</Text>
+                      {renderGoalProgress(stats.goal.progress)}
+                    </View>
+                    {stats.goal.description && (
+                      <Text style={styles.goalDescription}>{stats.goal.description}</Text>
+                    )}
+                  </>
+                ) : (
+                  <Pressable
+                    onPress={() => router.push('/(stack)/goals')}
+                    style={styles.createGoalButton}
+                  >
+                    <Text style={styles.createGoalText}>Create a goal</Text>
+                  </Pressable>
+                )}
+              </>
+            )}
+          </View>
 
-        {/* Study Time Card */}
-        <View style={styles.studyTimeCard}>
-          {isStatsLoading ? (
-            <ActivityIndicator size="small" color={Colors.light.textLight} />
-          ) : (
-            <>
-              <Text style={styles.studyTimeLabel}>Total Study Time</Text>
-              <View style={styles.timeContainer}>
-                <Text style={styles.timeNumber}>{stats.totalStudyTime.hours}</Text>
-                <Text style={styles.timeUnit}>h </Text>
-                <Text style={styles.timeNumber}>{stats.totalStudyTime.minutes}</Text>
-                <Text style={styles.timeUnit}>m</Text>
-              </View>
-              <Text style={styles.timeSubtext}>across {stats.languageCount} languages</Text>
-            </>
-          )}
+          {/* Study Time Card */}
+          <View style={styles.studyTimeCard}>
+            {isStatsLoading ? (
+              <ActivityIndicator size="small" color={Colors.light.textLight} />
+            ) : (
+              <>
+                <Text style={styles.studyTimeLabel}>Total Study Time</Text>
+                <View style={styles.timeContainer}>
+                  <Text style={styles.timeNumber}>{stats.totalStudyTime.hours}</Text>
+                  <Text style={styles.timeUnit}>h </Text>
+                  <Text style={styles.timeNumber}>{stats.totalStudyTime.minutes}</Text>
+                  <Text style={styles.timeUnit}>m</Text>
+                </View>
+                <Text style={styles.timeSubtext}>across {stats.languageCount} languages</Text>
+              </>
+            )}
+          </View>
         </View>
 
         {/* Activity Cards Grid */}
         <View style={styles.activityGrid}>
-          <ActivityCard 
-            title="Reading" 
-            icon={<Ionicons name="book-outline" size={24} color={Colors.light.rust} />}
-          />
-          <ActivityCard 
-            title="Writing" 
-            icon={<MaterialCommunityIcons name="pencil-outline" size={24} color={Colors.light.rust} />}
-          />
-          <ActivityCard 
-            title="Listening" 
-            icon={<MaterialCommunityIcons name="headphones" size={24} color={Colors.light.rust} />}
-          />
-          <ActivityCard 
-            title="Speaking" 
-            icon={<MaterialCommunityIcons name="microphone-outline" size={24} color={Colors.light.rust} />}
-          />
+          {isActivitiesLoading ? (
+            <ActivityIndicator size="small" color={Colors.light.rust} />
+          ) : (
+            activities.map((activity) => (
+              <ActivityCard
+                key={activity.id}
+                title={activity.name}
+                icon={renderActivityIcon(activity.name)}
+                onPress={() => handleActivityPress(activity.name)}
+              />
+            ))
+          )}
         </View>
 
         {/* Daily Inspiration */}
@@ -279,10 +309,10 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   studyTimeCard: {
+    flex: 1,
     backgroundColor: Colors.light.rust,
     borderRadius: 16,
     padding: 20,
-    marginBottom: 20,
   },
   studyGoalLabel: {
     color: Colors.light.textLight,
@@ -331,6 +361,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  activityCardPressed: {
+    backgroundColor: Colors.light.background,
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   activityTitle: {
     fontSize: 16,
@@ -387,8 +422,8 @@ const styles = StyleSheet.create({
   },
   statRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 16,
+    marginBottom: 20,
   },
   statLabel: {
     fontSize: 16,
@@ -475,18 +510,15 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   goalCard: {
+    flex: 1,
     backgroundColor: Colors.light.background,
     borderRadius: 16,
     padding: 20,
-    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  goalSection: {
-    marginBottom: 16,
   },
   goalHeader: {
     flexDirection: 'row',
@@ -523,5 +555,10 @@ const styles = StyleSheet.create({
   createGoalText: {
     fontSize: 16,
     color: Colors.light.buttonPrimary,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 20,
   },
 });
