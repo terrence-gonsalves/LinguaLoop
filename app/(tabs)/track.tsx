@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   saveButton: {
-    backgroundColor: Colors.light.rust,
+    backgroundColor: Colors.light.buttonBG,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.light.buttonPrimary,
+    color: Colors.light.textLight,
   },
   languageDropdownContainer: {
     flexDirection: 'row',
