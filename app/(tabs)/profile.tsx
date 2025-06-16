@@ -133,17 +133,25 @@ export default function ProfileScreen() {
       return <Text style={styles.noDataText}>No achievements yet</Text>;
     }
 
-    return achievements.map((achievement: any) => (
-      <AchievementItem
-        key={achievement.id}
-        title={achievement.title}
-        notes={achievement.notes || ''}
-        icon={ACHIEVEMENT_TYPE_ICONS[achievement.type] || 'star-outline'}
-        progress={0}
-        isCompleted={false}
-        date={achievement.obtained_date || achievement.created_at}
-      />
-    ));
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    return achievements.map((achievement: any) => {
+      const dateToShow = achievement.obtained_date || achievement.created_at;
+      const localizedDate = dateToShow
+        ? new Date(dateToShow).toLocaleDateString(undefined, { timeZone: userTimeZone, year: 'numeric', month: 'long', day: 'numeric' })
+        : '';
+      return (
+        <AchievementItem
+          key={achievement.id}
+          title={achievement.title}
+          notes={achievement.notes || ''}
+          icon={ACHIEVEMENT_TYPE_ICONS[achievement.type] || 'star-outline'}
+          progress={0}
+          isCompleted={false}
+          date={localizedDate}
+        />
+      );
+    });
   };
 
   return (

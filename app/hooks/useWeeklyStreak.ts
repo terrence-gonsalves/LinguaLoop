@@ -42,13 +42,16 @@ export function useWeeklyStreak(userId: string | undefined) {
         .eq('user_id', userId)
         .gte('activity_date', fromDate)
         .lte('activity_date', toDate);
+      const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const trackedDates = new Set(
-        (data || []).map((entry: any) => new Date(entry.activity_date).toDateString())
+        (data || []).map((entry: any) =>
+          new Date(entry.activity_date).toLocaleDateString(undefined, { timeZone: userTimeZone })
+        )
       );
       setWeek(
         weekDays.map((date) => ({
           date,
-          tracked: trackedDates.has(date.toDateString()),
+          tracked: trackedDates.has(date.toLocaleDateString(undefined, { timeZone: userTimeZone })),
         }))
       );
       setIsLoading(false);
