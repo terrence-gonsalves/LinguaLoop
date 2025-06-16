@@ -31,16 +31,25 @@ export default function AchievementsScreen() {
       return <Text style={styles.noDataText}>No achievements yet</Text>;
     }
 
-    return achievements.map((achievement) => (
-      <AchievementItem
-        key={achievement.id}
-        title={achievement.title}
-        notes={achievement.notes}
-        icon={achievement.icon}
-        progress={achievement.progress}
-        isCompleted={achievement.is_completed}
-      />
-    ));
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    return achievements.map((achievement) => {
+      const dateToShow = achievement.obtained_date || achievement.created_at;
+      const localizedDate = dateToShow
+        ? new Date(dateToShow).toLocaleDateString(undefined, { timeZone: userTimeZone, year: 'numeric', month: 'long', day: 'numeric' })
+        : '';
+      return (
+        <AchievementItem
+          key={achievement.id}
+          title={achievement.title}
+          notes={achievement.notes}
+          icon={achievement.icon}
+          progress={achievement.progress}
+          isCompleted={achievement.is_completed}
+          date={localizedDate}
+        />
+      );
+    });
   };
 
   return (
