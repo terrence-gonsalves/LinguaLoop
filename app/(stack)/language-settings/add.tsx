@@ -1,3 +1,4 @@
+import { LanguageFlag } from '@/components/LanguageFlag';
 import Colors from '@/constants/Colors';
 import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -9,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 interface Language {
   id: string;
   name: string;
+  flag: string | null;
   selected?: boolean;
 }
 
@@ -29,7 +31,7 @@ export default function AddLanguageScreen() {
     try {
       const { data: masterLanguages, error: masterError } = await supabase
         .from('master_languages')
-        .select('id, name')
+        .select('id, name, flag')
         .order('name');
 
       if (masterError) throw masterError;
@@ -47,6 +49,7 @@ export default function AddLanguageScreen() {
         .map(lang => ({
           id: lang.id,
           name: lang.name,
+          flag: lang.flag,
           selected: false,
         }));
 
@@ -122,11 +125,10 @@ export default function AddLanguageScreen() {
               onPress={() => handleToggleLanguage(language.id)}
             >
               <View style={styles.languageInfo}>
-                <View style={styles.flagPlaceholder}>
-                  <Text style={styles.flagPlaceholderText}>
-                    {language.name[0]}
-                  </Text>
-                </View>
+                <LanguageFlag
+                  name={language.name}
+                  flagUrl={language.flag}
+                />
                 <Text style={styles.languageName}>{language.name}</Text>
               </View>
               <MaterialIcons
@@ -216,19 +218,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-  },
-  flagPlaceholder: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.light.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  flagPlaceholderText: {
-    color: Colors.light.textSecondary,
-    fontSize: 16,
-    fontWeight: '600',
   },
   languageName: {
     fontSize: 16,

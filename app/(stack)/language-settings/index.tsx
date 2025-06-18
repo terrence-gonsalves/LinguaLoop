@@ -1,3 +1,4 @@
+import { LanguageFlag } from '@/components/LanguageFlag';
 import Colors from '@/constants/Colors';
 import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -10,6 +11,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 interface Language {
   id: string;
   name: string;
+  flag: string | null;
 }
 
 interface LanguageResponse {
@@ -18,6 +20,7 @@ interface LanguageResponse {
   master_languages: {
     id: string;
     name: string;
+    flag: string | null;
   };
 }
 
@@ -32,16 +35,17 @@ export default function LanguageSettingsScreen() {
     try {
       const { data: languages, error } = await supabase
         .from('languages')
-        .select('id, master_language_id, master_languages(id, name)')
+        .select('id, master_language_id, master_languages(id, name, flag)')
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      // Cast to unknown first to avoid type error
+      // cast to unknown first to avoid type error
       const typedLanguages = (languages as unknown) as LanguageResponse[];
       const formattedLanguages = typedLanguages.map(lang => ({
         id: lang.id,
         name: lang.master_languages.name,
+        flag: lang.master_languages.flag,
       }));
 
       setSelectedLanguages(formattedLanguages);
@@ -78,7 +82,7 @@ export default function LanguageSettingsScreen() {
 
               if (error) throw error;
 
-              // Refresh the language list after successful deletion
+              // refresh the language list after successful deletion
               fetchUserLanguages();
             } catch (error) {
               console.error('Error removing language:', error);
@@ -111,11 +115,10 @@ export default function LanguageSettingsScreen() {
                 style={styles.languageItem}
               >
                 <View style={styles.languageInfo}>
-                  <View style={styles.flagPlaceholder}>
-                    <Text style={styles.flagPlaceholderText}>
-                      {language.name[0]}
-                    </Text>
-                  </View>
+                  <LanguageFlag
+                    name={language.name}
+                    flagUrl={language.flag}
+                  />
                   <Text style={styles.languageName}>{language.name}</Text>
                 </View>
                 <Pressable
@@ -183,19 +186,6 @@ const styles = StyleSheet.create({
   languageInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  flagPlaceholder: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.light.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  flagPlaceholderText: {
-    color: Colors.light.textSecondary,
-    fontSize: 16,
-    fontWeight: '600',
   },
   languageName: {
     fontSize: 16,
