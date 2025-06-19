@@ -35,7 +35,7 @@ export default function ForgotPasswordScreen() {
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>Remember your password? </Text>
-            <Link href="../login" style={styles.loginLink}>
+            <Link href="/(auth)/login" style={styles.loginLink}>
               Log in
             </Link>
           </View>
@@ -90,13 +90,13 @@ const styles = StyleSheet.create({
     color: Colors.light.textPrimary,
   },
   resetButton: {
-    backgroundColor: Colors.light.rust,
+    backgroundColor: Colors.light.buttonPrimary,
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
   },
   resetButtonText: {
-    color: Colors.light.text,
+    color: Colors.light.textLight,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   },
   loginLink: {
     fontSize: 14,
-    color: Colors.light.link,
+    color: Colors.light.buttonLink,
     fontWeight: '500',
   },
 }); 
