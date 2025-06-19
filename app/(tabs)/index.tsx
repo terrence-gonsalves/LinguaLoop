@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
   },
   createGoalText: {
     fontSize: 16,
-    color: Colors.light.buttonPrimary,
+    color: Colors.light.buttonLink,
   },
   statsRow: {
     flexDirection: 'row',
