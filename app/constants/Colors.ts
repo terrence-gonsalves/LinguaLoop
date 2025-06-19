@@ -13,7 +13,7 @@ export default {
     background: '#FFFFFF',
     generalBG: '#F0F3F4',
     formInputBG: '#F0F3F4',
-    buttonBG: '#D97D54',
+    buttonBG: '#324755',
 
     // tab colors
     tabIconDefault: '#324755',
@@ -23,9 +23,10 @@ export default {
     buttonPrimary: '#324755',
     buttonSecondary: '#6E8CA0',
     buttonText: '#F0F3F4',
+    buttonLink: '#D97D54',
 
     // accent colors
-    rust: '#D97D54', //kKeep rust as our accent color but update it
+    rust: '#D97D54', //keep rust as our accent color but update it
     link: '#324755',
     border: '#E5E5E5',
     error: '#ff4b4b',
