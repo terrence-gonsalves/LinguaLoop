@@ -1,5 +1,6 @@
 import { useAuth } from '@/lib/auth-context';
 import { FontAwesome } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import Link from 'expo-router/link';
 import { useState } from 'react';
@@ -13,24 +14,40 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const { signIn } = useAuth();
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Please fill in all fields');
+
+    // clear previous errors
+    setErrors({});
+    
+    // validate form
+    const newErrors: { [key: string]: string } = {};
+    
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+    
+    if (!password) {
+      newErrors.password = 'Password is required';
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
     setLoading(true);
-    setError('');
 
     try {
       await signIn(email, password);
       router.replace('/(tabs)');
     } catch (err) {
-      setError('Invalid email or password');
+      setErrors({ password: 'Invalid email or password' });
     } finally {
       setLoading(false);
     }
@@ -40,38 +57,41 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <View style={styles.logoPlaceholder} />
+          <ExpoImage
+            source={require('../../assets/images/linguaLoopLogo.png')}
+            style={styles.logo}
+            contentFit="cover"
+          />
         </View>
 
         <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to continue learning</Text>
+        <Text style={styles.subtitle}>Sign in to continue tracking your progress</Text>
 
         <View style={styles.form}>
           <FormInput
-            label="Email"
+            label=""
             value={email}
             onChangeText={setEmail}
-            placeholder="Enter your email"
+            placeholder="name@example.com"
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
+            error={errors.email}
           />
 
           <FormInput
-            label="Password"
+            label=""
             value={password}
             onChangeText={setPassword}
-            placeholder="Enter your password"
+            placeholder="password"
             secureTextEntry
+            error={errors.password}
           />
-
-          {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <Button
             title="Sign In"
             onPress={handleLogin}
             loading={loading}
-            style={styles.button}
           />
 
           <Link href="/(auth)/forgot-password" style={styles.forgotPassword}>
@@ -121,13 +141,10 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 24,
   },
-  logoPlaceholder: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.light.rust,
+  logo: {
+    width: '100%',
+    height: 143,
   },
   title: {
     fontSize: 32,
@@ -150,12 +167,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: -8,
   },
-  button: {
-    marginTop: 8,
-  },
   forgotPassword: {
     alignSelf: 'center',
-    marginTop: 16,
+    marginTop: 10,
   },
   forgotPasswordText: {
     color: Colors.light.textSecondary,
@@ -164,7 +178,7 @@ const styles = StyleSheet.create({
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 24,
+    marginTop: 15,
   },
   dividerLine: {
     flex: 1,
@@ -180,7 +194,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 16,
-    marginTop: 24,
+    marginTop: 15,
   },
   socialButton: {
     width: 56,

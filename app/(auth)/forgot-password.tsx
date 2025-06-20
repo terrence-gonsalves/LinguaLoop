@@ -1,5 +1,5 @@
 import Colors from '@/constants/Colors';
-import { Link } from 'expo-router';
+import Link from 'expo-router/link';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,7 +17,6 @@ export default function ForgotPasswordScreen() {
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email Address</Text>
             <TextInput
               style={styles.input}
               placeholder="name@example.com"

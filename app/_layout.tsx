@@ -18,12 +18,13 @@ export default function RootLayout() {
     async function prepare() {
       try {
 
-        // add initialization logic here
-        // for example, loading fonts, making API calls, etc.
+        // pre-load fonts, make any API calls you need to do here
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (e) {
-        console.error('Error loading app resources:', e);
+        console.warn(e);
       } finally {
+
+        // tell the application to render
         setAppIsReady(true);
       }
     }
@@ -33,11 +34,13 @@ export default function RootLayout() {
 
   const onLayoutRootView = useCallback(async () => {
     if (appIsReady) {
-      try {
-        await SplashScreen.hideAsync();
-      } catch (e) {
-        // ignore errors
-      }
+      
+      /* this tells the splash screen to hide immediately! If we call this after
+       * setAppIsReady`, then we may see a blank screen while the app is
+       * loading its initial state and rendering its first pixels. So instead,
+       * we hide the splash screen once we know the root view has already
+       * performed layout.*/
+      await SplashScreen.hideAsync();
     }
   }, [appIsReady]);
 
@@ -48,9 +51,13 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <StatusBar style="dark" backgroundColor="#F0F3F4" />
         <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-          <StatusBar style="auto" />
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(stack)" />

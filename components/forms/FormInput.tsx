@@ -1,4 +1,6 @@
-import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
 import { Colors } from '../../app/providers/theme-provider';
 
 export interface FormInputProps extends TextInputProps {
@@ -7,19 +9,39 @@ export interface FormInputProps extends TextInputProps {
   helperText?: string;
 }
 
-export function FormInput({ label, error, helperText, style, ...props }: FormInputProps) {
+export function FormInput({ label, error, helperText, style, secureTextEntry, ...props }: FormInputProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPasswordField = secureTextEntry !== undefined;
+  const shouldShowPassword = isPasswordField && !secureTextEntry;
+
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
-        style={[
-          styles.input,
-          error ? styles.inputError : null,
-          style,
-        ]}
-        placeholderTextColor={Colors.light.textSecondary}
-        {...props}
-      />
+      {label ? <Text style={styles.label}>{label}</Text> : null}
+      <View style={isPasswordField ? styles.passwordContainer : null}>
+        <TextInput
+          style={[
+            styles.input,
+            isPasswordField && styles.passwordInput,
+            error ? styles.inputError : null,
+            style,
+          ]}
+          placeholderTextColor={Colors.light.textSecondary}
+          secureTextEntry={isPasswordField ? !showPassword : secureTextEntry}
+          {...props}
+        />
+        {isPasswordField && (
+          <Pressable
+            style={styles.eyeIcon}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <MaterialIcons
+              name={showPassword ? 'visibility' : 'visibility-off'}
+              size={24}
+              color={Colors.light.textSecondary}
+            />
+          </Pressable>
+        )}
+      </View>
       {error ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : helperText ? (
@@ -48,6 +70,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 16,
     color: Colors.light.text,
+  },
+  passwordContainer: {
+    position: 'relative',
+  },
+  passwordInput: {
+    paddingRight: 50,
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 12,
+    top: 10,
   },
   inputError: {
     borderColor: Colors.light.error,
