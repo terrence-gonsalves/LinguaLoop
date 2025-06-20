@@ -1,9 +1,12 @@
 import Colors from '@/constants/Colors';
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { FontAwesome } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
+import Link from 'expo-router/link';
 import React, { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '../../components/common/Button';
+import { FormInput } from '../../components/forms/FormInput';
 import { useAuth } from '../lib/auth-context';
 
 export default function CreateAccountScreen() {
@@ -11,17 +14,45 @@ export default function CreateAccountScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);  
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleSignUp = async () => {
-    if (!email || !password || !confirmPassword || !acceptedTerms) return;
-    if (password !== confirmPassword) {
 
-      // you might want to show an error message here
+    // clear previous errors
+    setErrors({});
+    
+    // validate form
+    const newErrors: { [key: string]: string } = {};
+    
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Please enter a valid email';
+    }
+    
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+    
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
+    if (!acceptedTerms) {
+      newErrors.terms = 'Please accept the terms and conditions';
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+    
     await signUp(email, password);
   };
 
@@ -30,80 +61,50 @@ export default function CreateAccountScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* Placeholder Logo */}
+
+        {/* logo */}
         <View style={styles.logoContainer}>
-          <View style={styles.logoPlaceholder} />
+          <ExpoImage
+            source={require('../../assets/images/linguaLoopLogo.png')}
+            style={styles.logo}
+            contentFit="cover"
+          />
         </View>
 
-        <Text style={styles.title}>Create Your</Text>
-        <Text style={[styles.title, styles.titleSecondLine]}>LinguaLoop Account</Text>
+        <Text style={styles.title}>Create Your Account</Text>
 
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="name@example.com"
-              placeholderTextColor={Colors.light.textSecondary}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              editable={!isLoading}
-            />
-          </View>
+          <FormInput
+            label=""
+            value={email}
+            onChangeText={setEmail}
+            placeholder="name@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            error={errors.email}
+            editable={!isLoading}
+          />
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, styles.passwordInput]}
-                placeholder="Create a strong password"
-                placeholderTextColor={Colors.light.textSecondary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                editable={!isLoading}
-              />
-              <Pressable
-                style={styles.eyeIcon}
-                onPress={() => setShowPassword(!showPassword)}
-                disabled={isLoading}
-              >
-                <MaterialIcons
-                  name={showPassword ? 'visibility' : 'visibility-off'}
-                  size={24}
-                  color={Colors.light.textSecondary}
-                />
-              </Pressable>
-            </View>
-          </View>
+          <FormInput
+            label=""
+            value={password}
+            onChangeText={setPassword}
+            placeholder="password"
+            secureTextEntry
+            error={errors.password}
+            editable={!isLoading}
+          />
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Confirm Password</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, styles.passwordInput]}
-                placeholder="Re-enter your password"
-                placeholderTextColor={Colors.light.textSecondary}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry={!showConfirmPassword}
-                editable={!isLoading}
-              />
-              <Pressable
-                style={styles.eyeIcon}
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                disabled={isLoading}
-              >
-                <MaterialIcons
-                  name={showConfirmPassword ? 'visibility' : 'visibility-off'}
-                  size={24}
-                  color={Colors.light.textSecondary}
-                />
-              </Pressable>
-            </View>
-          </View>
+          <FormInput
+            label=""
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            placeholder="confirm password"
+            secureTextEntry
+            error={errors.confirmPassword}
+            editable={!isLoading}
+          />
 
           <View style={styles.termsContainer}>
             <Pressable
@@ -111,35 +112,31 @@ export default function CreateAccountScreen() {
               onPress={() => setAcceptedTerms(!acceptedTerms)}
               disabled={isLoading}
             >
-              <MaterialIcons
-                name={acceptedTerms ? 'check-box' : 'check-box-outline-blank'}
-                size={24}
-                color={Colors.light.rust}
+              <FontAwesome
+                name={acceptedTerms ? 'check-square' : 'square-o'}
+                size={20}
+                color={Colors.light.checkBoxSecondary}
               />
             </Pressable>
             <Text style={styles.termsText}>
-              I accept LinguaLoop's{' '}
+              I accept the {' '}
               <Link href="../terms" style={styles.link}>
                 Terms of Use
               </Link>
-              {' '}and its{' '}
+              {' '}and{' '}
               <Link href="../privacy" style={styles.link}>
                 Privacy Policy
               </Link>
             </Text>
           </View>
+          
+          {errors.terms && <Text style={styles.errorText}>{errors.terms}</Text>}
 
-          <Pressable 
-            style={[styles.signUpButton, (!isFormValid || isLoading) && styles.signUpButtonDisabled]}
+          <Button
+            title="Create Account"
             onPress={handleSignUp}
-            disabled={!isFormValid || isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color={Colors.light.text} />
-            ) : (
-              <Text style={styles.signUpButtonText}>Sign Up Now</Text>
-            )}
-          </Pressable>
+            loading={loading}
+          />
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
@@ -184,53 +181,20 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 12,
   },
-  logoPlaceholder: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.light.rust,
+  logo: {
+    width: '100%',
+    height: 143,
   },
   title: {
     fontSize: 24,
     fontWeight: '600',
     color: Colors.light.textPrimary,
     textAlign: 'center',
-  },
-  titleSecondLine: {
-    marginBottom: 20,
+    marginBottom: 32,
   },
   form: {
     gap: 12,
-  },
-  inputContainer: {
-    gap: 4,
-  },
-  label: {
-    fontSize: 14,
-    color: Colors.light.textPrimary,
-    marginBottom: 2,
-  },
-  input: {
-    backgroundColor: Colors.light.formInputBG,
-    borderWidth: 1,
-    borderColor: Colors.light.formInputBorder,
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 16,
-    color: Colors.light.textPrimary,
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  passwordInput: {
-    paddingRight: 50,
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 12,
-    top: 10,
   },
   termsContainer: {
     flexDirection: 'row',
@@ -238,7 +202,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   checkbox: {
-    padding: 2,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 0,
   },
   termsText: {
     flex: 1,
@@ -308,5 +276,10 @@ const styles = StyleSheet.create({
   },
   signUpButtonDisabled: {
     backgroundColor: Colors.light.formInputBorder,
+  },
+  errorText: {
+    color: Colors.light.error,
+    fontSize: 14,
+    marginTop: 4,
   },
 }); 
