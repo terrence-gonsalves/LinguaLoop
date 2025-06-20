@@ -18,6 +18,7 @@ import {
 export interface Language {
   id: string;
   name: string;
+  flag?: string | null;
 }
 
 interface LanguageDropdownProps {
@@ -100,7 +101,7 @@ export function LanguageDropdown({
           <View style={styles.selectedLanguageContainer}>
             <LanguageFlag
               name={selectedLanguage.name}
-              flagUrl={null}
+              flagUrl={selectedLanguage.flag || null}
             />
             <Text style={styles.selectedLanguageText}>
               {selectedLanguage.name}
@@ -156,7 +157,8 @@ export function LanguageDropdown({
             ]}
           >
             <Pressable style={styles.modalInner} onPress={() => {}}>
-              {/* Header */}
+
+              {/* header */}
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Select Language</Text>
                 <Pressable
@@ -172,7 +174,7 @@ export function LanguageDropdown({
                 </Pressable>
               </View>
 
-              {/* Search Bar */}
+              {/* search bar */}
               <View style={styles.searchContainer}>
                 <MaterialIcons
                   name="search"
@@ -192,7 +194,7 @@ export function LanguageDropdown({
                 />
               </View>
 
-              {/* Language List */}
+              {/* language list */}
               <ScrollView
                 style={styles.languageList}
                 showsVerticalScrollIndicator={false}
@@ -243,7 +245,7 @@ export function LanguageDropdown({
                     <View style={styles.languageInfo}>
                       <LanguageFlag
                         name={language.name}
-                        flagUrl={null}
+                        flagUrl={language.flag || null}
                       />
                       <Text style={[
                         styles.languageName,
@@ -288,8 +290,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: Colors.light.border,
+    borderWidth: 0,
   },
   selectedLanguageContainer: {
     flex: 1,

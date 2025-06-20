@@ -163,10 +163,11 @@ export default function TrackActivityScreen() {
           contentContainerStyle={styles.scrollViewContent}
         >
           <View style={styles.content}>
-            {/* Header */}
+
+            {/* header */}
             <Text style={styles.headerTitle}>Track Activity</Text>
 
-            {/* Date Section */}
+            {/* date section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Date of Activity</Text>
               <Pressable style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
@@ -189,7 +190,7 @@ export default function TrackActivityScreen() {
               )}
             </View>
 
-            {/* Language Section */}
+            {/* language section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Language</Text>
               <View style={styles.languageDropdownContainer}>
@@ -205,7 +206,7 @@ export default function TrackActivityScreen() {
               </View>
             </View>
 
-            {/* Activity Type Section */}
+            {/* activity type section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Activity Type</Text>
               <View style={styles.activityGrid}>
@@ -236,7 +237,7 @@ export default function TrackActivityScreen() {
               </View>
             </View>
 
-            {/* Duration Section */}
+            {/* duration section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Duration</Text>
               <View style={styles.durationContainer}>
@@ -270,7 +271,7 @@ export default function TrackActivityScreen() {
               </View>
             </View>
 
-            {/* Notes Section */}
+            {/* notes section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Notes</Text>
               <TextInput
@@ -286,7 +287,7 @@ export default function TrackActivityScreen() {
               <Text style={styles.characterCount}>{notes.length}/200 characters</Text>
             </View>
 
-            {/* Save Button */}
+            {/* save button */}
             <Pressable style={styles.saveButton} onPress={handleSaveActivity}>
               <Text style={styles.saveButtonText}>Save Activity</Text>
             </Pressable>
