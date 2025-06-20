@@ -112,7 +112,7 @@ export default function DashboardScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
 
-        {/* User Profile Section */}
+        {/* user profile section */}
         <View style={styles.profileSection}>
           <View style={styles.profileInfo}>
             <View>
@@ -133,7 +133,7 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Daily Streak Section */}
+        {/* daily streak section */}
         <View style={styles.streakSection}>
           <Text style={styles.streakDate}>{formattedDate}</Text>
           <View style={styles.streakRow}>
@@ -164,57 +164,54 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Goal and Study Time Section */}
-        <View style={styles.statsRow}>
-          {/* Goal Section */}
-          <View style={styles.goalCard}>
-            {isStatsLoading ? (
-              <ActivityIndicator size="small" color={Colors.light.textPrimary} />
-            ) : (
-              <>
-                <Text style={styles.studyGoalLabel}>Study Goal</Text>
-                {stats.goal ? (
-                  <>
-                    <View style={styles.goalHeader}>
-                      <Text style={styles.goalTitle}>{stats.goal.title}</Text>
-                      {renderGoalProgress(stats.goal.progress)}
-                    </View>
-                    {stats.goal.description && (
-                      <Text style={styles.goalDescription}>{stats.goal.description}</Text>
-                    )}
-                  </>
-                ) : (
-                  <Pressable
-                    onPress={() => router.push('/(stack)/goals')}
-                    style={styles.createGoalButton}
-                  >
-                    <Text style={styles.createGoalText}>Create a goal</Text>
-                  </Pressable>
-                )}
-              </>
-            )}
-          </View>
-
-          {/* Study Time Card */}
-          <View style={styles.studyTimeCard}>
-            {isStatsLoading ? (
-              <ActivityIndicator size="small" color={Colors.light.textLight} />
-            ) : (
-              <>
-                <Text style={styles.studyTimeLabel}>Total Study Time</Text>
-                <View style={styles.timeContainer}>
-                  <Text style={styles.timeNumber}>{stats.totalStudyTime.hours}</Text>
-                  <Text style={styles.timeUnit}>h </Text>
-                  <Text style={styles.timeNumber}>{stats.totalStudyTime.minutes}</Text>
-                  <Text style={styles.timeUnit}>m</Text>
-                </View>
-                <Text style={styles.timeSubtext}>across {stats.languageCount} languages</Text>
-              </>
-            )}
-          </View>
+        {/* study goal section */}
+        <View style={styles.goalCard}>
+          {isStatsLoading ? (
+            <ActivityIndicator size="small" color={Colors.light.textPrimary} />
+          ) : (
+            <>
+              <Text style={styles.studyGoalLabel}>Study Goal</Text>
+              {stats.goal ? (
+                <>
+                  <View style={styles.goalHeader}>
+                    <Text style={styles.goalTitle}>{stats.goal.title}</Text>
+                    {renderGoalProgress(stats.goal.progress)}
+                  </View>
+                  {stats.goal.description && (
+                    <Text style={styles.goalDescription}>{stats.goal.description}</Text>
+                  )}
+                </>
+              ) : (
+                <Pressable
+                  onPress={() => router.push('/(stack)/goals')}
+                  style={styles.createGoalButton}
+                >
+                  <Text style={styles.createGoalText}>Create a goal</Text>
+                </Pressable>
+              )}
+            </>
+          )}
         </View>
 
-        {/* Activity Cards Grid */}
+        {/* study time section */}
+        <View style={styles.studyTimeCard}>
+          {isStatsLoading ? (
+            <ActivityIndicator size="small" color={Colors.light.textLight} />
+          ) : (
+            <>
+              <Text style={styles.studyTimeLabel}>Study Time</Text>
+              <View style={styles.timeContainer}>
+                <Text style={styles.timeNumber}>{stats.totalStudyTime.hours}</Text>
+                <Text style={styles.timeUnit}>h </Text>
+                <Text style={styles.timeNumber}>{stats.totalStudyTime.minutes}</Text>
+                <Text style={styles.timeUnit}>m</Text>
+              </View>
+              <Text style={styles.timeSubtext}>across {stats.languageCount} languages</Text>
+            </>
+          )}
+        </View>
+
+        {/* activity cards grid */}
         <View style={styles.activityGrid}>
           {isActivitiesLoading ? (
             <ActivityIndicator size="small" color={Colors.light.rust} />
@@ -230,7 +227,7 @@ export default function DashboardScreen() {
           )}
         </View>
 
-        {/* Daily Inspiration */}
+        {/* daily inspiration */}
         <View style={styles.section}>
           <View style={styles.quoteCard}>
             {isLoading ? (
@@ -244,7 +241,7 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Quick Tips }
+        {/* quick tips }
         <View style={styles.tipsSection}>
           <Text style={styles.sectionTitle}>Quick Tips</Text>
           <View style={styles.tipsList}>
@@ -306,10 +303,10 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   studyTimeCard: {
-    flex: 1,
     backgroundColor: Colors.light.rust,
     borderRadius: 16,
-    padding: 10,
+    padding: 20,
+    marginBottom: 20,
   },
   studyGoalLabel: {
     color: Colors.light.textPrimary,
@@ -511,6 +508,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     borderRadius: 16,
     padding: 20,
+    marginBottom: 16,
     /*
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -553,11 +551,7 @@ const styles = StyleSheet.create({
   },
   createGoalText: {
     fontSize: 16,
-    color: Colors.light.buttonLink,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 20,
+    color: Colors.light.rust,
+    textDecorationLine: 'underline',
   },
 });
