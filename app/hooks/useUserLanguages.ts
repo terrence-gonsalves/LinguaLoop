@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 export interface UserLanguage {
   id: string;
   name: string;
+  flag?: string | null;
 }
 
 export function useUserLanguages(userId: string) {
@@ -24,16 +25,18 @@ export function useUserLanguages(userId: string) {
           .select(`
             id,
             master_languages (
-              name
+              name,
+              flag
             )
           `)
           .eq('user_id', userId);
 
         if (languagesError) throw languagesError;
 
-        const formattedLanguages = (languagesData || []).map(lang => ({
+        const formattedLanguages = (languagesData || []).map((lang: any) => ({
           id: lang.id,
-          name: lang.master_languages.name || 'Unknown Language'
+          name: lang.master_languages.name || 'Unknown Language',
+          flag: lang.master_languages.flag || null,
         }));
 
         setLanguages(formattedLanguages);

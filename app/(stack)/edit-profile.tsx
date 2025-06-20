@@ -38,7 +38,7 @@ export default function EditProfileScreen() {
     try {
       const { data, error } = await supabase
         .from('master_languages')
-        .select('id, name')
+        .select('id, name, flag')
         .order('name');
 
       if (error) throw error;
