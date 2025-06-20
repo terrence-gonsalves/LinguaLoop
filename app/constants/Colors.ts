@@ -25,6 +25,12 @@ export default {
     buttonText: '#F0F3F4',
     buttonLink: '#D97D54',
 
+    // misc
+    checkBoxSecondary: '#6E8CA0',
+
+    // borders
+    formInputBorder: '#1B1C20',
+
     // accent colors
     rust: '#D97D54', //keep rust as our accent color but update it
     link: '#324755',
