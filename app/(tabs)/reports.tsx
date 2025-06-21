@@ -65,8 +65,11 @@ export default function ReportsScreen() {
 
         <TimePerSkillCard />
 
-        <ComparisonCard title="Input vs Output" items={comparisonItems1} />
-        <ComparisonCard title="Interactive vs Freeform vs Preparation" items={comparisonItems2} />
+        <ComparisonCard 
+          title="Input vs Output" 
+          subtitle="Comparison of input and output activities" 
+          items={comparisonItems1} 
+        />
 
         <KeyInsightsCard />
       </ScrollView>
