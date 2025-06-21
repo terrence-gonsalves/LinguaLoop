@@ -1,7 +1,6 @@
 import Colors from '@/constants/Colors';
-import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 interface ChartCardProps {
   title: string;
@@ -15,13 +14,8 @@ export function ChartCard({ title, subtitle, onMenuPress, children }: ChartCardP
     <View style={styles.card}>
       <View style={styles.header}>
         <View>
-          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
           <Text style={styles.title}>{title}</Text>
-        </View>
-        <View style={styles.icons}>
-          <Pressable onPress={onMenuPress} hitSlop={8}>
-            <MaterialIcons name="more-vert" size={22} color={Colors.light.textSecondary} />
-          </Pressable>
+          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
       </View>
       <View style={styles.chartContainer}>

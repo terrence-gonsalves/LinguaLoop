@@ -17,12 +17,13 @@ const LegendItem = ({ color, text }: LegendItemProps) => (
 
 interface ComparisonCardProps {
   title: string;
+  subtitle: string;
   items: { text: string; color: string }[];
 }
 
-export function ComparisonCard({ title, items }: ComparisonCardProps) {
+export function ComparisonCard({ title, subtitle, items }: ComparisonCardProps) {
   return (
-    <ChartCard title={title} subtitle="Comparison">
+    <ChartCard title={title} subtitle={subtitle}>
       <View style={styles.container}>
         <Text style={styles.noDataText}>No data available</Text>
         <View style={styles.legendContainer}>

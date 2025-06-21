@@ -21,7 +21,7 @@ export function TimePerSkillCard() {
       <BarChart
         data={data}
         width={screenWidth - 64}
-        height={220}
+        height={250}
         yAxisLabel=""
         yAxisSuffix="h"
         chartConfig={{
@@ -34,8 +34,12 @@ export function TimePerSkillCard() {
           style: {
             borderRadius: 16,
           },
+          propsForLabels: {
+            fontSize: 11,
+          }
         }}
-        verticalLabelRotation={30}
+        verticalLabelRotation={0}
+        fromZero
       />
     </ChartCard>
   );
