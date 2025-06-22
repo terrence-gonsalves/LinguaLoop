@@ -1,4 +1,5 @@
 import Colors from '@/constants/Colors';
+import { useReportsData } from '@/hooks/useReportsData';
 import { useUserLanguages } from '@/hooks/useUserLanguages';
 import { useAuth } from '@/lib/auth-context';
 import { Stack } from 'expo-router/stack';
@@ -18,7 +19,8 @@ import { TimePerSkillCard } from '../../components/reports/TimePerSkillCard';
 export default function ReportsScreen() {
   const { profile } = useAuth();
   const { languages } = useUserLanguages(profile?.id || '');
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [selectedLanguageId, setSelectedLanguageId] = useState<string | null>(null);
+  const { data: reportsData, isLoading } = useReportsData(profile?.id, selectedLanguageId);
 
   const comparisonItems1 = [
     { text: 'Input', color: Colors.light.rust },
@@ -30,6 +32,12 @@ export default function ReportsScreen() {
     { text: 'Freeform', color: Colors.light.fossil },
     { text: 'Preparation', color: Colors.light.sand },
   ];
+
+  // transform languages for dropdown with IDs
+  const languageOptions = languages.map(lang => ({
+    ...lang,
+    id: lang.id, // ensure ID is available for filtering
+  }));
 
   return (
     <SafeAreaView style={styles.container}>
@@ -43,9 +51,9 @@ export default function ReportsScreen() {
             <View style={styles.headerRight}>
               <LanguageDropdown
                 label=""
-                data={languages}
-                value={selectedLanguage}
-                onChange={setSelectedLanguage}
+                data={languageOptions}
+                value={selectedLanguageId}
+                onChange={setSelectedLanguageId}
                 displayMode="flagOnly"
                 showAllLanguagesOption
               />
@@ -55,11 +63,17 @@ export default function ReportsScreen() {
       />
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.statRow}>
-          <StatCard title="Total time" value="0:00:00" />
-          <PerformanceOverviewCard averageTime="45 Mins" changePercent={12} />
+          <StatCard 
+            title="Total Time" 
+            value={reportsData.totalTime} 
+          />
+          <PerformanceOverviewCard 
+            averageTimeSeconds={reportsData.averageSession.currentDay}
+            changePercent={reportsData.averageSession.changePercent}
+          />
         </View>
 
-        <MilestoneTrackerCard nextMilestone={50} remaining={50} />
+        <MilestoneTrackerCard milestoneData={reportsData.milestone} />
 
         <TimeDistributionCard />
 

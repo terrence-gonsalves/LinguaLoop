@@ -4,18 +4,35 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 interface PerformanceOverviewCardProps {
-  averageTime: string;
-  changePercent: number;
+  averageTimeSeconds: number;
+  changePercent: number | null;
 }
 
-export function PerformanceOverviewCard({ averageTime, changePercent }: PerformanceOverviewCardProps) {
-  const isPositive = changePercent >= 0;
-  return (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Average Session</Text>
-      </View>
-      <Text style={styles.value}>{averageTime}</Text>
+export function PerformanceOverviewCard({ averageTimeSeconds, changePercent }: PerformanceOverviewCardProps) {
+  const formatTime = (seconds: number): string => {
+    if (seconds === 0) return '0m';
+    
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else {
+      return `${minutes}m`;
+    }
+  };
+
+  const renderChangeIndicator = () => {
+    if (changePercent === null) {
+      return (
+        <View style={styles.changeContainer}>
+          <Text style={[styles.changeText, { color: Colors.light.textSecondary }]}>—</Text>
+        </View>
+      );
+    }
+
+    const isPositive = changePercent >= 0;
+    return (
       <View style={styles.changeContainer}>
         <MaterialIcons
           name={isPositive ? 'arrow-upward' : 'arrow-downward'}
@@ -23,9 +40,19 @@ export function PerformanceOverviewCard({ averageTime, changePercent }: Performa
           color={isPositive ? Colors.light.green : Colors.light.error}
         />
         <Text style={[styles.changeText, { color: isPositive ? Colors.light.green : Colors.light.error }]}>
-          {Math.abs(changePercent)}%
+          {Math.abs(changePercent).toFixed(1)}%
         </Text>
       </View>
+    );
+  };
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Average Session</Text>
+      </View>
+      <Text style={styles.value}>{formatTime(averageTimeSeconds)}</Text>
+      {renderChangeIndicator()}
     </View>
   );
 }

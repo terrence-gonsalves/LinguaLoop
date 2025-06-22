@@ -2,20 +2,39 @@ import Colors from '@/constants/Colors';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+interface TimeData {
+  hours: number;
+  minutes: number;
+  //seconds: number;
+}
+
 interface StatCardProps {
   title: string;
-  value: string;
+  value: string | TimeData;
   change?: string;
   changeColor?: string;
 }
 
 export function StatCard({ title, value, change, changeColor }: StatCardProps) {
+  const formatValue = (val: string | TimeData): string => {
+    if (typeof val === 'string') {
+      return val;
+    }
+    
+    const { hours, minutes } = val;
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}`;
+    } else {
+      return `${minutes}m`;
+    }
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
       </View>
-      <Text style={styles.value}>{value}</Text>
+      <Text style={styles.value}>{formatValue(value)}</Text>
       {change && (
         <Text style={[styles.change, { color: changeColor || Colors.light.textSecondary }]}>
           {change}
