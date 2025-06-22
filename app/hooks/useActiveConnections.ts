@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface Connection {
   id: string;
@@ -14,10 +14,10 @@ interface FollowData {
   following_id: string;
   following: {
     id: string;
-    name: string | null;
-    user_name: string | null;
-    about_me: string | null;
-    avatar_url: string | null;
+    name: string;
+    user_name: string;
+    about_me: string;
+    avatar_url: string;
     native_language: string;
   };
 }
@@ -27,6 +27,7 @@ export function useActiveConnections(userId: string) {
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   async function loadConnections() {
     try {
@@ -92,12 +93,20 @@ export function useActiveConnections(userId: string) {
   }
 
   useEffect(() => {
-    let subscription: ReturnType<typeof supabase.channel>;
+    let isMounted = true;
+
+    // clean up any existing subscription
+    if (subscriptionRef.current) {
+      subscriptionRef.current.unsubscribe();
+      subscriptionRef.current = null;
+    }
+
     loadConnections();
 
     // set up real-time subscription
-    subscription = supabase
-      .channel('active-connections-changes')
+    const channelName = `active-connections-changes-${userId}-${Date.now()}`;
+    subscriptionRef.current = supabase
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -107,15 +116,22 @@ export function useActiveConnections(userId: string) {
           filter: `follower_id=eq.${userId}`,
         },
         () => {
-          
-          // reload data when changes occur
-          loadConnections();
+          if (isMounted) {
+            
+            // reload data when changes occur
+            loadConnections();
+          }
         }
       )
       .subscribe();
 
     return () => {
-      subscription?.unsubscribe();
+      isMounted = false;
+
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
     };
   }, [userId]);
 

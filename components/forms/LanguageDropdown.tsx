@@ -1,6 +1,6 @@
 import { LanguageFlag } from '@/components/LanguageFlag';
 import Colors from '@/constants/Colors';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import React, { useCallback, useState } from 'react';
 import {
   Animated,
@@ -25,11 +25,12 @@ interface LanguageDropdownProps {
   label: string;
   data: Language[];
   value: string | null;
-  onChange: (value: string) => void;
+  onChange: (value: string | null) => void;
   excludeValues?: string[];
   style?: ViewStyle;
   dropdownStyle?: ViewStyle;
   showAllLanguagesOption?: boolean;
+  displayMode?: 'default' | 'flagOnly';
 }
 
 const { height: screenHeight } = Dimensions.get('window');
@@ -43,6 +44,7 @@ export function LanguageDropdown({
   style,
   dropdownStyle,
   showAllLanguagesOption = false,
+  displayMode = 'default',
 }: LanguageDropdownProps) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -80,57 +82,81 @@ export function LanguageDropdown({
     });
   }, [slideAnim]);
 
-  const handleSelectLanguage = useCallback((languageId: string) => {
+  const handleSelectLanguage = useCallback((languageId: string | null) => {
     onChange(languageId);
     handleCloseModal();
   }, [onChange, handleCloseModal]);
 
   const handleClear = useCallback(() => {
-    onChange('');
+    onChange(null);
   }, [onChange]);
 
   return (
     <View style={[styles.container, style]}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label && <Text style={styles.label}>{label}</Text>}
       
       <Pressable
-        style={[styles.dropdownField, dropdownStyle]}
+        style={[
+          displayMode === 'flagOnly' ? styles.flagOnlyField : styles.dropdownField,
+          dropdownStyle
+        ]}
         onPress={handleOpenModal}
       >
-        {selectedLanguage ? (
-          <View style={styles.selectedLanguageContainer}>
-            <LanguageFlag
-              name={selectedLanguage.name}
-              flagUrl={selectedLanguage.flag || null}
+        {displayMode === 'flagOnly' ? (
+          <View style={styles.flagOnlyContainer}>
+            {selectedLanguage ? (
+              <LanguageFlag
+                name={selectedLanguage.name}
+                flagUrl={selectedLanguage.flag || null}
+                size={28}
+              />
+            ) : (
+              <MaterialCommunityIcons name="earth" size={28} color={Colors.light.textSecondary} />
+            )}
+            <MaterialIcons
+              name="arrow-drop-down"
+              size={24}
+              color={Colors.light.textSecondary}
             />
-            <Text style={styles.selectedLanguageText}>
-              {selectedLanguage.name}
-            </Text>
           </View>
         ) : (
-          <Text style={styles.placeholderText}>Select language</Text>
-        )}
-        
-        <View style={styles.fieldActions}>
-          {value && (
-            <Pressable
-              style={styles.clearButton}
-              onPress={handleClear}
-              hitSlop={8}
-            >
+          <>
+            {selectedLanguage ? (
+              <View style={styles.selectedLanguageContainer}>
+                <LanguageFlag
+                  name={selectedLanguage.name}
+                  flagUrl={selectedLanguage.flag || null}
+                />
+                <Text style={styles.selectedLanguageText}>
+                  {selectedLanguage.name}
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.placeholderText}>Select language</Text>
+            )}
+            
+            <View style={styles.fieldActions}>
+              {value && (
+                <Pressable
+                  style={styles.clearButton}
+                  onPress={handleClear}
+                  hitSlop={8}
+                >
+                  <MaterialIcons
+                    name="clear"
+                    size={20}
+                    color={Colors.light.textSecondary}
+                  />
+                </Pressable>
+              )}
               <MaterialIcons
-                name="clear"
-                size={20}
+                name="arrow-drop-down"
+                size={24}
                 color={Colors.light.textSecondary}
               />
-            </Pressable>
-          )}
-          <MaterialIcons
-            name="arrow-drop-down"
-            size={24}
-            color={Colors.light.textSecondary}
-          />
-        </View>
+            </View>
+          </>
+        )}
       </Pressable>
 
       <Modal
@@ -206,12 +232,12 @@ export function LanguageDropdown({
                       styles.languageItem,
                       value === null && styles.languageItemSelected,
                     ]}
-                    onPress={() => handleSelectLanguage('')}
+                    onPress={() => handleSelectLanguage(null)}
                   >
                     <View style={styles.languageInfo}>
                       <View style={styles.allLanguagesFlag}>
-                        <MaterialIcons
-                          name="language"
+                        <MaterialCommunityIcons
+                          name="earth"
                           size={20}
                           color={Colors.light.rust}
                         />
@@ -283,14 +309,23 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   dropdownField: {
-    height: 56,
-    backgroundColor: Colors.light.background,
-    borderRadius: 12,
-    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 0,
+    backgroundColor: Colors.light.background,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    minHeight: 50,
+  },
+  flagOnlyField: {
+    padding: 4,
+  },
+  flagOnlyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   selectedLanguageContainer: {
     flex: 1,
@@ -384,12 +419,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   allLanguagesFlag: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: Colors.light.generalBG,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
   },
   languageName: {
     fontSize: 16,
