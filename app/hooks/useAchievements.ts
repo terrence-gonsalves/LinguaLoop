@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface Achievement {
   id: string;
@@ -19,6 +19,7 @@ export function useAchievements(userId: string) {
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   async function loadAchievements() {
     try {
@@ -53,14 +54,21 @@ export function useAchievements(userId: string) {
   }
 
   useEffect(() => {
-    let subscription: ReturnType<typeof supabase.channel>;
+    let isMounted = true;
+
+    // clean up any existing subscription
+    if (subscriptionRef.current) {
+      subscriptionRef.current.unsubscribe();
+      subscriptionRef.current = null;
+    }
 
     // initial load
     loadAchievements();
 
     // set up real-time subscription
-    subscription = supabase
-      .channel('achievements-changes')
+    const channelName = `achievements-changes-${userId}-${Date.now()}`;
+    subscriptionRef.current = supabase
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -70,13 +78,20 @@ export function useAchievements(userId: string) {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          loadAchievements();
+          if (isMounted) {
+            loadAchievements();
+          }
         }
       )
       .subscribe();
 
     return () => {
-      subscription?.unsubscribe();
+      isMounted = false;
+      
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
     };
   }, [userId]);
 

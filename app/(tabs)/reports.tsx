@@ -46,6 +46,8 @@ export default function ReportsScreen() {
                 data={languages}
                 value={selectedLanguage}
                 onChange={setSelectedLanguage}
+                displayMode="flagOnly"
+                showAllLanguagesOption
               />
             </View>
           ),
@@ -66,7 +68,7 @@ export default function ReportsScreen() {
         <TimePerSkillCard />
 
         <ComparisonCard 
-          title="Input vs Output" 
+          title="Input-Output Analysis" 
           subtitle="Comparison of input and output activities" 
           items={comparisonItems1} 
         />
@@ -84,7 +86,6 @@ const styles = StyleSheet.create({
   },
   headerRight: {
     marginRight: 16,
-    width: 150,
   },
   content: {
     paddingHorizontal: 16,

@@ -45,9 +45,8 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages }:
           label=""
           data={languages}
           value={formData.languageId}
-          onChange={(value: string) => setFormData({ ...formData, languageId: value })}
-          showAllLanguagesOption={true}
-          dropdownStyle={styles.goalLanguageDropdown}
+          onChange={(value: string | null) => setFormData({ ...formData, languageId: value })}
+          dropdownStyle={styles.input}
         />
       </View>
 
@@ -310,6 +309,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     color: Colors.light.text,
     fontSize: 16,
+    minHeight: 50,
   },
   textArea: {
     height: 120,
@@ -327,14 +327,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-  },
-  goalLanguageDropdown: {
-    height: 44,
-    backgroundColor: Colors.light.formInputBG,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
   },
   goalTypeButton: {
     paddingHorizontal: 16,

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface UserLanguage {
   id: string;
@@ -11,12 +11,14 @@ export function useUserLanguages(userId: string) {
   const [languages, setLanguages] = useState<UserLanguage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
-    let subscription: ReturnType<typeof supabase.channel>;
+    let isMounted = true;
 
     async function loadUserLanguages() {
       try {
+        if (!isMounted) return;
         setIsLoading(true);
         setError(null);
 
@@ -33,6 +35,8 @@ export function useUserLanguages(userId: string) {
 
         if (languagesError) throw languagesError;
 
+        if (!isMounted) return;
+
         const formattedLanguages = (languagesData || []).map((lang: any) => ({
           id: lang.id,
           name: lang.master_languages.name || 'Unknown Language',
@@ -41,19 +45,29 @@ export function useUserLanguages(userId: string) {
 
         setLanguages(formattedLanguages);
       } catch (err) {
+        if (!isMounted) return;
         console.error('Error loading user languages:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
+    }
+
+    // clean up any existing subscription
+    if (subscriptionRef.current) {
+      subscriptionRef.current.unsubscribe();
+      subscriptionRef.current = null;
     }
 
     // initial load
     loadUserLanguages();
 
     // set up real-time subscription
-    subscription = supabase
-      .channel('user-languages-changes')
+    const channelName = `user-languages-changes-${userId}-${Date.now()}`;
+    subscriptionRef.current = supabase
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -63,15 +77,22 @@ export function useUserLanguages(userId: string) {
           filter: `user_id=eq.${userId}`,
         },
         () => {
+          if (isMounted) {
             
-          // reload data when changes occur
-          loadUserLanguages();
+            // reload data when changes occur
+            loadUserLanguages();
+          }
         }
       )
       .subscribe();
 
     return () => {
-      subscription?.unsubscribe();
+      isMounted = false;
+      
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
     };
   }, [userId]);
 
