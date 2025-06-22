@@ -2,19 +2,39 @@ import Colors from '@/constants/Colors';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-interface MilestoneTrackerCardProps {
+interface MilestoneData {
+  currentTotal: number;
   nextMilestone: number;
   remaining: number;
+  progressPercentage: number;
 }
 
-export function MilestoneTrackerCard({ nextMilestone, remaining }: MilestoneTrackerCardProps) {
+interface MilestoneTrackerCardProps {
+  milestoneData: MilestoneData;
+}
+
+export function MilestoneTrackerCard({ milestoneData }: MilestoneTrackerCardProps) {
+  const { currentTotal, nextMilestone, remaining, progressPercentage } = milestoneData;
   const completedHours = Math.max(0, nextMilestone - remaining);
-  const progressPercentage = nextMilestone > 0 ? (completedHours / nextMilestone) * 100 : 0;
+
+  const getFooterMessage = () => {
+    if (progressPercentage >= 100) {
+      return "Congratulations! You've reached this milestone!";
+    } else if (progressPercentage >= 75) {
+      return "Great progress! You're almost there!";
+    } else if (progressPercentage >= 50) {
+      return "You're making good progress toward your milestone.";
+    } else if (progressPercentage >= 25) {
+      return "Keep going! You're on your way to the next milestone.";
+    } else {
+      return "You are not on track to reach the next milestone unless you start tracking some time.";
+    }
+  };
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.title}>Hour Milestones</Text>
+        <Text style={styles.title}>Time Milestones</Text>
       </View>
       <Text style={styles.subtitle}>
         Next Milestone: <Text style={styles.bold}>{nextMilestone}h</Text>
@@ -35,7 +55,7 @@ export function MilestoneTrackerCard({ nextMilestone, remaining }: MilestoneTrac
       </View>
 
       <Text style={styles.footerText}>
-        You are not on track to reach the next milestone unless you start tracking some time.
+        {getFooterMessage()}
       </Text>
     </View>
   );
