@@ -1,5 +1,4 @@
 import Colors from '@/constants/Colors';
-import { useReportsData } from '@/hooks/useReportsData';
 import { useUserLanguages } from '@/hooks/useUserLanguages';
 import { useAuth } from '@/lib/auth-context';
 import { Stack } from 'expo-router/stack';
@@ -16,11 +15,26 @@ import { StudyProgressCard } from '../../components/reports/StudyProgressCard';
 import { TimeDistributionCard } from '../../components/reports/TimeDistributionCard';
 import { TimePerActivityCard } from '../../components/reports/TimePerActivityCard';
 
+// hooks
+import { useInputOutputAnalysis } from '@/hooks/useInputOutputAnalysis';
+import { useMilestoneTracker } from '@/hooks/useMilestoneTracker';
+import { useReportSummary } from '@/hooks/useReportSummary';
+import { useTimeDistribution } from '@/hooks/useTimeDistribution';
+import { useTimePerActivity } from '@/hooks/useTimePerActivity';
+import { useWeeklyProgress } from '@/hooks/useWeeklyProgress';
+
 export default function ReportsScreen() {
   const { profile } = useAuth();
   const { languages } = useUserLanguages(profile?.id || '');
   const [selectedLanguageId, setSelectedLanguageId] = useState<string | null>(null);
-  const { data: reportsData, isLoading } = useReportsData(profile?.id, profile?.created_at, selectedLanguageId);
+  
+  // individual hooks
+  const { summary } = useReportSummary(profile?.id, selectedLanguageId);
+  const { milestone } = useMilestoneTracker(profile?.id);
+  const { distribution } = useTimeDistribution(profile?.id, selectedLanguageId);
+  const { activityData } = useTimePerActivity(profile?.id, selectedLanguageId);
+  const { progressData } = useWeeklyProgress(profile?.id, profile?.created_at, selectedLanguageId);
+  const { analysis } = useInputOutputAnalysis(profile?.id, selectedLanguageId);
 
   const comparisonItems1 = [
     { text: 'Input', color: Colors.light.rust },
@@ -65,27 +79,27 @@ export default function ReportsScreen() {
         <View style={styles.statRow}>
           <StatCard 
             title="Total Time" 
-            value={reportsData.totalTime} 
+            value={summary.totalTime} 
           />
           <PerformanceOverviewCard 
-            averageTimeSeconds={reportsData.averageSession.currentDay}
-            changePercent={reportsData.averageSession.changePercent}
+            averageTimeSeconds={summary.averageSession.currentDay}
+            changePercent={summary.averageSession.changePercent}
           />
         </View>
 
-        <MilestoneTrackerCard milestoneData={reportsData.milestone} />
+        <MilestoneTrackerCard milestoneData={milestone} />
 
-        <TimeDistributionCard timeDistributionData={reportsData.timeDistribution} />
+        <TimeDistributionCard timeDistributionData={distribution} />
 
-        <StudyProgressCard weeklyProgressData={reportsData.weeklyProgress} />
+        <StudyProgressCard weeklyProgressData={progressData} />
 
-        <TimePerActivityCard timePerActivityData={reportsData.timePerActivity} />
+        <TimePerActivityCard timePerActivityData={activityData} />
 
         <ComparisonCard 
           title="Input-Output Analysis" 
           subtitle="Comparison of input and output activities" 
           items={comparisonItems1} 
-          analysisData={reportsData.inputOutputAnalysis}
+          analysisData={analysis}
         />
 
         <KeyInsightsCard />
