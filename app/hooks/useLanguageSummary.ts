@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Language {
   id: string;
@@ -34,12 +34,14 @@ export function useLanguageSummary(userId: string) {
   const [languages, setLanguages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
-    let subscription: ReturnType<typeof supabase.channel>;
+    let isMounted = true;
 
     async function loadLanguageSummary() {
       try {
+        if (!isMounted) return;
         setIsLoading(true);
         setError(null);
 
@@ -67,6 +69,8 @@ export function useLanguageSummary(userId: string) {
           `)
           .eq('user_id', userId);
         if (languagesError) throw languagesError;
+
+        if (!isMounted) return;
 
         // for each language, get the time entries and sum durations by activity
         const languagesWithTime = await Promise.all(
@@ -110,20 +114,31 @@ export function useLanguageSummary(userId: string) {
           })
         );
 
+        if (!isMounted) return;
         setLanguages(languagesWithTime);
       } catch (err) {
+        if (!isMounted) return;
         console.error('Error loading language summary:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
+    }
+
+    // clean up any existing subscription
+    if (subscriptionRef.current) {
+      subscriptionRef.current.unsubscribe();
+      subscriptionRef.current = null;
     }
 
     loadLanguageSummary();
 
     // real-time subscription (optional, can be kept as is)
-    subscription = supabase
-      .channel('language-summary-changes')
+    const channelName = `language-summary-changes-${userId}-${Date.now()}`;
+    subscriptionRef.current = supabase
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -133,7 +148,9 @@ export function useLanguageSummary(userId: string) {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          loadLanguageSummary();
+          if (isMounted) {
+            loadLanguageSummary();
+          }
         }
       )
       .on(
@@ -145,13 +162,20 @@ export function useLanguageSummary(userId: string) {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          loadLanguageSummary();
+          if (isMounted) {
+            loadLanguageSummary();
+          }
         }
       )
       .subscribe();
 
     return () => {
-      subscription?.unsubscribe();
+      isMounted = false;
+      
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
     };
   }, [userId]);
 

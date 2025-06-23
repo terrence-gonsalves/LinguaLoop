@@ -1,16 +1,16 @@
 import Colors from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { LanguageDropdown } from '../../../components/forms/LanguageDropdown';
 
 
 interface GoalFormStepsProps {
   currentStep: number;
   formData: any;
   setFormData: (data: any) => void;
-  languages: { id: string; name: string }[];
+  languages: { id: string; name: string; flag?: string | null }[];
 }
 
 const GOAL_TYPES = [
@@ -41,18 +41,13 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages }:
 
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Language (Optional)</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={formData.languageId}
-            onValueChange={(value) => setFormData({ ...formData, languageId: value })}
-            style={styles.picker}
-          >
-            <Picker.Item label="All Languages" value={null} />
-            {languages.map((lang) => (
-              <Picker.Item key={lang.id} label={lang.name} value={lang.id} />
-            ))}
-          </Picker>
-        </View>
+        <LanguageDropdown
+          label=""
+          data={languages}
+          value={formData.languageId}
+          onChange={(value: string | null) => setFormData({ ...formData, languageId: value })}
+          dropdownStyle={styles.input}
+        />
       </View>
 
       <View style={styles.inputGroup}>
@@ -164,7 +159,11 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages }:
           onPress={() => setShowStartDatePicker(true)}
         >
           <Text style={styles.dateButtonText}>
-            {formData.startDate.toLocaleDateString()}
+            {formData.startDate.toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
           </Text>
         </Pressable>
         {showStartDatePicker && (
@@ -189,7 +188,11 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages }:
           onPress={() => setShowEndDatePicker(true)}
         >
           <Text style={styles.dateButtonText}>
-            {formData.endDate.toLocaleDateString()}
+            {formData.endDate.toLocaleDateString(undefined, {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
           </Text>
         </Pressable>
         {showEndDatePicker && (
@@ -306,6 +309,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     color: Colors.light.text,
     fontSize: 16,
+    minHeight: 50,
   },
   textArea: {
     height: 120,

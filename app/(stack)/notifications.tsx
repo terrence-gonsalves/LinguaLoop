@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet, Text, ToastAndroid, View } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SettingsSection } from '../../../components/settings/SettingsSection';
+import { SettingsSection } from '../../components/settings/SettingsSection';
 
 interface NotificationSettings {
   notifications_enabled: boolean;
@@ -135,7 +135,7 @@ export default function NotificationsScreen() {
     });
     setDisplayTime(timeString);
 
-    // ormat time for database (HH:MM:SS+00)
+    // format time for database (HH:MM:SS+00)
     const dbTimeString = selectedTime.toLocaleTimeString('en-US', {
       hour12: false,
       hour: '2-digit',
@@ -184,7 +184,8 @@ export default function NotificationsScreen() {
       />
 
       <View style={styles.content}>
-        {/* Main Notifications Toggle */}
+
+        {/* main notifications toggle */}
         <View style={styles.mainToggleSection}>
           <View style={styles.toggleRow}>
             <Text style={styles.toggleLabel}>Notifications</Text>
@@ -198,7 +199,8 @@ export default function NotificationsScreen() {
 
         {settings.notifications_enabled && (
           <>
-            {/* Study Reminders Section */}
+
+            {/* study reminders section */}
             <SettingsSection title="Study Reminder">
               <View style={styles.settingRow}>
                 <Text style={styles.settingLabel}>Daily reminder</Text>
@@ -232,7 +234,7 @@ export default function NotificationsScreen() {
               </Pressable>
             </SettingsSection>
 
-            {/* Other Notifications Section */}
+            {/* other notifications section */}
             <SettingsSection title="Other Notifications">
               <View style={styles.settingRow}>
                 <Text style={styles.settingLabel}>News and promotions</Text>
@@ -255,7 +257,7 @@ export default function NotificationsScreen() {
           </>
         )}
 
-        {/* Save Button */}
+        {/* save button */}
         <Pressable
           style={[
             styles.saveButton,
@@ -272,7 +274,7 @@ export default function NotificationsScreen() {
           </Text>
         </Pressable>
 
-        {/* Time Picker Modal */}
+        {/* time picker modal */}
         {showTimePicker && (
           <DateTimePicker
             value={new Date()}

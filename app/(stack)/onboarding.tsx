@@ -14,14 +14,14 @@ export default function OnboardingScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [languages, setLanguages] = useState<Language[]>([]);
   
-  // Form state
+  // form state
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
   const [aboutMe, setAboutMe] = useState('');
   const [nativeLanguage, setNativeLanguage] = useState<string | null>(null);
   const [targetLanguages, setTargetLanguages] = useState<string[]>(['']);
   
-  // Form errors
+  // form errors
   const [usernameError, setUsernameError] = useState('');
   const [aboutMeError, setAboutMeError] = useState('');
 
@@ -33,7 +33,7 @@ export default function OnboardingScreen() {
     try {
       const { data, error } = await supabase
         .from('master_languages')
-        .select('id, name')
+        .select('id, name, flag')
         .order('name');
 
       if (error) throw error;
@@ -90,7 +90,7 @@ export default function OnboardingScreen() {
   async function handleSubmit() {
     if (!profile?.id) return;
     
-    // Validate required fields
+    // validate required fields
     if (!nativeLanguage) {
       Alert.alert('Error', 'Please select your native language');
       return;
@@ -104,17 +104,17 @@ export default function OnboardingScreen() {
     if (username && !validateUsername(username)) return;
     if (aboutMe && !validateAboutMe(aboutMe)) return;
 
-    // Remove empty target languages
+    // remove empty target languages
     const validTargetLanguages = targetLanguages.filter(lang => lang);
 
-    // Check for duplicate target languages
+    // check for duplicate target languages
     const uniqueTargets = new Set(validTargetLanguages);
     if (uniqueTargets.size !== validTargetLanguages.length) {
       Alert.alert('Error', 'Please select different languages for each target language');
       return;
     }
 
-    // Check if native language is selected as target
+    // check if native language is selected as target
     if (validTargetLanguages.includes(nativeLanguage)) {
       Alert.alert('Error', 'Your native language cannot be a target language');
       return;
@@ -123,7 +123,8 @@ export default function OnboardingScreen() {
     setIsLoading(true);
 
     try {
-      // Update profile
+
+      // update profile
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
@@ -137,7 +138,7 @@ export default function OnboardingScreen() {
 
       if (profileError) throw profileError;
 
-      // Insert target languages
+      // insert target languages
       const languageInserts = validTargetLanguages.map(langId => ({
         user_id: profile.id,
         master_language_id: langId,
@@ -150,10 +151,10 @@ export default function OnboardingScreen() {
 
       if (languagesError) throw languagesError;
 
-      // Reload the profile to get the updated onboarding status
+      // reload the profile to get the updated onboarding status
       await reloadProfile();
 
-      // Navigate to dashboard
+      // navigate to dashboard
       router.replace('/(tabs)');
     } catch (error) {
       console.error('Error saving onboarding data:', error);

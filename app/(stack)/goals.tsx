@@ -22,6 +22,7 @@ type GoalType = 'daily_time' | 'weekly_time' | 'monthly_vocab' | 'lessons_comple
 interface Language {
   id: string;
   name: string;
+  flag?: string | null;
 }
 
 interface GoalFormData {
@@ -64,11 +65,25 @@ export default function GoalsScreen() {
     try {
       const { data, error } = await supabase
         .from('languages')
-        .select('id, name')
+        .select(`
+          id, 
+          name,
+          master_languages (
+            flag
+          )
+        `)
         .order('name');
 
       if (error) throw error;
-      setLanguages(data || []);
+      
+      // transform the data to include flag information
+      const transformedData = (data || []).map((lang: any) => ({
+        id: lang.id,
+        name: lang.name,
+        flag: lang.master_languages?.flag || null,
+      }));
+      
+      setLanguages(transformedData);
     } catch (error) {
       console.error('Error fetching languages:', error);
       Alert.alert('Error', 'Failed to load languages');
