@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Goal {
   id: string;
@@ -30,16 +30,18 @@ export function useStudyStats(userId: string | undefined) {
     languageCount: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
     if (!userId) return;
-    let subscription: ReturnType<typeof supabase.channel>;
+    let isMounted = true;
 
     async function loadStudyStats() {
       try {
+        if (!isMounted) return;
         setIsLoading(true);
 
-        // Fetch most recent active goal
+        // fetch most recent active goal
         const { data: goalData, error: goalError } = await supabase
           .from('goals')
           .select('*')
@@ -51,7 +53,7 @@ export function useStudyStats(userId: string | undefined) {
 
         if (goalError && goalError.code !== 'PGRST116') throw goalError;
 
-        // Calculate goal progress if it's a time-based goal
+        // calculate goal progress if it's a time-based goal
         let goalProgress = 0;
         if (goalData) {
           const now = new Date();
@@ -62,7 +64,7 @@ export function useStudyStats(userId: string | undefined) {
           goalProgress = Math.min(Math.round((elapsedDuration / totalDuration) * 100), 100);
         }
 
-        // Fetch total study time
+        // fetch total study time
         const { data: timeData, error: timeError } = await supabase
           .from('time_entries')
           .select('duration_seconds')
@@ -74,7 +76,7 @@ export function useStudyStats(userId: string | undefined) {
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
 
-        // Count unique languages
+        // count unique languages
         const { count: languageCount, error: languageError } = await supabase
           .from('languages')
           .select('*', { count: 'exact', head: true })
@@ -82,23 +84,35 @@ export function useStudyStats(userId: string | undefined) {
 
         if (languageError) throw languageError;
 
+        if (!isMounted) return;
+
         setStats({
           goal: goalData ? { ...goalData, progress: goalProgress } : null,
           totalStudyTime: { hours, minutes },
           languageCount: languageCount || 0,
         });
       } catch (err) {
+        if (!isMounted) return;
         console.error('Error loading study stats:', err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
+    }
+
+    // clean up any existing subscription
+    if (subscriptionRef.current) {
+      subscriptionRef.current.unsubscribe();
+      subscriptionRef.current = null;
     }
 
     loadStudyStats();
 
-    // Set up real-time subscriptions
-    subscription = supabase
-      .channel('study-stats-changes')
+    // set up real-time subscriptions
+    const channelName = `study-stats-changes-${userId}-${Date.now()}`;
+    subscriptionRef.current = supabase
+      .channel(channelName)
       .on(
         'postgres_changes',
         {
@@ -108,7 +122,9 @@ export function useStudyStats(userId: string | undefined) {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          loadStudyStats();
+          if (isMounted) {
+            loadStudyStats();
+          }
         }
       )
       .on(
@@ -120,7 +136,9 @@ export function useStudyStats(userId: string | undefined) {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          loadStudyStats();
+          if (isMounted) {
+            loadStudyStats();
+          }
         }
       )
       .on(
@@ -132,13 +150,20 @@ export function useStudyStats(userId: string | undefined) {
           filter: `user_id=eq.${userId}`,
         },
         () => {
-          loadStudyStats();
+          if (isMounted) {
+            loadStudyStats();
+          }
         }
       )
       .subscribe();
 
     return () => {
-      subscription?.unsubscribe();
+      isMounted = false;
+      
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
     };
   }, [userId]);
 

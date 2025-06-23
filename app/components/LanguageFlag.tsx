@@ -6,21 +6,33 @@ import { StyleSheet, Text, View } from 'react-native';
 interface LanguageFlagProps {
   name: string;
   flagUrl: string | null;
+  size?: number;
 }
 
-export const LanguageFlag = ({ name, flagUrl }: LanguageFlagProps) => {
+export const LanguageFlag = ({ name, flagUrl, size = 32 }: LanguageFlagProps) => {
   const [imageError, setImageError] = useState(false);
+
+  const containerStyle = {
+    width: size,
+    height: size,
+    borderRadius: size / 2,
+  };
+
+  const textStyle = {
+    fontSize: size * 0.5,
+    lineHeight: size,
+  };
 
   if (!flagUrl || imageError) {
     return (
-      <View style={styles.flagPlaceholder}>
-        <Text style={styles.flagPlaceholderText}>{name[0]}</Text>
+      <View style={[styles.flagPlaceholder, containerStyle]}>
+        <Text style={[styles.flagPlaceholderText, textStyle]}>{name[0]}</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.flagPlaceholder}>
+    <View style={[styles.flagPlaceholder, containerStyle]}>
       <ExpoImage
         source={{ uri: flagUrl }}
         style={styles.flagImage}
