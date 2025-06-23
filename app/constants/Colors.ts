@@ -41,6 +41,12 @@ export default {
     green_tint: '#e8f5e9',
     fossil: '#C8D1D3',
     sand: '#B9B0A2',
+
+    // activity colors
+    activityBlue1: '#3d5a80',
+    activityBlue2: '#507dbc',
+    activityOrange: '#f4a261',
+    activityPink: '#ffddd2',
   },
   dark: {
     // we'll implement dark theme later

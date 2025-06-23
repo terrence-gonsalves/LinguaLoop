@@ -1,7 +1,10 @@
 import Colors from '@/constants/Colors';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { PieChart } from 'react-native-chart-kit';
 import { ChartCard } from './ChartCard';
+
+const screenWidth = Dimensions.get('window').width;
 
 interface LegendItemProps {
   color: string;
@@ -19,13 +22,42 @@ interface ComparisonCardProps {
   title: string;
   subtitle: string;
   items: { text: string; color: string }[];
+  analysisData: {
+    data: number[];
+    total: number;
+  }
 }
 
-export function ComparisonCard({ title, subtitle, items }: ComparisonCardProps) {
+export function ComparisonCard({ title, subtitle, items, analysisData }: ComparisonCardProps) {
+  
+  const pieChartData = items.map((item, index) => ({
+    name: item.text,
+    population: analysisData.data[index] || 0,
+    color: item.color,
+    legendFontColor: Colors.light.textSecondary,
+    legendFontSize: 14,
+  }));
+  
   return (
     <ChartCard title={title} subtitle={subtitle}>
       <View style={styles.container}>
-        <Text style={styles.noDataText}>No data available</Text>
+        {analysisData.total > 0 ? (
+          <PieChart
+            data={pieChartData}
+            width={screenWidth}
+            height={150}
+            chartConfig={{
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            }}
+            accessor="population"
+            backgroundColor="transparent"
+            paddingLeft="15"
+            center={[10, 0]}
+            hasLegend={false}
+          />
+        ) : (
+          <Text style={styles.noDataText}>No data available</Text>
+        )}
         <View style={styles.legendContainer}>
           {items.map((item, index) => (
             <LegendItem key={index} color={item.color} text={item.text} />

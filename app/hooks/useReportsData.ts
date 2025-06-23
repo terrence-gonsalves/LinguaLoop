@@ -1,3 +1,4 @@
+import Colors from '@/constants/Colors';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useRef, useState } from 'react';
 
@@ -18,21 +19,46 @@ interface ReportsData {
     remaining: number;
     progressPercentage: number;
   };
+  timeDistribution: {
+    labels: string[];
+    data: number[];
+    activityColors: string[];
+  };
+  timePerActivity: {
+    labels: string[];
+    data: number[];
+  };
+  weeklyProgress: {
+    labels: string[];
+    data: number[];
+  };
+  inputOutputAnalysis: {
+    data: number[];
+    total: number;
+  };
 }
 
 const MILESTONE_INCREMENTS = [50, 150, 300, 600, 1000, 1500];
 
-export function useReportsData(userId: string | undefined, selectedLanguageId: string | null) {
+export function useReportsData(
+  userId: string | undefined, 
+  userCreatedAt: string | undefined, 
+  selectedLanguageId: string | null
+) {
   const [data, setData] = useState<ReportsData>({
     totalTime: { hours: 0, minutes: 0, seconds: 0 },
     averageSession: { currentDay: 0, previousDay: 0, changePercent: null },
     milestone: { currentTotal: 0, nextMilestone: 50, remaining: 50, progressPercentage: 0 },
+    timeDistribution: { labels: [], data: [], activityColors: [] },
+    timePerActivity: { labels: [], data: [] },
+    weeklyProgress: { labels: [], data: [] },
+    inputOutputAnalysis: { data: [], total: 0 },
   });
   const [isLoading, setIsLoading] = useState(true);
   const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !userCreatedAt) return;
     let isMounted = true;
 
     async function loadReportsData() {
@@ -132,6 +158,117 @@ export function useReportsData(userId: string | undefined, selectedLanguageId: s
         const remaining = Math.max(0, nextMilestone - currentTotalHours);
         const progressPercentage = Math.min((currentTotalHours / nextMilestone) * 100, 100);
 
+        // calculate time distribution by activity
+        // first get all activities
+        const { data: activitiesData, error: activitiesError } = await supabase
+          .from('activities')
+          .select('id, name')
+          .order('created_at', { ascending: true });
+
+        if (activitiesError) throw activitiesError;
+
+        // then get time entries with activity filtering. also get created_at for weekly calc
+        let timeDistributionQuery = supabase
+          .from('time_entries')
+          .select('duration_seconds, activity_id, created_at')
+          .eq('user_id', userId);
+        
+        if (selectedLanguageId) {
+          timeDistributionQuery = timeDistributionQuery.eq('language_id', selectedLanguageId);
+        }
+        
+        const { data: timeDistributionData, error: timeDistributionError } = await timeDistributionQuery;
+
+        if (timeDistributionError) throw timeDistributionError;
+
+        // group time by activity_id
+        const timePerActivity = new Map<string, number>();
+        (timeDistributionData || []).forEach(entry => {
+            const current = timePerActivity.get(entry.activity_id) || 0;
+            timePerActivity.set(entry.activity_id, current + entry.duration_seconds);
+        });
+
+        const totalActivityTime = Array.from(timePerActivity.values()).reduce((sum, time) => sum + time, 0);
+
+        const allActivityColors = [
+            Colors.light.activityBlue1,
+            Colors.light.activityBlue2,
+            Colors.light.activityOrange,
+            Colors.light.activityPink,
+        ];
+
+        const labels: string[] = [];
+        const data: number[] = [];
+        const activityColors: string[] = [];
+        const timePerActivityData: number[] = [];
+
+        (activitiesData || []).forEach((activity, index) => {
+            labels.push(activity.name);
+            
+            const activityTime = timePerActivity.get(activity.id) || 0;
+            const percentage = totalActivityTime > 0 ? activityTime / totalActivityTime : 0;
+            data.push(percentage);
+            timePerActivityData.push(activityTime / 3600); // Convert seconds to hours
+
+            activityColors.push(allActivityColors[index % allActivityColors.length]);
+        });
+        
+        // --- weekly progress calculation ---
+        const weeklyProgressLabels: string[] = [];
+        const weeklyProgressData: number[] = [];
+        
+        if (userCreatedAt) {
+            const startDate = new Date(userCreatedAt);
+            const todayDate = new Date();
+            
+            startDate.setHours(0, 0, 0, 0);
+            todayDate.setHours(0, 0, 0, 0);
+
+            const dayOfWeek = startDate.getDay();
+            const startDayMonday = new Date(startDate);
+            startDayMonday.setDate(startDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+
+            const weeksSinceSignup = Math.floor((todayDate.getTime() - startDayMonday.getTime()) / (1000 * 60 * 60 * 24 * 7));
+            
+            const currentWeek = weeksSinceSignup + 1;
+            const startWeek = Math.max(1, currentWeek - 5);
+            const endWeek = startWeek + 5;
+
+            const weeklyTimeMap = new Map<number, number>();
+            (timeDistributionData || []).forEach(entry => {
+                const entryDate = new Date(entry.created_at);
+                entryDate.setHours(0,0,0,0);
+                const weekNum = Math.floor((entryDate.getTime() - startDayMonday.getTime()) / (1000 * 60 * 60 * 24 * 7)) + 1;
+                
+                if(weekNum >= startWeek && weekNum <= endWeek) {
+                    const current = weeklyTimeMap.get(weekNum) || 0;
+                    weeklyTimeMap.set(weekNum, current + entry.duration_seconds);
+                }
+            });
+
+            for (let i = startWeek; i <= endWeek; i++) {
+                weeklyProgressLabels.push(`${i}`);
+                const weeklyHours = (weeklyTimeMap.get(i) || 0) / 3600;
+                weeklyProgressData.push(weeklyHours);
+            }
+        }
+        
+        // --- input/output analysis ---
+        const inputOutputData = [0, 0]; // [Input, Output]
+        let inputOutputTotal = 0;
+        const inputActivities = ['Reading', 'Listening'];
+        const outputActivities = ['Writing', 'Speaking'];
+
+        labels.forEach((label, index) => {
+            const hours = timePerActivityData[index];
+            if (inputActivities.includes(label)) {
+                inputOutputData[0] += hours;
+            } else if (outputActivities.includes(label)) {
+                inputOutputData[1] += hours;
+            }
+        });
+        inputOutputTotal = inputOutputData[0] + inputOutputData[1];
+
         if (!isMounted) return;
 
         setData({
@@ -146,6 +283,23 @@ export function useReportsData(userId: string | undefined, selectedLanguageId: s
             nextMilestone,
             remaining,
             progressPercentage
+          },
+          timeDistribution: {
+            labels,
+            data,
+            activityColors
+          },
+          timePerActivity: {
+            labels,
+            data: timePerActivityData,
+          },
+          weeklyProgress: {
+            labels: weeklyProgressLabels,
+            data: weeklyProgressData
+          },
+          inputOutputAnalysis: {
+              data: inputOutputData,
+              total: inputOutputTotal,
           }
         });
       } catch (err) {
@@ -194,7 +348,7 @@ export function useReportsData(userId: string | undefined, selectedLanguageId: s
         subscriptionRef.current = null;
       }
     };
-  }, [userId, selectedLanguageId]);
+  }, [userId, userCreatedAt, selectedLanguageId]);
 
   return { data, isLoading };
 } 
