@@ -6,45 +6,57 @@ import { ChartCard } from './ChartCard';
 
 const screenWidth = Dimensions.get('window').width;
 
-// data structure: { labels: ["Swim", "Bike", "Run"], data: [0.4, 0.6, 0.8] }
-const data = {
-  labels: ['Reading', 'Writing', 'Speaking', 'Listening'], // optional
-  data: [0.25, 0.25, 0.2, 0.3],
-};
+interface TimeDistributionData {
+  labels: string[];
+  data: number[];
+  activityColors: string[];
+}
 
-const chartConfig = {
-  backgroundGradientFrom: Colors.light.background,
-  backgroundGradientTo: Colors.light.background,
-  color: (opacity = 1, index = 0) => {
-    const shades = [
-      'rgba(48, 51, 64, 0.8)',  // darker shade
-      'rgba(48, 51, 64, 0.6)',
-      'rgba(48, 51, 64, 0.4)',
-      'rgba(48, 51, 64, 0.2)',  // lighter shade
-    ];
-    
-    // to ensure darkest is on the outside, reverse the index mapping
-    const reversedIndex = data.data.length - 1 - index;
-    return shades[reversedIndex] ?? `rgba(48, 51, 64, ${opacity})`;
-  },
-  labelColor: (opacity = 1) => `rgba(127, 127, 127, ${opacity})`,
-  strokeWidth: 2, // optional, default 3
-  useShadowColorFromDataset: false, // optional
-};
+interface TimeDistributionCardProps {
+  timeDistributionData: TimeDistributionData;
+}
 
+export function TimeDistributionCard({ timeDistributionData }: TimeDistributionCardProps) {
+  const { labels, data, activityColors } = timeDistributionData;
 
-export function TimeDistributionCard() {
+  const chartData = {
+    labels: labels,
+    data: data.length > 0 ? data : [0.25, 0.25, 0.25, 0.25], // provide default data for empty state
+  };
 
-  // calculate total population for percentage calculation
-  const totalPopulation = data.data.reduce((sum, value) => sum + value, 0) * 100;
+  const chartConfig = {
+    backgroundGradientFrom: Colors.light.background,
+    backgroundGradientTo: Colors.light.background,
+    color: (opacity = 1, index = 0) => {
+      const hasData = data && data.length > 0 && data[index] > 0;
+
+      if (hasData) {
+        return activityColors[index] ?? 'rgba(48, 51, 64, 0.8)';
+      }
+      
+      const shades = [
+        'rgba(48, 51, 64, 0.2)',  // lighter shade
+        'rgba(48, 51, 64, 0.4)',
+        'rgba(48, 51, 64, 0.6)',
+        'rgba(48, 51, 64, 0.8)',  // darker shade
+      ];
+      
+      return shades[index % shades.length] ?? `rgba(48, 51, 64, ${opacity})`;
+    },
+    labelColor: (opacity = 1) => `rgba(127, 127, 127, ${opacity})`,
+    strokeWidth: 2,
+    useShadowColorFromDataset: false,
+  };
+
+  const legendLabels = labels.length > 0 ? labels : ['Reading', 'Writing', 'Speaking', 'Listening'];
 
   return (
     <ChartCard title="Time Distribution" subtitle="Breakdown of total study time by activity">
       <View style={styles.container}>
         <View style={styles.chartWrapper}>
           <ProgressChart
-            data={data}
-            width={screenWidth - 160} // Made chart smaller
+            data={chartData}
+            width={screenWidth - 160}
             height={200}
             strokeWidth={12}
             radius={32}
@@ -53,8 +65,8 @@ export function TimeDistributionCard() {
           />
         </View>
         <View style={styles.legendContainer}>
-          {data.labels.map((label, index) => {
-            const percentage = data.data[index] * 100;
+          {legendLabels.map((label, index) => {
+            const percentage = (data && data.length > 0) ? (data[index] || 0) * 100 : 0;
             return (
               <View key={label} style={styles.legendItem}>
                 <View style={[styles.legendColor, { backgroundColor: chartConfig.color(1, index) }]} />

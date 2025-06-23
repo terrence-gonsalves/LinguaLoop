@@ -320,7 +320,12 @@ const styles = StyleSheet.create({
     minHeight: 50,
   },
   flagOnlyField: {
-    padding: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: Colors.light.generalBG,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: 20,
   },
   flagOnlyContainer: {
     flexDirection: 'row',

@@ -17,12 +17,32 @@ const data = {
   ],
 };
 
-export function StudyProgressCard() {
+interface WeeklyProgressData {
+  labels: string[];
+  data: number[];
+}
+
+interface StudyProgressCardProps {
+  weeklyProgressData: WeeklyProgressData;
+}
+
+export function StudyProgressCard({ weeklyProgressData }: StudyProgressCardProps) {
+  const chartData = {
+    labels: weeklyProgressData.labels.length > 0 ? weeklyProgressData.labels : ['1', '2', '3', '4', '5', '6'],
+    datasets: [
+      {
+        data: weeklyProgressData.data.length > 0 ? weeklyProgressData.data : [0, 0, 0, 0, 0, 0],
+        color: (opacity = 1) => `rgba(217, 125, 84, ${opacity})`,
+        strokeWidth: 2,
+      },
+    ],
+  };
+
   return (
     <ChartCard title="Weekly Study Progress" subtitle="Your consistency in language learning">
       <View style={styles.container}>
         <LineChart
-          data={data}
+          data={chartData}
           width={screenWidth - 64}
           height={220}
           yAxisSuffix="h"

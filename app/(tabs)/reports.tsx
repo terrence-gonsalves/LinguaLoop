@@ -14,13 +14,13 @@ import { PerformanceOverviewCard } from '../../components/reports/PerformanceOve
 import { StatCard } from '../../components/reports/StatCard';
 import { StudyProgressCard } from '../../components/reports/StudyProgressCard';
 import { TimeDistributionCard } from '../../components/reports/TimeDistributionCard';
-import { TimePerSkillCard } from '../../components/reports/TimePerSkillCard';
+import { TimePerActivityCard } from '../../components/reports/TimePerActivityCard';
 
 export default function ReportsScreen() {
   const { profile } = useAuth();
   const { languages } = useUserLanguages(profile?.id || '');
   const [selectedLanguageId, setSelectedLanguageId] = useState<string | null>(null);
-  const { data: reportsData, isLoading } = useReportsData(profile?.id, selectedLanguageId);
+  const { data: reportsData, isLoading } = useReportsData(profile?.id, profile?.created_at, selectedLanguageId);
 
   const comparisonItems1 = [
     { text: 'Input', color: Colors.light.rust },
@@ -75,16 +75,17 @@ export default function ReportsScreen() {
 
         <MilestoneTrackerCard milestoneData={reportsData.milestone} />
 
-        <TimeDistributionCard />
+        <TimeDistributionCard timeDistributionData={reportsData.timeDistribution} />
 
-        <StudyProgressCard />
+        <StudyProgressCard weeklyProgressData={reportsData.weeklyProgress} />
 
-        <TimePerSkillCard />
+        <TimePerActivityCard timePerActivityData={reportsData.timePerActivity} />
 
         <ComparisonCard 
           title="Input-Output Analysis" 
           subtitle="Comparison of input and output activities" 
           items={comparisonItems1} 
+          analysisData={reportsData.inputOutputAnalysis}
         />
 
         <KeyInsightsCard />
