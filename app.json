@@ -18,7 +18,11 @@
     ],
     "extra": {
       "supabaseUrl": "https://gspqgsdvpygdksjzvvep.supabase.co",
-      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcHFnc2R2cHlnZGtzanp2dmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1NDcxNTUsImV4cCI6MjA2NDEyMzE1NX0.Smd13NOwA9dpUZb0psGEaGvN0HRcEKbnS3yMwjZDrTo"
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzcHFnc2R2cHlnZGtzanp2dmVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg1NDcxNTUsImV4cCI6MjA2NDEyMzE1NX0.Smd13NOwA9dpUZb0psGEaGvN0HRcEKbnS3yMwjZDrTo",
+      "router": {},
+      "eas": {
+        "projectId": "065b7f0f-4e87-4776-adad-e88c984c7adb"
+      }
     },
     "ios": {
       "supportsTablet": true,
@@ -62,6 +66,7 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "owner": "terrence.gonsalves"
   }
 }
