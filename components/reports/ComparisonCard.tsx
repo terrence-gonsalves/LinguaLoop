@@ -40,50 +40,57 @@ export function ComparisonCard({ title, subtitle, items, analysisData }: Compari
   
   return (
     <ChartCard title={title} subtitle={subtitle}>
-      <View style={styles.container}>
+      <View style={styles.chartContainer}>
         {analysisData.total > 0 ? (
           <PieChart
             data={pieChartData}
-            width={screenWidth}
+            width={screenWidth - 64}
             height={150}
             chartConfig={{
               color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
             }}
             accessor="population"
             backgroundColor="transparent"
-            paddingLeft="15"
-            center={[10, 0]}
+            paddingLeft="0"
             hasLegend={false}
           />
         ) : (
-          <Text style={styles.noDataText}>No data available</Text>
+          <View style={styles.noDataContainer}>
+            <Text style={styles.noDataText}>No data available</Text>
+          </View>
         )}
-        <View style={styles.legendContainer}>
-          {items.map((item, index) => (
-            <LegendItem key={index} color={item.color} text={item.text} />
-          ))}
-        </View>
+      </View>
+      <View style={styles.legendContainer}>
+        {items.map((item, index) => (
+          <LegendItem key={index} color={item.color} text={item.text} />
+        ))}
       </View>
     </ChartCard>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  chartContainer: {
+    height: 150,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 150,
+  },
+  noDataContainer: {
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   noDataText: {
     fontSize: 16,
     color: Colors.light.textSecondary,
-    marginBottom: 24,
   },
   legendContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: 16,
+    marginTop: 16,
   },
   legendItem: {
     flexDirection: 'row',
