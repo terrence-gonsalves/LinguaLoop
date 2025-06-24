@@ -21,4 +21,4 @@ export const Fonts = {
         demi: '600',
         bold: '800',
     }
-};
+}; 

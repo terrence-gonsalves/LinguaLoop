@@ -1,11 +1,11 @@
+import ConnectionCard from '@/components/ConnectionCard';
 import { useActiveConnections } from '@/hooks/useActiveConnections';
 import { useAuth } from '@/lib/auth-context';
+import { Colors } from '@/providers/theme-provider';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '../../app/providers/theme-provider';
-import { ConnectionCard } from '../../components/profile/ConnectionCard';
 
 export default function ConnectionsScreen() {
   const { profile } = useAuth();

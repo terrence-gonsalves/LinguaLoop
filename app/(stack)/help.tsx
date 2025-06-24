@@ -1,9 +1,9 @@
+import { Accordion } from '@/components/help/Accordion';
 import Colors from '@/constants/Colors';
 import { Stack } from 'expo-router/stack';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Accordion } from '../../components/help/Accordion';
 
 const helpSections = [
   {

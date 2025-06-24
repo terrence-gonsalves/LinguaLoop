@@ -1,10 +1,10 @@
+import AuthProvider from '@/providers/auth-provider';
+import { ThemeProvider } from '@/providers/theme-provider';
 import { Stack } from "expo-router/stack";
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
-import AuthProvider from './providers/auth-provider';
-import { ThemeProvider } from './providers/theme-provider';
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().catch(() => {

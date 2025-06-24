@@ -1,11 +1,11 @@
+import DefaultAvatar from '@/components/DefaultAvatar';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { Colors } from '@/providers/theme-provider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../app/providers/theme-provider';
-import DefaultAvatar from '../DefaultAvatar';
 
 interface AddConnectionModalProps {
   visible: boolean;
