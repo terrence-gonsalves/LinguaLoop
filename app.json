@@ -4,13 +4,13 @@
     "slug": "LinguaLoop",
     "version": "0.6.2",
     "orientation": "portrait",
-    "icon": "./assets/images/adaptive-icon.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "lingualoop",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/logo.png",
-      "resizeMode": "cover",
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
       "backgroundColor": "#F0F3F4"
     },
     "assetBundlePatterns": [
@@ -28,37 +28,42 @@
       "supportsTablet": true,
       "buildNumber": "1",
       "splash": {
-        "image": "./assets/images/logo.png",
-        "resizeMode": "cover",
+        "image": "./assets/images/icon.png",
+        "resizeMode": "contain",
         "backgroundColor": "#F0F3F4"
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#F0F3F4"
       },
       "splash": {
-        "image": "./assets/images/logo.png",
-        "resizeMode": "cover",
+        "image": "./assets/images/icon.png",
+        "resizeMode": "contain",
         "backgroundColor": "#F0F3F4"
       },
       "versionCode": 1,
       "edgeToEdgeEnabled": true,
-      "package": "com.terrence.gonsalves.LinguaLoop"
+      "package": "com.terrence.gonsalves.LinguaLoop",
+      "permissions": [
+        "NOTIFICATIONS",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED"
+      ]
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/logo.png"
+      "favicon": "./assets/images/icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo.png",
-          "imageResizeMode": "cover",
+          "image": "./assets/images/icon.png",
+          "imageResizeMode": "contain",
           "backgroundColor": "#F0F3F4"
         }
       ],
@@ -66,10 +71,11 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/logo.png",
+          "icon": "./assets/images/icon.png",
           "color": "#F0F3F4"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
