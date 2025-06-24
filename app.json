@@ -2,9 +2,9 @@
   "expo": {
     "name": "LinguaLoop",
     "slug": "LinguaLoop",
-    "version": "0.5.0",
+    "version": "0.6.2",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "icon": "./assets/images/adaptive-icon.png",
     "scheme": "lingualoop",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
