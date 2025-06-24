@@ -1,14 +1,11 @@
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 import { AchievementItem } from '@/components/profile/AchievementItem';
-import AddAchievementModal from '@/components/profile/AddAchievementModal';
-import AddConnectionModal from '@/components/profile/AddConnectionModal';
 import { LanguageProgressCard } from '@/components/profile/LanguageProgressCard';
 import { ProfileConnectionCard } from '@/components/profile/ProfileConnectionCard';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -16,45 +13,121 @@ import { useActiveConnections } from '@/hooks/useActiveConnections';
 import { useLanguageSummary } from '@/hooks/useLanguageSummary';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { Colors } from '@/providers/theme-provider';
+import { MaterialIcons } from '@expo/vector-icons';
 
-const ACHIEVEMENT_TYPE_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
-  award: 'trophy-outline',
-  certificate: 'certificate-outline',
-  course: 'book-open-outline',
-  badge: 'shield-star-outline',
-  other: 'star-outline',
-};
+interface UserProfile {
+  id: string;
+  name: string | null;
+  user_name: string | null;
+  about_me: string | null;
+  avatar_url: string | null;
+  native_language: string | null;
+  onboarding_completed: boolean;
+}
 
-export default function ProfileScreen() {
-  const { profile } = useAuth();
+export default function UserProfileScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { profile: currentUser } = useAuth();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
-  const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(profile?.id || '');
-  const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError, refresh: refreshConnections } = useActiveConnections(profile?.id || '');
-  const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError, refresh: refreshAchievements } = useAchievements(profile?.id || '');
-  const [showAddConnection, setShowAddConnection] = useState(false);
-  const [showAddAchievement, setShowAddAchievement] = useState(false);
+
+  // Hooks for user data
+  const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(id || '');
+  const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError, refresh: refreshConnections } = useActiveConnections(id || '');
+  const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError } = useAchievements(id || '');
 
   useEffect(() => {
-    if (profile?.native_language) {
-      loadNativeLanguage();
+    if (id) {
+      loadUserProfile();
+      checkFollowStatus();
     }
-  }, [profile?.native_language]);
+  }, [id]);
 
-  async function loadNativeLanguage() {
+  async function loadUserProfile() {
     try {
-      const { data, error } = await supabase
-        .from('master_languages')
-        .select('name')
-        .eq('id', profile?.native_language)
+      setIsLoading(true);
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', id)
         .single();
 
       if (error) throw error;
-      if (data) {
-        setNativeLanguageName(data.name);
+
+      setUserProfile(profile);
+
+      // Load native language name
+      if (profile.native_language) {
+        const { data: languageData } = await supabase
+          .from('master_languages')
+          .select('name')
+          .eq('id', profile.native_language)
+          .single();
+
+        if (languageData) {
+          setNativeLanguageName(languageData.name);
+        }
       }
     } catch (error) {
-      console.error('Error loading native language:', error);
+      console.error('Error loading user profile:', error);
+      showErrorToast('Failed to load user profile');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function checkFollowStatus() {
+    if (!currentUser?.id || !id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('follows')
+        .select('*')
+        .match({ follower_id: currentUser.id, following_id: id })
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+        throw error;
+      }
+
+      setIsFollowing(!!data);
+    } catch (error) {
+      console.error('Error checking follow status:', error);
+    }
+  }
+
+  async function toggleFollow() {
+    if (!currentUser?.id || !id) return;
+
+    try {
+      if (isFollowing) {
+        // Unfollow
+        const { error } = await supabase
+          .from('follows')
+          .delete()
+          .match({ follower_id: currentUser.id, following_id: id });
+
+        if (error) throw error;
+        setIsFollowing(false);
+        showSuccessToast('Unfollowed user');
+      } else {
+        // Follow
+        const { error } = await supabase
+          .from('follows')
+          .insert({ follower_id: currentUser.id, following_id: id });
+
+        if (error) throw error;
+        setIsFollowing(true);
+        showSuccessToast('Followed user');
+      }
+    } catch (error) {
+      console.error('Error toggling follow:', error);
+      showErrorToast('Failed to update follow status');
     }
   }
 
@@ -147,7 +220,7 @@ export default function ProfileScreen() {
           key={achievement.id}
           title={achievement.title}
           notes={achievement.notes || ''}
-          icon={ACHIEVEMENT_TYPE_ICONS[achievement.type] || 'star-outline'}
+          icon="star-outline"
           progress={0}
           isCompleted={false}
           date={localizedDate}
@@ -156,43 +229,61 @@ export default function ProfileScreen() {
     });
   };
 
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>User not found</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <Pressable 
-            style={styles.notificationButton}
-            onPress={() => router.push('/(stack)/notifications')}
-          >
-            <MaterialIcons name="notifications" size={24} color={Colors.light.textPrimary} />
+          <Pressable onPress={() => router.back()} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
           </Pressable>
+          <Text style={styles.headerTitle}>Profile</Text>
+          <View style={styles.placeholder} />
         </View>
 
         <View style={styles.profileSection}>
-          {profile?.avatar_url ? (
+          {userProfile.avatar_url ? (
             <ExpoImage
-              source={{ uri: profile.avatar_url }}
+              source={{ uri: userProfile.avatar_url }}
               style={styles.avatar}
               contentFit="cover"
               transition={200}
             />
           ) : (
-            <DefaultAvatar size={100} letter={profile?.name?.[0] || profile?.user_name?.[0] || '?'} />
+            <DefaultAvatar size={100} letter={userProfile.name?.[0] || userProfile.user_name?.[0] || '?'} />
           )}
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{profile?.name || 'User'}</Text>
-            <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>
+            <Text style={styles.profileName}>{userProfile.name || 'User'}</Text>
+            <Text style={styles.username}>@{userProfile.user_name || 'username'}</Text>
             <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
             <Text style={styles.bio}>
-              {profile?.about_me || ''}
+              {userProfile.about_me || ''}
             </Text>
             <Pressable 
-              style={styles.actionButton}
-              onPress={() => router.push('/(stack)/edit-profile')}
+              style={[styles.actionButton, isFollowing && styles.unfollowButton]}
+              onPress={toggleFollow}
             >
-              <Text style={styles.actionButtonText}>
-                Edit Profile
+              <Text style={[styles.actionButtonText, isFollowing && styles.unfollowButtonText]}>
+                {isFollowing ? 'Unfollow' : 'Follow'}
               </Text>
             </Pressable>
           </View>
@@ -224,9 +315,6 @@ export default function ProfileScreen() {
           <View style={styles.connectionCards}>
             {renderConnections()}
           </View>
-          <Pressable style={styles.addConnectionButton} onPress={() => setShowAddConnection(true)}>
-              <Text style={styles.addConnectionButtonText}>Add Connection</Text>
-            </Pressable>
         </View>
 
         <View style={styles.section}>
@@ -241,13 +329,8 @@ export default function ProfileScreen() {
           <View style={styles.achievements}>
             {renderAchievements()}
           </View>
-          <Pressable style={styles.addAchievementButton} onPress={() => setShowAddAchievement(true)}>
-            <Text style={styles.addAchievementButtonText}>Add Achievement</Text>
-          </Pressable>
         </View>
       </ScrollView>
-      <AddConnectionModal visible={showAddConnection} onClose={() => { setShowAddConnection(false); refreshConnections(); }} />
-      <AddAchievementModal visible={showAddAchievement} onClose={() => { setShowAddAchievement(false); refreshAchievements(); }} onAdded={() => { setShowAddAchievement(false); refreshAchievements(); }} saveLabel="Save" />
     </SafeAreaView>
   );
 }
@@ -267,68 +350,98 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
+  backButton: {
+    padding: 8,
+  },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '600',
     color: Colors.light.textPrimary,
   },
-  notificationButton: {
-    padding: 8,
+  placeholder: {
+    width: 40,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: Colors.light.error,
   },
   profileSection: {
-    alignItems: 'center',
-    paddingVertical: 24,
-    paddingHorizontal: 16,
     backgroundColor: Colors.light.background,
-    marginBottom: 16,
+    padding: 20,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
   profileInfo: {
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 12,
   },
   profileName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '600',
-    color: Colors.light.textPrimary,
+    color: Colors.light.text,
     marginBottom: 4,
   },
   username: {
-    fontSize: 16,
+    fontSize: 14,
     color: Colors.light.textSecondary,
-    marginBottom: 8,
+    marginBottom: 4,
   },
   nativeLanguage: {
     fontSize: 14,
     color: Colors.light.textSecondary,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   bio: {
     fontSize: 14,
-    color: Colors.light.textSecondary,
+    color: Colors.light.text,
     textAlign: 'center',
-    paddingHorizontal: 32,
     marginBottom: 16,
+    maxWidth: 300,
   },
   actionButton: {
-    backgroundColor: Colors.light.buttonPrimary,
-    paddingVertical: 8,
+    backgroundColor: Colors.light.rust,
     paddingHorizontal: 24,
-    borderRadius: 5,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  unfollowButton: {
+    backgroundColor: Colors.light.error,
   },
   actionButtonText: {
-    color: Colors.light.background,
+    color: Colors.light.textTertiary,
     fontSize: 16,
     fontWeight: '600',
   },
+  unfollowButtonText: {
+    color: Colors.light.textTertiary,
+  },
   section: {
-    paddingHorizontal: 16,
-    marginBottom: 24,
+    padding: 20,
+    backgroundColor: Colors.light.background,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.border,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 18,
@@ -336,68 +449,24 @@ const styles = StyleSheet.create({
     color: Colors.light.textPrimary,
   },
   viewAllLink: {
-    padding: 4,
+    padding: 8,
   },
   viewAllText: {
+    color: Colors.light.textSecondary,
     fontSize: 14,
-    color: Colors.light.rust,
-    fontWeight: '500',
   },
   languageCards: {
-    gap: 12,
+    marginBottom: 20,
   },
   connectionCards: {
-    gap: 12,
+    marginBottom: 20,
   },
   achievements: {
-    gap: 12,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  loadingContainer: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  errorText: {
-    color: Colors.light.error,
-    textAlign: 'center',
-    padding: 16,
+    marginBottom: 20,
   },
   noDataText: {
     color: Colors.light.textSecondary,
+    fontSize: 14,
     textAlign: 'center',
-    padding: 16,
-  },
-  addConnectionButton: {
-    backgroundColor: Colors.light.buttonPrimary,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-    alignSelf: 'center',
-    marginVertical: 8,
-  },
-  addConnectionButtonText: {
-    color: Colors.light.background,
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 0.2,
-  },
-  addAchievementButton: {
-    backgroundColor: Colors.light.buttonPrimary,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-    alignSelf: 'center',
-    marginLeft: 8,
-    marginTop: 10
-  },
-  addAchievementButtonText: {
-    color: Colors.light.background,
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 0.2,
   },
 }); 

@@ -1,7 +1,9 @@
 import DefaultAvatar from '@/components/DefaultAvatar';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 import { Colors } from '@/providers/theme-provider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface ProfileConnectionCardProps {
   name: string;
@@ -10,6 +12,8 @@ interface ProfileConnectionCardProps {
   avatarUrl?: string;
   nativeLanguage?: string;
   username?: string;
+  connectionId: string;
+  onUnfollow?: () => void;
 }
 
 export function ProfileConnectionCard({ 
@@ -18,8 +22,48 @@ export function ProfileConnectionCard({
   streak, 
   avatarUrl,
   nativeLanguage = 'French',
-  username = '@sarah.j'
+  username = '@sarah.j',
+  connectionId,
+  onUnfollow
 }: ProfileConnectionCardProps) {
+  const { profile } = useAuth();
+
+  const handleUnfollow = () => {
+    Alert.alert(
+      'Unfollow User',
+      `Are you sure you want to unfollow ${name}?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Unfollow',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const { error } = await supabase
+                .from('follows')
+                .delete()
+                .match({ 
+                  follower_id: profile?.id, 
+                  following_id: connectionId 
+                });
+
+              if (error) throw error;
+              
+              // call the callback to refresh the connections list
+              onUnfollow?.();
+            } catch (error) {
+              console.error('Error unfollowing user:', error);
+              Alert.alert('Error', 'Failed to unfollow user. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.mainContent}>
@@ -42,9 +86,14 @@ export function ProfileConnectionCard({
             </View>
           </View>
         </View>
-        <View style={styles.streakContainer}>
-          <MaterialCommunityIcons name="fire" size={16} color={Colors.light.rust} />
-          <Text style={styles.streakText}>{streak} days</Text>
+        <View style={styles.rightContent}>
+          <View style={styles.streakContainer}>
+            <MaterialCommunityIcons name="fire" size={16} color={Colors.light.rust} />
+            <Text style={styles.streakText}>{streak} days</Text>
+          </View>
+          <Pressable onPress={handleUnfollow} style={styles.unfollowButton}>
+            <MaterialCommunityIcons name="account-remove" size={20} color={Colors.light.error} />
+          </Pressable>
         </View>
       </View>
     </View>
@@ -121,5 +170,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     color: Colors.light.rust,
+  },
+  rightContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  unfollowButton: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: Colors.light.generalBG,
   },
 }); 
