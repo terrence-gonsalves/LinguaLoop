@@ -1,3 +1,4 @@
+import DefaultAvatar from '@/components/DefaultAvatar';
 import Colors from '@/constants/Colors';
 import { useActivities } from '@/hooks/useActivities';
 import { useDailyQuote } from '@/hooks/useDailyQuote';
@@ -11,7 +12,6 @@ import React from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
-import DefaultAvatar from '../../components/DefaultAvatar';
 
 // map activity names to their respective icons
 const ACTIVITY_ICONS: Record<string, { icon: keyof typeof MaterialCommunityIcons.glyphMap, type: 'material' | 'ionicon' }> = {

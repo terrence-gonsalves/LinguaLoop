@@ -1,21 +1,21 @@
+import DefaultAvatar from '@/components/DefaultAvatar';
+import { AchievementItem } from '@/components/profile/AchievementItem';
+import AddAchievementModal from '@/components/profile/AddAchievementModal';
+import AddConnectionModal from '@/components/profile/AddConnectionModal';
+import { LanguageProgressCard } from '@/components/profile/LanguageProgressCard';
+import { ProfileConnectionCard } from '@/components/profile/ProfileConnectionCard';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveConnections } from '@/hooks/useActiveConnections';
 import { useLanguageSummary } from '@/hooks/useLanguageSummary';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { Colors } from '@/providers/theme-provider';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '../../app/providers/theme-provider';
-import DefaultAvatar from '../../components/DefaultAvatar';
-import { AchievementItem } from '../../components/profile/AchievementItem';
-import AddAchievementModal from '../../components/profile/AddAchievementModal';
-import AddConnectionModal from '../../components/profile/AddConnectionModal';
-import { ConnectionCard } from '../../components/profile/ConnectionCard';
-import { LanguageProgressCard } from '../../components/profile/LanguageProgressCard';
 
 const ACHIEVEMENT_TYPE_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
   award: 'trophy-outline',
@@ -104,7 +104,7 @@ export default function ProfileScreen() {
     }
 
     return connections.map((connection) => (
-      <ConnectionCard
+      <ProfileConnectionCard
         key={connection.id}
         name={connection.name || ''}
         username={connection.user_name || ''}

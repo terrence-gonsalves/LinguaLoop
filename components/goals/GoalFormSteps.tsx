@@ -3,7 +3,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { LanguageDropdown } from '../../../components/forms/LanguageDropdown';
+import { LanguageDropdown } from '../forms/LanguageDropdown';
 
 
 interface GoalFormStepsProps {

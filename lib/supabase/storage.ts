@@ -1,7 +1,7 @@
 import { decode as base64Decode } from 'base64-arraybuffer';
 import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
-import { supabase } from '../../app/lib/supabase';
+import { supabase } from '../supabase';
 
 export async function uploadAvatar(userId: string, uri: string): Promise<string> {
   try {

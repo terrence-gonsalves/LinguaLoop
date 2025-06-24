@@ -1,11 +1,11 @@
+import DefaultAvatar from '@/components/DefaultAvatar';
+import { Colors } from '@/providers/theme-provider';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Image as RNImage, StyleSheet, View } from 'react-native';
-import { Colors } from '../../app/providers/theme-provider';
-import DefaultAvatar from '../DefaultAvatar';
 
 interface ImageUploadProps {
   size?: number;

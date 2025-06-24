@@ -1,5 +1,5 @@
+import { Colors } from '@/providers/theme-provider';
 import { StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../../app/providers/theme-provider';
 
 interface SettingsSectionProps {
   title: string;

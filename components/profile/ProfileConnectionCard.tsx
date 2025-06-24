@@ -1,9 +1,9 @@
+import DefaultAvatar from '@/components/DefaultAvatar';
+import { Colors } from '@/providers/theme-provider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../../app/providers/theme-provider';
-import DefaultAvatar from '../DefaultAvatar';
 
-interface ConnectionCardProps {
+interface ProfileConnectionCardProps {
   name: string;
   languages: string[];
   streak: number;
@@ -12,14 +12,14 @@ interface ConnectionCardProps {
   username?: string;
 }
 
-export function ConnectionCard({ 
+export function ProfileConnectionCard({ 
   name, 
   languages, 
   streak, 
   avatarUrl,
   nativeLanguage = 'French',
   username = '@sarah.j'
-}: ConnectionCardProps) {
+}: ProfileConnectionCardProps) {
   return (
     <View style={styles.container}>
       <View style={styles.mainContent}>

@@ -1,42 +1,36 @@
+import { LanguageProgressCard } from '@/components/profile/LanguageProgressCard';
 import Colors from '@/constants/Colors';
+import { useLanguageSummary } from '@/hooks/useLanguageSummary';
+import { useAuth } from '@/lib/auth-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LanguageProgressCard } from '../../components/profile/LanguageProgressCard';
-
-const languages = [
-  {
-    language: 'Spanish',
-    level: 'Intermediate',
-    progress: 75,
-    words: 2345,
-    lessons: 15,
-  },
-  {
-    language: 'Japanese',
-    level: 'Beginner',
-    progress: 40,
-    words: 860,
-    lessons: 12,
-  },
-  {
-    language: 'French',
-    level: 'Beginner',
-    progress: 15,
-    words: 230,
-    lessons: 4,
-  },
-  {
-    language: 'German',
-    level: 'Not Started',
-    progress: 0,
-    words: 0,
-    lessons: 0,
-  },
-];
 
 export default function LanguagesScreen() {
+  const { profile } = useAuth();
+  const { languages, isLoading, error } = useLanguageSummary(profile?.id || '');
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Error loading languages: {error}</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -53,8 +47,13 @@ export default function LanguagesScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Active Languages</Text>
           <View style={styles.languageGrid}>
-            {languages.filter(lang => lang.progress > 0).map((language, index) => (
-              <LanguageProgressCard key={index} {...language} />
+            {languages.filter(lang => Object.values(lang.activities).some((time) => (time as number) > 0)).map((language, index) => (
+              <LanguageProgressCard 
+                key={language.id} 
+                language={language.name}
+                level={language.level}
+                activities={language.activities}
+              />
             ))}
           </View>
         </View>
@@ -62,8 +61,13 @@ export default function LanguagesScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Available Languages</Text>
           <View style={styles.languageGrid}>
-            {languages.filter(lang => lang.progress === 0).map((language, index) => (
-              <LanguageProgressCard key={index} {...language} />
+            {languages.filter(lang => Object.values(lang.activities).every((time) => (time as number) === 0)).map((language, index) => (
+              <LanguageProgressCard 
+                key={language.id} 
+                language={language.name}
+                level={language.level}
+                activities={language.activities}
+              />
             ))}
           </View>
         </View>
@@ -111,5 +115,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: Colors.light.error,
+    fontSize: 16,
+    fontWeight: '600',
   },
 }); 
