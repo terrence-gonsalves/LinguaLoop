@@ -1,7 +1,7 @@
+import { Colors } from '@/providers/theme-provider';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
-import { Colors } from '../../app/providers/theme-provider';
 
 export interface FormInputProps extends TextInputProps {
   label: string;

@@ -1,10 +1,10 @@
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Colors } from '@/providers/theme-provider';
+import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../app/providers/theme-provider';
 
 const ACHIEVEMENT_TYPES = [
   { value: 'award', label: 'Award', icon: 'trophy-outline' },
@@ -89,7 +89,7 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Add Achievement</Text>
             <Pressable onPress={onClose} style={styles.closeButton}>
-              <MaterialCommunityIcons name="close" size={28} color={Colors.light.textPrimary} />
+              <MaterialIcons name="close" size={28} color={Colors.light.textPrimary} />
             </Pressable>
           </View>
           {/* Form */}
@@ -110,14 +110,14 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
                   style={[styles.typeChip, type === t.value && styles.typeChipSelected]}
                   onPress={() => setType(t.value)}
                 >
-                  <MaterialCommunityIcons name={t.icon as any} size={22} color={type === t.value ? Colors.light.background : Colors.light.textSecondary} />
+                  <MaterialIcons name={t.icon as any} size={22} color={type === t.value ? Colors.light.background : Colors.light.textSecondary} />
                   <Text style={[styles.typeChipText, type === t.value && styles.typeChipTextSelected]}>{t.label}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
             <Text style={styles.label}>Date Obtained *</Text>
             <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-              <MaterialCommunityIcons name="calendar" size={20} color={Colors.light.textSecondary} />
+              <MaterialIcons name="event" size={20} color={Colors.light.textSecondary} />
               <Text style={styles.dateText}>{formatDate(date)}</Text>
             </TouchableOpacity>
             {showDatePicker && (

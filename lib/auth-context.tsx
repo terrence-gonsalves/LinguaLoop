@@ -1,9 +1,9 @@
+import { getAvatarUrl } from '@/lib/supabase/storage';
 import { Session } from '@supabase/supabase-js';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useContext, useEffect, useState } from 'react';
 import Toast from 'react-native-toast-message';
-import { getAvatarUrl } from '../../lib/supabase/storage';
 import { supabase, type Profile } from './supabase';
 
 type AuthContextType = {

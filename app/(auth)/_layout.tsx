@@ -1,9 +1,9 @@
 import { useAuth } from '@/lib/auth-context';
+import { Colors } from '@/providers/theme-provider';
 import { router } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { Colors } from '../providers/theme-provider';
 
 export default function AuthLayout() {
   const { session, isLoading } = useAuth();

@@ -1,43 +1,71 @@
+import { SettingsSection } from '@/components/settings/SettingsSection';
 import Colors from '@/constants/Colors';
+import { useAuth } from '@/lib/auth-context';
+import {
+  getPushToken,
+  requestNotificationPermissions,
+  sendTestNotification,
+  type NotificationSettings
+} from '@/lib/notifications';
 import { supabase } from '@/lib/supabase';
+import { showSuccessToast } from '@/lib/toast';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router/stack';
 import React, { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, Text, ToastAndroid, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SettingsSection } from '../../components/settings/SettingsSection';
-
-interface NotificationSettings {
-  notifications_enabled: boolean;
-  study_reminder: boolean;
-  study_reminder_time: string | null;
-  news_promotions: boolean;
-  product_updates: boolean;
-}
 
 export default function NotificationsScreen() {
+  const { profile } = useAuth();
   const [settings, setSettings] = useState<NotificationSettings>({
     notifications_enabled: false,
     study_reminder: false,
     study_reminder_time: null,
     news_promotions: false,
     product_updates: false,
+    user_notifications: false,
+    goal_notifications: false,
+    expo_push_token: null,
   });
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [displayTime, setDisplayTime] = useState<string>('Set reminder time');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    fetchNotificationSettings();
-  }, []);
+    if (profile?.id) {
+      fetchNotificationSettings();
+    }
+  }, [profile?.id]);
+
+  const setupNotifications = async () => {
+    try {
+
+      // get push token
+      const token = await getPushToken();
+
+      if (token) {
+        console.log('💾 Saving push token to settings:', token);
+        setSettings(prev => ({
+          ...prev,
+          expo_push_token: token,
+        }));
+        setHasUnsavedChanges(true);
+      }
+    } catch (error) {
+      console.error('Error setting up notifications:', error);
+    }
+  };
 
   const fetchNotificationSettings = async () => {
+    if (!profile?.id) return;
+    
     try {
       const { data, error } = await supabase
         .from('notification_settings')
         .select('*')
+        .eq('user_id', profile.id)
         .single();
 
       if (error) {
@@ -47,11 +75,15 @@ export default function NotificationsScreen() {
           const { data: newSettings, error: createError } = await supabase
             .from('notification_settings')
             .insert([{
+              user_id: profile.id,
               notifications_enabled: false,
               study_reminder: false,
               study_reminder_time: null,
               news_promotions: false,
               product_updates: false,
+              user_notifications: false,
+              goal_notifications: false,
+              expo_push_token: null,
             }])
             .select()
             .single();
@@ -97,10 +129,13 @@ export default function NotificationsScreen() {
 
   const handleNotificationsToggle = async () => {
     if (!settings.notifications_enabled) {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') {
+      const granted = await requestNotificationPermissions();
+      if (!granted) {
         return;
       }
+      
+      // get push token when enabling notifications
+      await setupNotifications();
     }
     
     setSettings(prev => ({
@@ -147,29 +182,51 @@ export default function NotificationsScreen() {
   };
 
   const handleSave = async () => {
+    if (!profile?.id) return;
+    
     try {
+      setIsLoading(true);
+      
+      const saveData = {
+        user_id: profile.id,
+        notifications_enabled: settings.notifications_enabled,
+        study_reminder: settings.study_reminder,
+        study_reminder_time: settings.study_reminder_time,
+        news_promotions: settings.news_promotions,
+        product_updates: settings.product_updates,
+        user_notifications: settings.user_notifications,
+        goal_notifications: settings.goal_notifications,
+        expo_push_token: settings.expo_push_token,
+        updated_at: new Date().toISOString(),
+      };
+      
+      console.log('💾 Saving notification settings:', saveData);
+      
       const { error } = await supabase
         .from('notification_settings')
-        .upsert({
-          notifications_enabled: settings.notifications_enabled,
-          study_reminder: settings.study_reminder,
-          study_reminder_time: settings.study_reminder_time,
-          news_promotions: settings.news_promotions,
-          product_updates: settings.product_updates,
-          updated_at: new Date().toISOString(),
-        });
+        .upsert(saveData);
 
       if (error) throw error;
 
+      console.log('✅ Notification settings saved successfully');
       setHasUnsavedChanges(false);
-      if (Platform.OS === 'android') {
-        ToastAndroid.show('Settings saved successfully', ToastAndroid.SHORT);
-      } else {
-        Alert.alert('Success', 'Settings saved successfully');
-      }
+      showSuccessToast('Settings saved successfully');
     } catch (error) {
-      console.error('Error saving notification settings:', error);
+      console.error('❌ Error saving notification settings:', error);
       Alert.alert('Error', 'Failed to save notification settings');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTestNotification = async () => {
+    try {
+      await sendTestNotification();
+
+      showSuccessToast('Test notification sent!');
+    } catch (error) {
+      console.error('Error sending test notification:', error);
+      Alert.alert('Error', 'Failed to send test notification');
     }
   };
 
@@ -183,107 +240,148 @@ export default function NotificationsScreen() {
         }} 
       />
 
-      <View style={styles.content}>
-
-        {/* main notifications toggle */}
-        <View style={styles.mainToggleSection}>
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>Notifications</Text>
-            <Switch
-              value={settings.notifications_enabled}
-              onValueChange={handleNotificationsToggle}
-              trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
-            />
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.content}>
+          {/* main notifications toggle */}
+          <View style={styles.mainToggleSection}>
+            <View style={styles.toggleRow}>
+              <Text style={styles.toggleLabel}>Notifications</Text>
+              <Switch
+                value={settings.notifications_enabled}
+                onValueChange={handleNotificationsToggle}
+                trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
+              />
+            </View>
           </View>
+
+          {settings.notifications_enabled && (
+            <>
+              {/* study reminders section */}
+              <SettingsSection title="Study Reminder">
+                <View style={styles.settingRow}>
+                  <Text style={styles.settingLabel}>Daily reminder</Text>
+                  <Switch
+                    value={settings.study_reminder}
+                    onValueChange={(value) => {
+                      handleSettingChange('study_reminder', value);
+                      if (!value) {
+                        handleSettingChange('study_reminder_time', null);
+                        setDisplayTime('Set reminder time');
+                      }
+                    }}
+                    trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
+                  />
+                </View>
+
+                <Pressable
+                  style={[
+                    styles.timePickerButton,
+                    !settings.study_reminder && styles.timePickerButtonDisabled
+                  ]}
+                  onPress={() => settings.study_reminder && setShowTimePicker(true)}
+                  disabled={!settings.study_reminder}
+                >
+                  <Text style={[
+                    styles.timePickerText,
+                    !settings.study_reminder && styles.timePickerTextDisabled
+                  ]}>
+                    {displayTime}
+                  </Text>
+                </Pressable>
+              </SettingsSection>
+
+              {/* user notifications section */}
+              <SettingsSection title="User Notifications">
+                <View style={styles.settingRow}>
+                  <Text style={styles.settingLabel}>Messages and follows</Text>
+                  <Switch
+                    value={settings.user_notifications}
+                    onValueChange={(value) => handleSettingChange('user_notifications', value)}
+                    trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
+                  />
+                </View>
+              </SettingsSection>
+
+              {/* goal notifications section */}
+              <SettingsSection title="Goal Notifications">
+                <View style={styles.settingRow}>
+                  <Text style={styles.settingLabel}>Goal reminders and progress</Text>
+                  <Switch
+                    value={settings.goal_notifications}
+                    onValueChange={(value) => handleSettingChange('goal_notifications', value)}
+                    trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
+                    disabled={true} // Coming soon feature
+                  />
+                </View>
+                <View style={styles.comingSoonContainer}>
+                  <Text style={styles.comingSoonText}>Coming soon</Text>
+                </View>
+              </SettingsSection>
+
+              {/* other notifications section */}
+              <SettingsSection title="Other Notifications">
+                <View style={styles.settingRow}>
+                  <Text style={styles.settingLabel}>News and promotions</Text>
+                  <Switch
+                    value={settings.news_promotions}
+                    onValueChange={(value) => handleSettingChange('news_promotions', value)}
+                    trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
+                  />
+                </View>
+
+                <View style={[styles.settingRow, styles.lastRow]}>
+                  <Text style={styles.settingLabel}>Product updates</Text>
+                  <Switch
+                    value={settings.product_updates}
+                    onValueChange={(value) => handleSettingChange('product_updates', value)}
+                    trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
+                  />
+                </View>
+              </SettingsSection>
+
+              {/* test notification button */}
+              <View style={styles.testButtonContainer}>
+                <Pressable
+                  style={styles.testButton}
+                  onPress={handleTestNotification}
+                >
+                  <Text style={styles.testButtonText}>Test Notification</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
+
+          {/* save button */}
+          <Pressable
+            style={[
+              styles.saveButton,
+              (!hasUnsavedChanges || !settings.notifications_enabled || isLoading) && styles.saveButtonDisabled
+            ]}
+            onPress={handleSave}
+            disabled={!hasUnsavedChanges || !settings.notifications_enabled || isLoading}
+          >
+            <Text style={[
+              styles.saveButtonText,
+              (!hasUnsavedChanges || !settings.notifications_enabled || isLoading) && styles.saveButtonTextDisabled
+            ]}>
+              {isLoading ? 'Saving...' : 'Save'}
+            </Text>
+          </Pressable>
+
+          {/* Add bottom padding for scroll */}
+          <View style={styles.bottomPadding} />
         </View>
+      </ScrollView>
 
-        {settings.notifications_enabled && (
-          <>
-
-            {/* study reminders section */}
-            <SettingsSection title="Study Reminder">
-              <View style={styles.settingRow}>
-                <Text style={styles.settingLabel}>Daily reminder</Text>
-                <Switch
-                  value={settings.study_reminder}
-                  onValueChange={(value) => {
-                    handleSettingChange('study_reminder', value);
-                    if (!value) {
-                      handleSettingChange('study_reminder_time', null);
-                      setDisplayTime('Set reminder time');
-                    }
-                  }}
-                  trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
-                />
-              </View>
-
-              <Pressable
-                style={[
-                  styles.timePickerButton,
-                  !settings.study_reminder && styles.timePickerButtonDisabled
-                ]}
-                onPress={() => settings.study_reminder && setShowTimePicker(true)}
-                disabled={!settings.study_reminder}
-              >
-                <Text style={[
-                  styles.timePickerText,
-                  !settings.study_reminder && styles.timePickerTextDisabled
-                ]}>
-                  {displayTime}
-                </Text>
-              </Pressable>
-            </SettingsSection>
-
-            {/* other notifications section */}
-            <SettingsSection title="Other Notifications">
-              <View style={styles.settingRow}>
-                <Text style={styles.settingLabel}>News and promotions</Text>
-                <Switch
-                  value={settings.news_promotions}
-                  onValueChange={(value) => handleSettingChange('news_promotions', value)}
-                  trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
-                />
-              </View>
-
-              <View style={[styles.settingRow, styles.lastRow]}>
-                <Text style={styles.settingLabel}>Product updates</Text>
-                <Switch
-                  value={settings.product_updates}
-                  onValueChange={(value) => handleSettingChange('product_updates', value)}
-                  trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
-                />
-              </View>
-            </SettingsSection>
-          </>
-        )}
-
-        {/* save button */}
-        <Pressable
-          style={[
-            styles.saveButton,
-            (!hasUnsavedChanges || !settings.notifications_enabled) && styles.saveButtonDisabled
-          ]}
-          onPress={handleSave}
-          disabled={!hasUnsavedChanges || !settings.notifications_enabled}
-        >
-          <Text style={[
-            styles.saveButtonText,
-            (!hasUnsavedChanges || !settings.notifications_enabled) && styles.saveButtonTextDisabled
-          ]}>
-            Save
-          </Text>
-        </Pressable>
-
-        {/* time picker modal */}
-        {showTimePicker && (
-          <DateTimePicker
-            value={new Date()}
-            mode="time"
-            is24Hour={false}
-            onChange={handleTimeChange}
-          />
-        )}
-      </View>
+      {/* time picker modal */}
+      {showTimePicker && (
+        <DateTimePicker
+          value={new Date()}
+          mode="time"
+          is24Hour={false}
+          onChange={handleTimeChange}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -292,6 +390,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.generalBG,
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
     flex: 1,
@@ -344,6 +445,33 @@ const styles = StyleSheet.create({
   timePickerTextDisabled: {
     color: Colors.light.textSecondary,
   },
+  comingSoonContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    backgroundColor: Colors.light.background,
+  },
+  comingSoonText: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    fontStyle: 'italic',
+  },
+  testButtonContainer: {
+    paddingHorizontal: 16,
+    marginTop: 16,
+  },
+  testButton: {
+    backgroundColor: Colors.light.background,
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.light.buttonPrimary,
+    alignItems: 'center',
+  },
+  testButtonText: {
+    color: Colors.light.buttonPrimary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
   saveButton: {
     backgroundColor: Colors.light.buttonPrimary,
     marginHorizontal: 16,
@@ -362,5 +490,8 @@ const styles = StyleSheet.create({
   },
   saveButtonTextDisabled: {
     color: Colors.light.background,
+  },
+  bottomPadding: {
+    height: 100, // add space at bottom for better scrolling
   },
 }); 

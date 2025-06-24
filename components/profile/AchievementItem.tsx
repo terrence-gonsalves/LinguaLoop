@@ -1,6 +1,6 @@
+import { Colors } from '@/providers/theme-provider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../../app/providers/theme-provider';
 
 interface AchievementItemProps {
   title: string;

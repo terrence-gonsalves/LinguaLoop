@@ -1,10 +1,10 @@
+import TabBarIcon from '@/components/navigation/TabBarIcons';
 import { useAuth } from '@/lib/auth-context';
 import { router } from 'expo-router';
 import { Tabs } from 'expo-router/tabs';
 import { useEffect } from 'react';
-import TabBarIcon from '../../components/navigation/TabBarIcons';
 
-// Default colors as fallback
+// default colors as fallback
 const defaultColors = {
   light: {
     tabIconSelected: '#E86C00',
@@ -19,9 +19,11 @@ export default function TabLayout() {
 
     useEffect(() => {
         if (!isLoading && !session) {
+
             // redirect to login if not authenticated
             router.replace('/(auth)/login');
         } else if (session && profile && !profile.onboarding_completed) {
+            
             // redirect to onboarding if not completed
             router.replace('/onboarding');
         }

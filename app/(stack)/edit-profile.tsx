@@ -1,16 +1,16 @@
+import { Button } from '@/components/common/Button';
+import { FormInput } from '@/components/forms/FormInput';
+import { ImageUpload } from '@/components/forms/ImageUpload';
+import { Language, LanguageDropdown } from '@/components/forms/LanguageDropdown';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { deleteAvatar, uploadAvatar } from '@/lib/supabase/storage';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
-import { Button } from '../../components/common/Button';
-import { FormInput } from '../../components/forms/FormInput';
-import { ImageUpload } from '../../components/forms/ImageUpload';
-import { Language, LanguageDropdown } from '../../components/forms/LanguageDropdown';
-import { deleteAvatar, uploadAvatar } from '../../lib/supabase/storage';
 
 export default function EditProfileScreen() {
   const { profile, reloadProfile } = useAuth();
@@ -144,21 +144,13 @@ export default function EditProfileScreen() {
       await reloadProfile();
 
       // show success toast and navigate to settings
-      Toast.show({
-        type: 'success',
-        text1: 'Profile Updated',
-        text2: 'Your profile has been updated successfully',
-      });
+      showSuccessToast('Profile Updated');
 
       // navigate to settings screen
       router.replace('/(tabs)/settings');
     } catch (error) {
       console.error('Error saving profile:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to save your profile. Please try again.',
-      });
+      showErrorToast('Failed to save your profile. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -183,18 +175,10 @@ export default function EditProfileScreen() {
       // reload the profile to update the UI
       await reloadProfile();
 
-      Toast.show({
-        type: 'success',
-        text1: 'Profile Photo Updated',
-        text2: 'Your profile photo has been updated successfully',
-      });
+      showSuccessToast('Profile Photo Updated');
     } catch (error) {
       console.error('Error updating profile photo:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to update profile photo. Please try again.',
-      });
+      showErrorToast('Failed to update profile photo. Please try again.');
     }
   }
 
@@ -217,18 +201,10 @@ export default function EditProfileScreen() {
       // reload the profile to update the UI
       await reloadProfile();
 
-      Toast.show({
-        type: 'success',
-        text1: 'Profile Photo Removed',
-        text2: 'Your profile photo has been removed successfully',
-      });
+      showSuccessToast('Profile Photo Removed');
     } catch (error) {
       console.error('Error removing profile photo:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to remove profile photo. Please try again.',
-      });
+      showErrorToast('Failed to remove profile photo. Please try again.');
     }
   }
 
@@ -245,7 +221,8 @@ export default function EditProfileScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.content}>
-            {/* Profile Photo Section */}
+
+            {/* profile photo section */}
             <View style={styles.card}>
               <View style={styles.photoSection}>
                 <ImageUpload
@@ -258,7 +235,7 @@ export default function EditProfileScreen() {
               </View>
             </View>
 
-            {/* Form Fields */}
+            {/* form fields */}
             <View style={styles.card}>
               <FormInput
                 label="Display Name"
