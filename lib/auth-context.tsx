@@ -1,9 +1,9 @@
 import { getAvatarUrl } from '@/lib/supabase/storage';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { Session } from '@supabase/supabase-js';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useContext, useEffect, useState } from 'react';
-import Toast from 'react-native-toast-message';
 import { supabase, type Profile } from './supabase';
 
 type AuthContextType = {
@@ -126,11 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // session will be handled by the auth state change listener
     } catch (error) {
       console.error('Error signing in:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error signing in',
-        text2: (error as Error).message,
-      });
+      showErrorToast(`Error signing in: ${(error as Error).message}`);
     } finally {
       setIsLoading(false);
     }
@@ -173,21 +169,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 3. set the profile immediately to avoid the flash
       setProfile(profileData);
 
-      Toast.show({
-        type: 'success',
-        text1: 'Account created successfully',
-        text2: 'Please check your email to verify your account',
-      });
+      showSuccessToast('Account created successfully! Please check your email to verify your account.');
 
       // navigate to onboarding immediately without waiting for auth state change
       router.replace('/(stack)/onboarding');
     } catch (error) {
       console.error('Error signing up:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error creating account',
-        text2: (error as Error).message,
-      });
+      showErrorToast(`Error creating account: ${(error as Error).message}`);
     } finally {
       setIsLoading(false);
     }
@@ -198,14 +186,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      router.replace('/(auth)/login');
     } catch (error) {
       console.error('Error signing out:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Error signing out',
-        text2: (error as Error).message,
-      });
+      showErrorToast(`Error signing out: ${(error as Error).message}`);
     } finally {
       setIsLoading(false);
     }
