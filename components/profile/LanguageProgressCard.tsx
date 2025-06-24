@@ -1,7 +1,7 @@
+import { Colors } from '@/providers/theme-provider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../../app/providers/theme-provider';
 
 interface LanguageProgressCardProps {
   language: string;
@@ -37,7 +37,7 @@ export function LanguageProgressCard({ language, level, activities }: LanguagePr
   const visibleActivities = showAll ? activityList : activityList.slice(0, 4);
 
   // split into rows of 2
-  const rows: typeof activityList[][] = [];
+  const rows: Array<typeof activityList> = [];
   for (let i = 0; i < visibleActivities.length; i += 2) {
     rows.push(visibleActivities.slice(i, i + 2));
   }

@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/logo.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#F0F3F4"
     },
     "assetBundlePatterns": [
@@ -29,7 +29,7 @@
       "buildNumber": "1",
       "splash": {
         "image": "./assets/images/logo.png",
-        "resizeMode": "contain",
+        "resizeMode": "cover",
         "backgroundColor": "#F0F3F4"
       }
     },
@@ -40,7 +40,7 @@
       },
       "splash": {
         "image": "./assets/images/logo.png",
-        "resizeMode": "contain",
+        "resizeMode": "cover",
         "backgroundColor": "#F0F3F4"
       },
       "versionCode": 1,
@@ -58,11 +58,18 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/logo.png",
-          "imageResizeMode": "contain",
+          "imageResizeMode": "cover",
           "backgroundColor": "#F0F3F4"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/logo.png",
+          "color": "#F0F3F4"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

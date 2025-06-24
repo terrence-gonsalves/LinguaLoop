@@ -1,6 +1,6 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Colors } from '@/providers/theme-provider';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../../app/providers/theme-provider';
 
 interface SettingsItemProps {
   icon: React.ReactNode;
@@ -32,7 +32,7 @@ export function SettingsItem({ icon, title, subtitle, onPress, rightElement }: S
       {rightElement ? (
         rightElement
       ) : onPress ? (
-        <MaterialCommunityIcons 
+        <MaterialIcons 
           name="chevron-right" 
           size={20} 
           color={Colors.light.textSecondary} 

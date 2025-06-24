@@ -1,15 +1,15 @@
+import { LanguageDropdown } from '@/components/forms/LanguageDropdown';
 import Colors from '@/constants/Colors';
 import { useUserLanguages } from '@/hooks/useUserLanguages';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
-import { LanguageDropdown } from '../../components/forms/LanguageDropdown';
 
 interface TrackScreenParams {
   activity?: string;
@@ -89,22 +89,22 @@ export default function TrackActivityScreen() {
   // save handler
   const handleSaveActivity = async () => {
     if (!selectedLanguage) {
-      Toast.show({ type: 'error', text1: 'Language Required', text2: 'Please select a language.' });
+      showErrorToast('Language Required');
       return;
     }
 
     if (!selectedActivity) {
-      Toast.show({ type: 'error', text1: 'Activity Type Required', text2: 'Please select an activity type.' });
+      showErrorToast('Activity Type Required');
       return;
     }
 
     if (!duration || duration <= 0) {
-      Toast.show({ type: 'error', text1: 'Duration Required', text2: 'Please enter a duration greater than 0.' });
+      showErrorToast('Duration Required');
       return;
     }
 
     if (!profile?.id) {
-      Toast.show({ type: 'error', text1: 'User Error', text2: 'User not found.' });
+      showErrorToast('User Error');
       return;
     }
 
@@ -124,7 +124,7 @@ export default function TrackActivityScreen() {
 
       activityId = activityData.id;
     } catch (err) {
-      Toast.show({ type: 'error', text1: 'Activity Error', text2: 'Could not find activity type in database.' });
+      showErrorToast('Activity Error');
       return;
     }
 
@@ -143,10 +143,10 @@ export default function TrackActivityScreen() {
 
       if (error) throw error;
 
-      Toast.show({ type: 'success', text1: 'Activity Saved', text2: 'Your activity has been tracked.' });
+      showSuccessToast('Activity Saved');
       resetFields();
     } catch (err: any) {
-      Toast.show({ type: 'error', text1: 'Save Error', text2: err.message || 'Failed to save activity.' });
+      showErrorToast('Save Error');
     }
   };
 

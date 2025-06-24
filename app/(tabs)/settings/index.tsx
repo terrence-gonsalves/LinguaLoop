@@ -1,11 +1,11 @@
+import DefaultAvatar from '@/components/DefaultAvatar';
 import { useAuth } from '@/lib/auth-context';
+import { Colors as defaultColors } from '@/providers/theme-provider';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors as defaultColors } from '../../../app/providers/theme-provider';
-import DefaultAvatar from '../../../components/DefaultAvatar';
 
 export default function SettingsScreen() {
   const { signOut, profile } = useAuth();
