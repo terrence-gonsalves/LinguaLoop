@@ -18,4 +18,6 @@ declare module "expo-router" {
     replace: (route: keyof TypedRoutes | string) => void;
     back: () => void;
   };
+
+  export function useLocalSearchParams<T = Record<string, string>>(): T;
 } 
