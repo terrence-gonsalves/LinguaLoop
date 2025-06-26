@@ -1,9 +1,11 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+
 import DefaultAvatar from '@/components/DefaultAvatar';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { Colors } from '@/providers/theme-provider';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+
 
 interface ProfileConnectionCardProps {
   name: string;
@@ -86,14 +88,18 @@ export function ProfileConnectionCard({
             </View>
           </View>
         </View>
-        <View style={styles.rightContent}>
-          <View style={styles.streakContainer}>
-            <MaterialCommunityIcons name="fire" size={16} color={Colors.light.rust} />
-            <Text style={styles.streakText}>{streak} days</Text>
-          </View>
-          <Pressable onPress={handleUnfollow} style={styles.unfollowButton}>
-            <MaterialCommunityIcons name="account-remove" size={20} color={Colors.light.error} />
-          </Pressable>
+        
+        {/* unfollow button in top right corner */}
+        <Pressable onPress={handleUnfollow} style={styles.unfollowButton}>
+          <MaterialCommunityIcons name="account-remove" size={20} color={Colors.light.error} />
+        </Pressable>
+      </View>
+      
+      {/* streak indicator in bottom right section */}
+      <View style={styles.bottomSection}>
+        <View style={styles.streakContainer}>
+          <MaterialCommunityIcons name="fire" size={16} color={Colors.light.rust} />
+          <Text style={styles.streakText}>{streak} days</Text>
         </View>
       </View>
     </View>
@@ -171,14 +177,15 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: Colors.light.rust,
   },
-  rightContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   unfollowButton: {
     padding: 8,
     borderRadius: 12,
     backgroundColor: Colors.light.generalBG,
+  },
+  bottomSection: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginTop: 8,
   },
 }); 
