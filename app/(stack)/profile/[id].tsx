@@ -1,3 +1,4 @@
+import { MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router/stack';
@@ -274,9 +275,17 @@ export default function UserProfileScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Connection' }} />
+      <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+          <View style={styles.header}>
+            <Pressable onPress={() => router.back()} style={styles.backButton}>
+              <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
+            </Pressable>
+            <Text style={styles.headerTitle}>Connection</Text>
+            <View style={{ width: 24 }} />
+          </View>
+
           <View style={styles.profileSection}>
             {userProfile.avatar_url ? (
               <ExpoImage
@@ -360,6 +369,24 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: Colors.light.textPrimary,
+    flex: 1,
+    marginLeft: 16,
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 4,
   },
   profileSection: {
     alignItems: 'center',
