@@ -1,5 +1,6 @@
-import { supabase } from '@/lib/supabase';
 import { useEffect, useRef, useState } from 'react';
+
+import { supabase } from '@/lib/supabase';
 
 interface Language {
   id: string;
@@ -35,6 +36,8 @@ export function useLanguageSummary(userId: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
+  console.log('DEBUG: useLanguageSummary', userId);
 
   useEffect(() => {
     let isMounted = true;
