@@ -35,8 +35,6 @@ export default function UserProfileScreen() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
 
-  console.log('DEBUG: UserProfileScreen - Connection ID ', id);
-
   // hooks for user data
   const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(id || '');
   const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError, refresh: refreshConnections } = useActiveConnections(id || '');
@@ -45,7 +43,6 @@ export default function UserProfileScreen() {
   // debug log for troubleshooting
   React.useEffect(() => {
     if (!isLoadingLanguages) {
-      console.log('DEBUG: languages from useLanguageSummary:', languages);
     }
   }, [languages, isLoadingLanguages]);
 
