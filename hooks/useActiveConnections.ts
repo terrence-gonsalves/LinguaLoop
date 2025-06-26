@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 
 import { supabase } from '@/lib/supabase';
 
-
-
 export interface Connection {
   id: string;
   name: string | null;

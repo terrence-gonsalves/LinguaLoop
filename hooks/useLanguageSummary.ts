@@ -37,8 +37,6 @@ export function useLanguageSummary(userId: string) {
   const [error, setError] = useState<string | null>(null);
   const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
-  console.log('DEBUG: useLanguageSummary', userId);
-
   useEffect(() => {
     let isMounted = true;
 
