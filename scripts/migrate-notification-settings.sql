@@ -33,6 +33,16 @@ BEGIN
     END IF;
 END $$;
 
+-- Add proficiency_level column to languages table if it doesn't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'languages' 
+                   AND column_name = 'proficiency_level') THEN
+        ALTER TABLE languages ADD COLUMN proficiency_level TEXT;
+    END IF;
+END $$;
+
 -- Create index for user_id if it doesn't exist
 CREATE INDEX IF NOT EXISTS idx_notification_settings_user_id ON notification_settings(user_id);
 
@@ -61,4 +71,14 @@ SELECT
     column_default
 FROM information_schema.columns 
 WHERE table_name = 'notification_settings' 
+ORDER BY ordinal_position;
+
+-- Verify the languages table structure
+SELECT 
+    column_name, 
+    data_type, 
+    is_nullable, 
+    column_default
+FROM information_schema.columns 
+WHERE table_name = 'languages' 
 ORDER BY ordinal_position; 

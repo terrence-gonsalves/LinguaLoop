@@ -1,3 +1,10 @@
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import DefaultAvatar from '@/components/DefaultAvatar';
 import { AchievementItem } from '@/components/profile/AchievementItem';
 import AddAchievementModal from '@/components/profile/AddAchievementModal';
@@ -10,12 +17,6 @@ import { useLanguageSummary } from '@/hooks/useLanguageSummary';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { Colors } from '@/providers/theme-provider';
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { Image as ExpoImage } from 'expo-image';
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ACHIEVEMENT_TYPE_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
   award: 'trophy-outline',
@@ -27,7 +28,6 @@ const ACHIEVEMENT_TYPE_ICONS: Record<string, keyof typeof MaterialCommunityIcons
 
 export default function ProfileScreen() {
   const { profile } = useAuth();
-  const isOwnProfile = true; // TODO: add logic to determine if viewing own profile
   const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
   const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(profile?.id || '');
   const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError, refresh: refreshConnections } = useActiveConnections(profile?.id || '');
@@ -111,7 +111,9 @@ export default function ProfileScreen() {
         nativeLanguage={connection.native_language || 'Unknown'}
         avatarUrl={connection.avatar_url || undefined}
         languages={[]}
-        streak={0}
+        streak={connection.streak}
+        connectionId={connection.id}
+        onUnfollow={refreshConnections}
       />
     ));
   };
@@ -187,18 +189,10 @@ export default function ProfileScreen() {
             </Text>
             <Pressable 
               style={styles.actionButton}
-              onPress={() => {
-                if (isOwnProfile) {
-                  router.push('/(stack)/edit-profile');
-                } else {
-
-                  // TODO: Implement follow functionality
-                  console.log('Follow user');
-                }
-              }}
+              onPress={() => router.push('/(stack)/edit-profile')}
             >
               <Text style={styles.actionButtonText}>
-                {isOwnProfile ? 'Edit Profile' : 'Follow'}
+                Edit Profile
               </Text>
             </Pressable>
           </View>

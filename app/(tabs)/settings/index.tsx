@@ -42,6 +42,11 @@ export default function SettingsScreen() {
           icon: 'language',
           href: '/(stack)/language-settings',
         },
+        {
+          label: 'Language Level',
+          icon: 'language',
+          href: '/(stack)/language-level',
+        },
       ],
     },
     {

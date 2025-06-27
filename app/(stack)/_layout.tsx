@@ -1,7 +1,8 @@
-import Colors from '@/constants/Colors';
 import { Stack } from 'expo-router/stack';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+import Colors from '@/constants/Colors';
 
 export const unstable_settings = {
   initialRouteName: 'onboarding',

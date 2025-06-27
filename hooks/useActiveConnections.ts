@@ -1,5 +1,6 @@
-import { supabase } from '@/lib/supabase';
 import { useEffect, useRef, useState } from 'react';
+
+import { supabase } from '@/lib/supabase';
 
 export interface Connection {
   id: string;
@@ -8,6 +9,7 @@ export interface Connection {
   about_me: string | null;
   avatar_url: string | null;
   native_language: string | null;
+  streak: number;
 }
 
 interface FollowData {
@@ -28,6 +30,62 @@ export function useActiveConnections(userId: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
+  async function calculateUserStreak(userId: string): Promise<number> {
+    try {
+
+      // get all time entries for the user, ordered by date
+      const { data: timeEntries, error } = await supabase
+        .from('time_entries')
+        .select('activity_date')
+        .eq('user_id', userId)
+        .not('activity_date', 'is', null)
+        .order('activity_date', { ascending: false });
+
+      if (error) throw error;
+
+      if (!timeEntries || timeEntries.length === 0) {
+        return 0;
+      }
+
+      // get unique dates (in case multiple entries on same day)
+      const uniqueDates = [...new Set(
+        timeEntries.map(entry => 
+          new Date(entry.activity_date).toDateString()
+        )
+      )].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+      // calculate consecutive days
+      let currentStreak = 0;
+      const today = new Date().toDateString();
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString();
+
+      // check if user has activity today or yesterday to start counting
+      if (uniqueDates.includes(today) || uniqueDates.includes(yesterday)) {
+        let currentDate = uniqueDates[0];
+        let expectedDate = new Date(currentDate);
+
+        for (let i = 0; i < uniqueDates.length; i++) {
+          const entryDate = new Date(uniqueDates[i]);
+          const expectedDateStr = expectedDate.toDateString();
+
+          if (entryDate.toDateString() === expectedDateStr) {
+            currentStreak++;
+            expectedDate.setDate(expectedDate.getDate() - 1);
+          } else {
+
+            // if there's a gap, break the streak
+            break;
+          }
+        }
+      }
+
+      return currentStreak;
+    } catch (error) {
+      console.error('Error calculating streak for user:', userId, error);
+      return 0;
+    }
+  }
 
   async function loadConnections() {
     try {
@@ -74,16 +132,23 @@ export function useActiveConnections(userId: string) {
 
       const languageMap = new Map(languageData?.map(l => [l.id, l.name]) || []);
 
-      const connectionsData = ((followData || []) as unknown as FollowData[]).map((follow) => ({
-        id: follow.following.id,
-        name: follow.following.name,
-        user_name: follow.following.user_name,
-        about_me: follow.following.about_me,
-        avatar_url: follow.following.avatar_url,
-        native_language: languageMap.get(follow.following.native_language) || 'Unknown',
-      }));
+      // calculate streaks for all connections
+      const connectionsWithStreaks = await Promise.all(
+        ((followData || []) as unknown as FollowData[]).map(async (follow) => {
+          const streak = await calculateUserStreak(follow.following.id);
+          return {
+            id: follow.following.id,
+            name: follow.following.name,
+            user_name: follow.following.user_name,
+            about_me: follow.following.about_me,
+            avatar_url: follow.following.avatar_url,
+            native_language: languageMap.get(follow.following.native_language) || 'Unknown',
+            streak,
+          };
+        })
+      );
 
-      setConnections(connectionsData);
+      setConnections(connectionsWithStreaks);
     } catch (err) {
       console.error('Error loading connections:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');

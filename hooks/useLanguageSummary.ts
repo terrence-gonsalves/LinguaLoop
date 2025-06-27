@@ -1,10 +1,11 @@
-import { supabase } from '@/lib/supabase';
 import { useEffect, useRef, useState } from 'react';
+
+import { supabase } from '@/lib/supabase';
 
 interface Language {
   id: string;
   name: string | null;
-  level: string | null;
+  proficiency_level: string | null;
   master_language_id: string;
   master_languages: {
     name: string;
@@ -61,7 +62,7 @@ export function useLanguageSummary(userId: string) {
           .select(`
             id,
             name,
-            level,
+            proficiency_level,
             master_language_id,
             master_languages (
               name
@@ -74,7 +75,7 @@ export function useLanguageSummary(userId: string) {
 
         // for each language, get the time entries and sum durations by activity
         const languagesWithTime = await Promise.all(
-          (languagesData || []).map(async (rawLanguage: any) => {
+          languagesData.map(async (rawLanguage: any) => {
             const language = {
               ...rawLanguage,
               master_languages: {
@@ -108,7 +109,7 @@ export function useLanguageSummary(userId: string) {
             return {
               id: language.id,
               name: languageName,
-              level: language.level || 'Beginner',
+              level: language.proficiency_level || 'Not Set',
               activities: activityDurations,
             };
           })
