@@ -1,12 +1,14 @@
-import { LanguageFlag } from '@/components/LanguageFlag';
-import Colors from '@/constants/Colors';
-import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+
+import { LanguageFlag } from '@/components/LanguageFlag';
+import Colors from '@/constants/Colors';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 
 interface Language {
   id: string;
@@ -25,6 +27,7 @@ interface LanguageResponse {
 }
 
 export default function LanguageSettingsScreen() {
+  const { profile } = useAuth();
   const [selectedLanguages, setSelectedLanguages] = useState<Language[]>([]);
 
   useEffect(() => {
@@ -36,6 +39,7 @@ export default function LanguageSettingsScreen() {
       const { data: languages, error } = await supabase
         .from('languages')
         .select('id, master_language_id, master_languages(id, name, flag)')
+        .eq('user_id', profile?.id)
         .order('created_at', { ascending: true });
 
       if (error) throw error;

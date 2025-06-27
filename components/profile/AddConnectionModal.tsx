@@ -1,11 +1,12 @@
-import DefaultAvatar from '@/components/DefaultAvatar';
-import { useAuth } from '@/lib/auth-context';
-import { supabase } from '@/lib/supabase';
-import { Colors } from '@/providers/theme-provider';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+import DefaultAvatar from '@/components/DefaultAvatar';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
+import { Colors } from '@/providers/theme-provider';
 
 interface AddConnectionModalProps {
   visible: boolean;
@@ -37,11 +38,12 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
   async function fetchUsers() {
     setLoading(true);
 
-    // fetch all users except current user
+    // fetch all users except current user who have completed onboarding
     const { data: userData } = await supabase
       .from('profiles')
-      .select('id, name, user_name, avatar_url, native_language')
-      .neq('id', profile?.id);
+      .select('id, name, user_name, avatar_url, native_language, onboarding_completed')
+      .neq('id', profile?.id)
+      .eq('onboarding_completed', true);
 
     // fetch all master languages
     const { data: masterLangs } = await supabase
@@ -66,8 +68,8 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
         .map((l: any) => l.name);
       return {
         id: u.id,
-        name: u.name,
-        user_name: u.user_name,
+        name: u.name || 'User',
+        user_name: u.user_name || 'user',
         avatar_url: u.avatar_url,
         native_language: nativeLangName,
         target_languages: targetLangs,
@@ -124,14 +126,16 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          {/* Header */}
+
+          {/* header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Add Connection</Text>
             <Pressable onPress={onClose} style={styles.closeButton}>
               <MaterialCommunityIcons name="close" size={28} color={Colors.light.textPrimary} />
             </Pressable>
           </View>
-          {/* Search bar */}
+
+          {/* search bar */}
           <View style={styles.searchBarContainer}>
             <MaterialCommunityIcons name="magnify" size={20} color={Colors.light.textSecondary} style={{ marginRight: 8 }} />
             <TextInput
@@ -144,7 +148,8 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
               autoCapitalize="none"
             />
           </View>
-          {/* User list */}
+
+          {/* user list */}
           <FlatList
             data={filteredUsers().sort((a, b) => a.name.localeCompare(b.name))}
             keyExtractor={(item) => item.id}
