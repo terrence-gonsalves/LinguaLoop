@@ -44,7 +44,7 @@ export default function SettingsScreen() {
         },
         {
           label: 'Language Level',
-          icon: 'language',
+          icon: 'hdr-auto',
           href: '/(stack)/language-level',
         },
       ],

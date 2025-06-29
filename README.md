@@ -1,57 +1,100 @@
 ![LinguaLoop Logo](assets/images/linguaLoopLogo.png) 
 
-Track your language learning progress by staying focused with a goal driven approach.
+# LinguaLoop
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**LinguaLoop** is an open-source, goal-driven language learning tracker.
+It helps you stay motivated and organized by letting you set language goals, track your daily activities, visualize your progress, and connect with other learners.
+Built with React Native, Expo, and Supabase, LinguaLoop is designed for both casual learners and serious polyglots.
 
 [![Made with Supabase](https://supabase.com/badge-made-with-supabase-dark.svg)](https://supabase.com) 
 
-## Project
+---
+
+## App Screenshot
+
+<p align="center">
+  <img src="assets/images/app.png" alt="LinguaLoop App Screenshot" width="300"/>
+</p>
+
+---
+
+## Features
+
+- 📈 **Track your language learning**: Log activities like reading, writing, listening, and speaking for each language you're learning.
+- 🎯 **Set and achieve goals**: Define custom goals and milestones for your language journey.
+- 🏆 **Achievements & streaks**: Stay motivated with streaks, achievements, and progress cards.
+- 👥 **Connections**: Follow other learners, view their profiles, and celebrate their progress.
+- 🔔 **Push notifications**: Get reminders and motivational nudges to keep you on track.
+- 📊 **Reports & insights**: Visualize your study time, activity distribution, and progress over time.
+- 🌐 **Multi-language support**: Track multiple languages, each with its own proficiency level.
+
+---
+
+## Roadmap
+
+Want to see what's coming next or suggest a feature?
+Check out our public roadmap on Trello:
+[https://trello.com/b/MpwbSoZP/lingualoop-roadmap](https://trello.com/b/MpwbSoZP/lingualoop-roadmap)
+
+---
 
 ## Tech Stack
 
-## Get started
+- **React Native** (with [Expo](https://expo.dev)) for cross-platform mobile development
+- **Supabase** for authentication, database, and storage
+- **TypeScript** for type safety
+- **Expo Router** for file-based navigation
+- **Custom hooks** for data fetching and state management
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Getting Started
 
-2. Start the app
+### 1. Clone the repository
 
-   ```bash
-    npx expo start
-   ```
+```bash
+git clone https://github.com/yourusername/lingualoop.git
+cd lingualoop
+```
 
-In the output, you'll find options to open the app in a
+### 2. Install dependencies
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+```bash
+npm install
+```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 3. Set up environment variables
 
-### Versioning 
+Copy `.env.example` to `.env` and fill in your Supabase credentials and any other required secrets.
 
-App versioning will be in the following format - 0.0.0.
+### 4. Start the app
 
-0: Major revision (new UI, lots of new features, conceptual change, etc.).  
-0: Minor revision (maybe a change to a search box, 1 feature added, collection of bug fixes).  
-0: Bug fix release.
+```bash
+npx expo start
+```
+
+You can run the app on:
+- A physical device (with Expo Go)
+- Android emulator
+- iOS simulator
+- Web browser
+
+---
 
 ## Contributing
 
-## Contributors
+Contributions are welcome! Please open an issue or pull request for bug fixes, new features, or improvements.
 
-## Learn more
+1. Fork the repo and create your branch from `main`
+2. Make your changes and add tests if applicable
+3. Open a pull request and describe your changes
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
 ## License
+
+This project is licensed under the MIT License.
+
+---
 
 [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
