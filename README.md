@@ -10,10 +10,8 @@ Built with React Native, Expo, and Supabase, LinguaLoop is designed for both cas
 
 ---
 
-## App Screenshot
-
 <p align="center">
-  <img src="assets/images/app.png" alt="LinguaLoop App Screenshot" width="300"/>
+  <img src="assets/images/app.png" alt="LinguaLoop App Screenshot" width="500"/>
 </p>
 
 ---

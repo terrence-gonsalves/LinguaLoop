@@ -62,6 +62,11 @@ export default function SettingsScreen() {
           icon: 'check-box',
           href: '/(stack)/goals',
         },
+        {
+          label: 'Edit Goals',
+          icon: 'check-box',
+          href: '/(stack)/edit-goals',
+        },
         // {
         //   label: 'Privacy',
         //   icon: 'lock',
