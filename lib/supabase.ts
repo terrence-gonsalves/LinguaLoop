@@ -7,7 +7,7 @@ const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl as string;
 const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey as string;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase configuration. Please check your app.json file.');
+  throw new Error('Missing Supabase configuration. Please check your environment variables and app.config.js file.');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

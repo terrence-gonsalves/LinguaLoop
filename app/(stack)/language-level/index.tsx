@@ -1,3 +1,4 @@
+import { Stack } from 'expo-router/stack';
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -84,53 +85,59 @@ export default function LanguageLevelScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.content}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Set Your Language Levels</Text>
-          <View style={styles.languageList}>
-            {languages.map((language) => (
-              <View key={language.id} style={styles.languageCard}>
-                <View style={styles.languageHeader}>
-                  <LanguageFlag name={language.name} flagUrl={language.flag} />
-                  <Text style={styles.languageName}>{language.name}</Text>
+    <>
+      <Stack.Screen options={{
+          title: 'Set Levels',
+          headerShadowVisible: false,
+        }}   />
+      <View style={styles.container}>
+        <ScrollView style={styles.content}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Set Your Language Levels</Text>
+            <View style={styles.languageList}>
+              {languages.map((language) => (
+                <View key={language.id} style={styles.languageCard}>
+                  <View style={styles.languageHeader}>
+                    <LanguageFlag name={language.name} flagUrl={language.flag} />
+                    <Text style={styles.languageName}>{language.name}</Text>
+                  </View>
+                  <View style={styles.levelContainer}>
+                    <Text style={styles.levelLabel}>Current Level: </Text>
+                    {language.proficiency_level ? (
+                      <View style={[styles.levelBadge, { backgroundColor: PROFICIENCY_LABELS[language.proficiency_level]?.color || '#E0E0E0' }] }>
+                        <Text style={styles.levelBadgeText}>{PROFICIENCY_LABELS[language.proficiency_level]?.label || language.proficiency_level}</Text>
+                      </View>
+                    ) : (
+                      <Text style={styles.levelNotSet}>Not set</Text>
+                    )}
+                  </View>
+                  <Pressable
+                    style={styles.setLevelButton}
+                    onPress={() => handleSetLevel(language)}
+                  >
+                    <Text style={styles.setLevelButtonText}>
+                      {language.proficiency_level ? 'Update Level' : 'Set Level'}
+                    </Text>
+                  </Pressable>
                 </View>
-                <View style={styles.levelContainer}>
-                  <Text style={styles.levelLabel}>Current Level: </Text>
-                  {language.proficiency_level ? (
-                    <View style={[styles.levelBadge, { backgroundColor: PROFICIENCY_LABELS[language.proficiency_level]?.color || '#E0E0E0' }] }>
-                      <Text style={styles.levelBadgeText}>{PROFICIENCY_LABELS[language.proficiency_level]?.label || language.proficiency_level}</Text>
-                    </View>
-                  ) : (
-                    <Text style={styles.levelNotSet}>Not set</Text>
-                  )}
-                </View>
-                <Pressable
-                  style={styles.setLevelButton}
-                  onPress={() => handleSetLevel(language)}
-                >
-                  <Text style={styles.setLevelButtonText}>
-                    {language.proficiency_level ? 'Update Level' : 'Set Level'}
-                  </Text>
-                </Pressable>
-              </View>
-            ))}
+              ))}
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
 
-      {/* modal */}
-      {selectedLanguage && (
-        <SetLevelModal
-          visible={modalVisible}
-          onClose={handleModalClose}
-          languageId={selectedLanguage.id}
-          currentLevel={selectedLanguage.proficiency_level || ''}
-          languageName={selectedLanguage.name}
-          onSuccess={handleLevelUpdated}
-        />
-      )}
-    </View>
+        {/* modal */}
+        {selectedLanguage && (
+          <SetLevelModal
+            visible={modalVisible}
+            onClose={handleModalClose}
+            languageId={selectedLanguage.id}
+            currentLevel={selectedLanguage.proficiency_level || ''}
+            languageName={selectedLanguage.name}
+            onSuccess={handleLevelUpdated}
+          />
+        )}
+      </View>
+    </>
   );
 }
 
