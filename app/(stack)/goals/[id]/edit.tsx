@@ -137,13 +137,6 @@ export default function EditGoalScreen() {
     }
   };
 
-  if (isLoading || !formData) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.light.rust} />
-      </View>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -154,57 +147,75 @@ export default function EditGoalScreen() {
           headerStyle: { backgroundColor: Colors.light.background },
         }}
       />
-      <View style={styles.progressContainer}>
-        {[1, 2, 3].map((step) => (
-          <React.Fragment key={step}>
-            <View style={[
-              styles.progressStep,
-              currentStep >= step && styles.progressStepActive
-            ]}>
-              <Text style={[
-                styles.progressStepText,
-                currentStep >= step && styles.progressStepTextActive
-              ]}>
-                {step}
-              </Text>
+      {(isLoading || !formData) ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      ) : (
+        <>
+            <View style={styles.progressContainer}>
+                {[1, 2, 3].map((step) => (
+                <React.Fragment key={step}>
+                    <View style={[
+                    styles.progressStep,
+                    currentStep >= step && styles.progressStepActive
+                    ]}>
+                    <Text style={[
+                        styles.progressStepText,
+                        currentStep >= step && styles.progressStepTextActive
+                    ]}>
+                        {step}
+                    </Text>
+                    </View>
+                    {step < 3 && (
+                    <View style={[
+                        styles.progressLine,
+                        currentStep > step && styles.progressLineActive
+                    ]} />
+                    )}
+                </React.Fragment>
+                ))}
             </View>
-            {step < 3 && (
-              <View style={[
-                styles.progressLine,
-                currentStep > step && styles.progressLineActive
-              ]} />
-            )}
-          </React.Fragment>
-        ))}
-      </View>
-      <ScrollView style={styles.content}>
-        <GoalFormSteps
-          currentStep={currentStep}
-          formData={formData}
-          setFormData={setFormData}
-          languages={languages}
-        />
-      </ScrollView>
-      <View style={styles.buttonRow}>
-        {currentStep > 1 && (
-          <Pressable style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.buttonText}>Back</Text>
-          </Pressable>
-        )}
-        {currentStep < 3 && (
-          <Pressable style={styles.nextButton} onPress={handleNext} disabled={!validateStep()}>
-            <Text style={styles.buttonText}>Next</Text>
-          </Pressable>
-        )}
-        {currentStep === 3 && (
-          <Pressable style={styles.saveButton} onPress={handleSave} disabled={!validateStep() || isLoading}>
-            <Text style={styles.buttonText}>{isLoading ? 'Saving...' : 'Save Changes'}</Text>
-          </Pressable>
-        )}
-      </View>
-      <Pressable style={styles.deleteButton} onPress={handleDelete} disabled={deleting}>
-        <Text style={styles.deleteButtonText}>{deleting ? 'Deleting...' : 'Delete Goal'}</Text>
-      </Pressable>
+            <ScrollView style={styles.content}>
+                <GoalFormSteps
+                currentStep={currentStep}
+                formData={formData}
+                setFormData={setFormData}
+                languages={languages}
+                summaryExtras={{
+                    durationDays: formData.startDate && formData.endDate
+                    ? Math.max(
+                        1,
+                        Math.ceil(
+                            ((formData.endDate.getTime() - formData.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+                        )
+                        )
+                    : null
+                }}
+                />
+            </ScrollView>
+            <View style={styles.buttonRow}>
+                {currentStep > 1 && (
+                <Pressable style={styles.backButton} onPress={handleBack}>
+                    <Text style={styles.buttonText}>Back</Text>
+                </Pressable>
+                )}
+                {currentStep < 3 && (
+                <Pressable style={styles.nextButton} onPress={handleNext} disabled={!validateStep()}>
+                    <Text style={styles.buttonText}>Next</Text>
+                </Pressable>
+                )}
+                {currentStep === 3 && (
+                <Pressable style={styles.saveButton} onPress={handleSave} disabled={!validateStep() || isLoading}>
+                    <Text style={styles.buttonText}>{isLoading ? 'Saving...' : 'Save Changes'}</Text>
+                </Pressable>
+                )}
+            </View>
+            <Pressable style={styles.deleteButton} onPress={handleDelete} disabled={deleting}>
+                <Text style={styles.deleteButtonText}>{deleting ? 'Deleting...' : 'Delete Goal'}</Text>
+            </Pressable>
+        </>
+      )}
     </SafeAreaView>
   );
 }

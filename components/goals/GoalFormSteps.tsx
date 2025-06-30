@@ -1,16 +1,20 @@
-import Colors from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { LanguageDropdown } from '../forms/LanguageDropdown';
 
+import Colors from '@/constants/Colors';
+
+import { LanguageDropdown } from '../forms/LanguageDropdown';
 
 interface GoalFormStepsProps {
   currentStep: number;
   formData: any;
   setFormData: (data: any) => void;
   languages: { id: string; name: string; flag?: string | null }[];
+  summaryExtras?: {
+    durationDays?: number | null;
+  };
 }
 
 const GOAL_TYPES = [
@@ -22,7 +26,7 @@ const GOAL_TYPES = [
   { value: 'custom', label: 'Custom' },
 ];
 
-export const GoalFormSteps = ({ currentStep, formData, setFormData, languages }: GoalFormStepsProps) => {
+export const GoalFormSteps = ({ currentStep, formData, setFormData, languages, summaryExtras }: GoalFormStepsProps) => {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
@@ -269,12 +273,12 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages }:
                 }`}
           </Text>
         </View>
-        <View style={styles.summaryItem}>
-          <Text style={styles.summaryLabel}>Duration:</Text>
-          <Text style={styles.summaryValue}>
-            {formData.startDate.toLocaleDateString()} - {formData.endDate.toLocaleDateString()}
-          </Text>
-        </View>
+        {summaryExtras?.durationDays != null && (
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Duration</Text>
+            <Text style={styles.summaryValue}>{summaryExtras.durationDays} day{summaryExtras.durationDays === 1 ? '' : 's'}</Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -407,5 +411,9 @@ const styles = StyleSheet.create({
   dateButtonText: {
     fontSize: 16,
     color: Colors.light.text,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    gap: 8,
   },
 }); 
