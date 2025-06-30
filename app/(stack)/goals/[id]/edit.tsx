@@ -223,18 +223,19 @@ export default function EditGoalScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.generalBG,
+    backgroundColor: Colors.light.background,
   },
   loadingContainer: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 40,
   },
   progressStep: {
     width: 32,
