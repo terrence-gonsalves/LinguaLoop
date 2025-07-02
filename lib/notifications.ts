@@ -1,4 +1,5 @@
 import * as Notifications from 'expo-notifications';
+
 import { supabase } from './supabase';
 
 // configure notification behavior
