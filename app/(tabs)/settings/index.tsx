@@ -1,11 +1,12 @@
-import DefaultAvatar from '@/components/DefaultAvatar';
-import { useAuth } from '@/lib/auth-context';
-import { Colors as defaultColors } from '@/providers/theme-provider';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import DefaultAvatar from '@/components/DefaultAvatar';
+import { useAuth } from '@/lib/auth-context';
+import { Colors as defaultColors } from '@/providers/theme-provider';
 
 export default function SettingsScreen() {
   const { signOut, profile } = useAuth();
@@ -58,14 +59,14 @@ export default function SettingsScreen() {
           href: '/(stack)/notifications',
         },
         {
-          label: 'Goals',
+          label: 'Create Goal',
           icon: 'check-box',
-          href: '/(stack)/goals',
+          href: '/(stack)/create-goal',
         },
         {
-          label: 'Edit Goals',
-          icon: 'check-box',
-          href: '/(stack)/edit-goals',
+          label: 'Goals',
+          icon: 'list',
+          href: '/(stack)/goals',
         },
         // {
         //   label: 'Privacy',
