@@ -1,6 +1,7 @@
-import { supabase } from '@/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
+
+import { supabase } from '@/lib/supabase';
 
 const QUOTE_STORAGE_KEY = '@daily_quote';
 const QUOTE_TIMESTAMP_KEY = '@daily_quote_timestamp';
