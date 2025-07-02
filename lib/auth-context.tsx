@@ -1,9 +1,11 @@
-import { getAvatarUrl } from '@/lib/supabase/storage';
-import { showErrorToast, showSuccessToast } from '@/lib/toast';
-import { Session } from '@supabase/supabase-js';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useContext, useEffect, useState } from 'react';
+
+import { getAvatarUrl } from '@/lib/supabase/storage';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
+import { Session } from '@supabase/supabase-js';
+
 import { supabase, type Profile } from './supabase';
 
 type AuthContextType = {
