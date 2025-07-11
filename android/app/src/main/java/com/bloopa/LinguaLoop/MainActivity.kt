@@ -1,4 +1,4 @@
-package com.terrence.gonsalves.LinguaLoop
+package com.bloopa.LinguaLoop
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

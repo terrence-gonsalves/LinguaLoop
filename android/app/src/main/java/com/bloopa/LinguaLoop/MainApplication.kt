@@ -1,4 +1,4 @@
-package com.terrence.gonsalves.LinguaLoop
+package com.bloopa.LinguaLoop
 
 import android.app.Application
 import android.content.res.Configuration
