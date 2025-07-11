@@ -1,7 +1,3 @@
-import { Button } from '@/components/common/Button';
-import { FormInput } from '@/components/forms/FormInput';
-import { useAuth } from '@/lib/auth-context';
-import { Colors } from '@/providers/theme-provider';
 import { FontAwesome } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
@@ -9,6 +5,11 @@ import Link from 'expo-router/link';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Button } from '@/components/common/Button';
+import { FormInput } from '@/components/forms/FormInput';
+import { useAuth } from '@/lib/auth-context';
+import { Colors } from '@/providers/theme-provider';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -105,16 +106,13 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.socialButtons}>
-            <Pressable style={styles.socialButton}>
+            <Pressable style={styles.socialButtonWide}>
               <FontAwesome name="google" size={24} color={Colors.light.textPrimary} />
+              <Text style={styles.socialButtonText}>Google</Text>
             </Pressable>
-
-            <Pressable style={styles.socialButton}>
-              <FontAwesome name="apple" size={24} color={Colors.light.textPrimary} />
-            </Pressable>
-
-            <Pressable style={styles.socialButton}>
+            <Pressable style={styles.socialButtonWide}>
               <FontAwesome name="facebook" size={24} color={Colors.light.textPrimary} />
+              <Text style={styles.socialButtonText}>Facebook</Text>
             </Pressable>
           </View>
         </View>
@@ -196,14 +194,25 @@ const styles = StyleSheet.create({
     gap: 16,
     marginTop: 15,
   },
-  socialButton: {
-    width: 56,
-    height: 56,
+  socialButtonWide: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.light.generalBG,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: Colors.light.border,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    minWidth: 140,
+    marginHorizontal: 8,
+    flex: 1,
+  },
+  socialButtonText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: Colors.light.textPrimary,
+    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',

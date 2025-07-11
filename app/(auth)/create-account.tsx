@@ -146,16 +146,13 @@ export default function CreateAccountScreen() {
           </View>
 
           <View style={styles.socialButtons}>
-            <Pressable style={styles.socialButton}>
+            <Pressable style={styles.socialButtonWide}>
               <FontAwesome name="google" size={24} color={Colors.light.textPrimary} />
+              <Text style={styles.socialButtonText}>Google</Text>
             </Pressable>
-
-            <Pressable style={styles.socialButton}>
-              <FontAwesome name="apple" size={24} color={Colors.light.textPrimary} />
-            </Pressable>
-
-            <Pressable style={styles.socialButton}>
+            <Pressable style={styles.socialButtonWide}>
               <FontAwesome name="facebook" size={24} color={Colors.light.textPrimary} />
+              <Text style={styles.socialButtonText}>Facebook</Text>
             </Pressable>
           </View>
 
@@ -282,5 +279,25 @@ const styles = StyleSheet.create({
     color: Colors.light.error,
     fontSize: 14,
     marginTop: 4,
+  },
+  socialButtonWide: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.light.generalBG,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    minWidth: 140,
+    marginHorizontal: 8,
+    flex: 1,
+  },
+  socialButtonText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: Colors.light.textPrimary,
+    fontWeight: '600',
   },
 }); 
