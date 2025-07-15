@@ -1,7 +1,8 @@
-import { Colors } from '@/providers/theme-provider';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
+
+import { Colors } from '@/providers/theme-provider';
 
 export interface FormInputProps extends TextInputProps {
   label: string;
@@ -9,10 +10,27 @@ export interface FormInputProps extends TextInputProps {
   helperText?: string;
 }
 
-export function FormInput({ label, error, helperText, style, secureTextEntry, ...props }: FormInputProps) {
+export function FormInput({ label, error, helperText, style, secureTextEntry, multiline, numberOfLines, ...props }: FormInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const isPasswordField = secureTextEntry !== undefined;
   const shouldShowPassword = isPasswordField && !secureTextEntry;
+
+  // calculate height for multiline inputs based on numberOfLines
+  const getMultilineStyle = () => {
+    if (!multiline) return {};
+    
+    // approximate line height (fontSize + padding)
+    const lineHeight = 20; // fontSize 16 + some padding
+    const baseHeight = 40; // base input height
+    const calculatedHeight = numberOfLines ? (numberOfLines * lineHeight) + baseHeight : 100;
+    
+    return {
+      minHeight: calculatedHeight,
+      textAlignVertical: 'top' as const,
+      paddingTop: 12,
+      paddingBottom: 12,
+    };
+  };
 
   return (
     <View style={styles.container}>
@@ -22,11 +40,14 @@ export function FormInput({ label, error, helperText, style, secureTextEntry, ..
           style={[
             styles.input,
             isPasswordField && styles.passwordInput,
+            multiline && getMultilineStyle(),
             error ? styles.inputError : null,
             style,
           ]}
           placeholderTextColor={Colors.light.textSecondary}
           secureTextEntry={isPasswordField ? !showPassword : secureTextEntry}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
           {...props}
         />
         {isPasswordField && (
@@ -84,10 +105,6 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: Colors.light.error,
-  },
-  multiline: {
-    height: 100,
-    textAlignVertical: 'top',
   },
   errorText: {
     color: Colors.light.error,
