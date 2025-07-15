@@ -1,11 +1,14 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import Stack from 'expo-router/stack';
+
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GoalFormSteps } from '@/components/goals/GoalFormSteps';
+
 import Colors from '@/constants/Colors';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 
@@ -154,7 +157,7 @@ export default function EditGoalScreen() {
       ) : (
         <>
             <View style={styles.progressContainer}>
-                {[1, 2, 3].map((step) => (
+              {[1, 2, 3].map((step) => (
                 <React.Fragment key={step}>
                     <View style={[
                     styles.progressStep,
@@ -174,7 +177,7 @@ export default function EditGoalScreen() {
                     ]} />
                     )}
                 </React.Fragment>
-                ))}
+              ))}
             </View>
             <ScrollView style={styles.content}>
                 <GoalFormSteps

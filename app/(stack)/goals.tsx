@@ -1,8 +1,10 @@
 import { router } from 'expo-router';
+
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import Colors from '@/constants/Colors';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 
@@ -97,6 +99,7 @@ export default function GoalsListScreen() {
         } else if (goal.target_value_numeric) {
           minutesRemaining = `${goal.target_value_numeric}`;
         }
+        
         return (
           <View key={goal.id} style={styles.goalCard}>
             <View style={styles.goalHeader}>

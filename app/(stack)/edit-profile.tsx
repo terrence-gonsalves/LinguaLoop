@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+
 import { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,6 +8,7 @@ import { Button } from '@/components/common/Button';
 import { FormInput } from '@/components/forms/FormInput';
 import { ImageUpload } from '@/components/forms/ImageUpload';
 import { Language, LanguageDropdown } from '@/components/forms/LanguageDropdown';
+
 import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
