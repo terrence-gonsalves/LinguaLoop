@@ -1,6 +1,7 @@
-import { Colors } from '@/constants/Colors';
 import Constants from 'expo-constants';
 import { StyleSheet, Text, View } from 'react-native';
+
+import { Colors } from '@/providers/theme-provider';
 
 interface VersionDisplayProps {
   showBuildNumber?: boolean;

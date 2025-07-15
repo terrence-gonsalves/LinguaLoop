@@ -1,5 +1,6 @@
-import { Colors } from '@/providers/theme-provider';
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+
+import { Colors } from '@/providers/theme-provider';
 
 interface ButtonProps {
   onPress: () => void;
