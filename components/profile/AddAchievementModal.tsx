@@ -1,10 +1,13 @@
-import { useAuth } from '@/lib/auth-context';
-import { supabase } from '@/lib/supabase';
-import { Colors } from '@/providers/theme-provider';
+
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
+
+import { Colors } from '@/providers/theme-provider';
 
 const ACHIEVEMENT_TYPES = [
   { value: 'award', label: 'Award', icon: 'trophy-outline' },
@@ -156,7 +159,11 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
 
 const styles = StyleSheet.create({
   modalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.2)',
     justifyContent: 'flex-end',
   },

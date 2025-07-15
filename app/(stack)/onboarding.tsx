@@ -1,13 +1,16 @@
-import { FormInput } from '@/components/forms/FormInput';
-import { Language, LanguageDropdown } from '@/components/forms/LanguageDropdown';
-import Colors from '@/constants/Colors';
-import { useAuth } from '@/lib/auth-context';
-import { supabase } from '@/lib/supabase';
+
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { FormInput } from '@/components/forms/FormInput';
+import { Language, LanguageDropdown } from '@/components/forms/LanguageDropdown';
+import Colors from '@/constants/Colors';
+
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 
 export default function OnboardingScreen() {
   const { profile, reloadProfile } = useAuth();

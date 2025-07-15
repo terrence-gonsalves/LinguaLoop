@@ -1,5 +1,3 @@
-import { LanguageFlag } from '@/components/LanguageFlag';
-import Colors from '@/constants/Colors';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import React, { useCallback, useState } from 'react';
 import {
@@ -14,6 +12,9 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+
+import { LanguageFlag } from '@/components/LanguageFlag';
+import Colors from '@/constants/Colors';
 
 export interface Language {
   id: string;
@@ -356,7 +357,11 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   modalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
   },
