@@ -4,7 +4,7 @@ export default {
   expo: {
     name: "LinguaLoop",
     slug: "LinguaLoop",
-    version: "0.6.2",
+    version: "0.6.5",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "lingualoop",
@@ -47,7 +47,7 @@ export default {
       },
       versionCode: 1,
       edgeToEdgeEnabled: true,
-      package: "com.terrence.gonsalves.LinguaLoop",
+      package: "com.bloopa.LinguaLoop",
       permissions: [
         "NOTIFICATIONS",
         "VIBRATE",

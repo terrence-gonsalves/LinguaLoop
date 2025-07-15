@@ -1,5 +1,14 @@
+
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Stack } from 'expo-router/stack';
+import React, { useEffect, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Switch } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { SettingsSection } from '@/components/settings/SettingsSection';
 import Colors from '@/constants/Colors';
+
 import { useAuth } from '@/lib/auth-context';
 import {
   getPushToken,
@@ -9,12 +18,6 @@ import {
 } from '@/lib/notifications';
 import { supabase } from '@/lib/supabase';
 import { showSuccessToast } from '@/lib/toast';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Stack } from 'expo-router/stack';
-import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Switch } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function NotificationsScreen() {
   const { profile } = useAuth();
