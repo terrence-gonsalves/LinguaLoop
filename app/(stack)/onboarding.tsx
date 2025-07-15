@@ -112,6 +112,7 @@ export default function OnboardingScreen() {
 
     // check for duplicate target languages
     const uniqueTargets = new Set(validTargetLanguages);
+
     if (uniqueTargets.size !== validTargetLanguages.length) {
       Alert.alert('Error', 'Please select different languages for each target language');
       return;
@@ -213,7 +214,7 @@ export default function OnboardingScreen() {
               <View key={index} style={styles.targetLanguageRow}>
                 <View style={styles.targetLanguageDropdown}>
                   <LanguageDropdown
-                    label={`Target Language ${index + 1}`}
+                    label=''
                     data={languages}
                     value={lang}
                     onChange={(value) => updateTargetLanguage(index, value || '')}
@@ -225,7 +226,7 @@ export default function OnboardingScreen() {
                     onPress={() => removeTargetLanguage(index)}
                     style={styles.removeButton}
                   >
-                    <MaterialIcons name="remove-circle-outline" size={24} color={Colors.light.error} />
+                    <MaterialIcons name="remove-circle-outline" size={24} color={Colors.light.rust} />
                   </Pressable>
                 )}
               </View>
@@ -239,7 +240,7 @@ export default function OnboardingScreen() {
               setAboutMe(text);
               validateAboutMe(text);
             }}
-            placeholder="Tell us about yourself (250 characters max)"
+            placeholder="Tell us about yourself"
             multiline
             numberOfLines={4}
             error={aboutMeError}
@@ -315,7 +316,7 @@ const styles = StyleSheet.create({
     marginTop: -8,
   },
   submitButton: {
-    backgroundColor: Colors.light.rust,
+    backgroundColor: Colors.light.buttonPrimary,
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
