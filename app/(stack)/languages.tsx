@@ -1,28 +1,22 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+
 import React from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LanguageProgressCard } from '@/components/profile/LanguageProgressCard';
+
 import Colors from '@/constants/Colors';
+
 import { useLanguageSummary } from '@/hooks/useLanguageSummary';
+
 import { useAuth } from '@/lib/auth-context';
 
 export default function LanguagesScreen() {
   const { profile } = useAuth();
   const { languages, isLoading, error } = useLanguageSummary(profile?.id || '');
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.light.rust} />
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   if (error) {
     return (
@@ -35,9 +29,19 @@ export default function LanguagesScreen() {
   }
 
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <Stack.Screen 
+        options={{ 
+          title: 'All Languages',
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: Colors.light.background },
+        }} 
+      />
+      {(isLoading) ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      ) : (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <Pressable onPress={() => router.back()} style={styles.backButton}>
@@ -60,8 +64,8 @@ export default function LanguagesScreen() {
             </View>
           </View>
         </ScrollView>
-      </SafeAreaView>
-    </>
+      )}
+    </SafeAreaView>
   );
 }
 

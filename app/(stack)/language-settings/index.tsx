@@ -1,12 +1,15 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+
+import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { LanguageFlag } from '@/components/LanguageFlag';
+
 import Colors from '@/constants/Colors';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 

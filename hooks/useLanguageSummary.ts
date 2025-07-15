@@ -29,6 +29,7 @@ export interface LanguageSummary {
     speaking: number;
     listening: number;
   };
+  totalTrackedTime: number;
 }
 
 export function useLanguageSummary(userId: string) {
@@ -89,6 +90,7 @@ export function useLanguageSummary(userId: string) {
               .select('duration_seconds, activity_id')
               .eq('user_id', userId)
               .eq('language_id', language.id);
+              
             if (timeError) throw timeError;
 
             // sum durations for each activity type
@@ -98,6 +100,7 @@ export function useLanguageSummary(userId: string) {
             });
             (timeData || []).forEach((entry: any) => {
               const activity = activitiesList.find((a) => a.id === entry.activity_id);
+              
               if (activity) {
                 activityDurations[activity.name] += entry.duration_seconds;
               }
@@ -106,17 +109,25 @@ export function useLanguageSummary(userId: string) {
             // use master language name if available, fallback to direct name
             const languageName = language.master_languages.name || language.name || 'Unknown Language';
 
+            // calculate total tracked time for this language
+            const totalTrackedTime = Object.values(activityDurations).reduce((sum, duration) => sum + duration, 0);
+
             return {
               id: language.id,
               name: languageName,
               level: language.proficiency_level || 'Not Set',
               activities: activityDurations,
+              totalTrackedTime,
             };
           })
         );
 
         if (!isMounted) return;
-        setLanguages(languagesWithTime);
+        
+        // sort languages by total tracked time (most tracked first)
+        const sortedLanguages = languagesWithTime.sort((a, b) => b.totalTrackedTime - a.totalTrackedTime);
+        
+        setLanguages(sortedLanguages);
       } catch (err) {
         if (!isMounted) return;
         console.error('Error loading language summary:', err);
