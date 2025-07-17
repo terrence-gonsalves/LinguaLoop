@@ -1,15 +1,20 @@
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { LanguageDropdown } from '@/components/forms/LanguageDropdown';
+
 import Colors from '@/constants/Colors';
+
 import { useUserLanguages } from '@/hooks/useUserLanguages';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { useNavigation } from '@react-navigation/native';
-import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface TrackScreenParams {
   activity?: string;
@@ -51,14 +56,29 @@ export default function TrackActivityScreen() {
   const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+  const hasInitializedRef = useRef(false);
   const navigation = useNavigation();
+
+  // reset form when screen comes into focus (except on initial load)
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasInitializedRef.current) {
+        hasInitializedRef.current = true;
+        return;
+      }
+      
+      resetFields();
+    }, [])
+  );
 
   // set initial activity from URL parameter
   useEffect(() => {
     const state = navigation.getState();
+    
     if (state) {
       const route = state.routes.find(route => route.name === 'track');
       const params = route?.params as TrackScreenParams | undefined;
+      
       if (params?.activity) {
         setSelectedActivity(params.activity);
       }
@@ -182,7 +202,10 @@ export default function TrackActivityScreen() {
                   maximumDate={new Date()}
                   onChange={(event, selectedDate) => {
                     setShowDatePicker(false);
-                    if (selectedDate) setDate(selectedDate);
+                    
+                    if (selectedDate) {
+                      setDate(selectedDate);
+                    }
                   }}
                   locale={undefined}
                   style={styles.datePicker}
@@ -199,7 +222,9 @@ export default function TrackActivityScreen() {
                   label=""
                   data={languages}
                   value={selectedLanguage}
-                  onChange={setSelectedLanguage}
+                  onChange={(value) => {
+                    setSelectedLanguage(value);
+                  }}
                   dropdownStyle={styles.dropdownButton}
                   style={styles.languageDropdown}
                 />
@@ -214,25 +239,33 @@ export default function TrackActivityScreen() {
                   title="Listening"
                   icon={<MaterialCommunityIcons name="headphones" size={24} color={selectedActivity === 'listening' ? Colors.light.textTertiary : Colors.light.rust} />}
                   isSelected={selectedActivity === 'listening'}
-                  onPress={() => setSelectedActivity('listening')}
+                  onPress={() => {
+                    setSelectedActivity('listening');
+                  }}
                 />
                 <ActivityOption
                   title="Reading"
                   icon={<Ionicons name="book-outline" size={24} color={selectedActivity === 'reading' ? Colors.light.textTertiary : Colors.light.rust} />}
                   isSelected={selectedActivity === 'reading'}
-                  onPress={() => setSelectedActivity('reading')}
+                  onPress={() => {
+                    setSelectedActivity('reading');
+                  }}
                 />
                 <ActivityOption
                   title="Writing"
                   icon={<MaterialCommunityIcons name="pencil-outline" size={24} color={selectedActivity === 'writing' ? Colors.light.textTertiary : Colors.light.rust} />}
                   isSelected={selectedActivity === 'writing'}
-                  onPress={() => setSelectedActivity('writing')}
+                  onPress={() => {
+                    setSelectedActivity('writing');
+                  }}
                 />
                 <ActivityOption
                   title="Speaking"
                   icon={<MaterialCommunityIcons name="microphone-outline" size={24} color={selectedActivity === 'speaking' ? Colors.light.textTertiary : Colors.light.rust} />}
                   isSelected={selectedActivity === 'speaking'}
-                  onPress={() => setSelectedActivity('speaking')}
+                  onPress={() => {
+                    setSelectedActivity('speaking');
+                  }}
                 />
               </View>
             </View>
@@ -244,27 +277,37 @@ export default function TrackActivityScreen() {
                 <View style={styles.durationInputContainer}>
                   <Pressable 
                     style={styles.durationButton}
-                    onPress={() => setDuration(prev => Math.max(0, prev - 1))}
+                    onPress={() => {
+                      setDuration(prev => Math.max(0, prev - 1));
+                    }}
                   >
                     <Text style={styles.durationButtonText}>−</Text>
                   </Pressable>
                   <Text style={styles.durationValue}>{duration}</Text>
                   <Pressable 
                     style={styles.durationButton}
-                    onPress={() => setDuration(prev => prev + 1)}
+                    onPress={() => {
+                      setDuration(prev => prev + 1);
+                    }}
                   >
                     <Text style={styles.durationButtonText}>+</Text>
                   </Pressable>
                   <Text style={styles.durationUnit}>minutes</Text>
                 </View>
                 <View style={styles.quickDurationContainer}>
-                  <Pressable style={styles.quickDurationButton} onPress={() => setDuration(prev => prev +15)}>
+                  <Pressable style={styles.quickDurationButton} onPress={() => {
+                    setDuration(prev => prev +15);
+                  }}>
                     <Text style={styles.quickDurationText}>+ 15 min</Text>
                   </Pressable>
-                  <Pressable style={styles.quickDurationButton} onPress={() => setDuration(prev => prev +30)}>
+                  <Pressable style={styles.quickDurationButton} onPress={() => {
+                    setDuration(prev => prev +30);
+                  }}>
                     <Text style={styles.quickDurationText}>+ 30 min</Text>
                   </Pressable>
-                  <Pressable style={styles.quickDurationButton} onPress={() => setDuration(prev => prev +60)}>
+                  <Pressable style={styles.quickDurationButton} onPress={() => {
+                    setDuration(prev => prev +60);
+                  }}>
                     <Text style={styles.quickDurationText}>+ 60 min</Text>
                   </Pressable>
                 </View>
@@ -282,7 +325,9 @@ export default function TrackActivityScreen() {
                 numberOfLines={4}
                 maxLength={200}
                 value={notes}
-                onChangeText={setNotes}
+                onChangeText={(text) => {
+                  setNotes(text);
+                }}
               />
               <Text style={styles.characterCount}>{notes.length}/200 characters</Text>
             </View>

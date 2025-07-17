@@ -1,9 +1,7 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 
 import React from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LanguageProgressCard } from '@/components/profile/LanguageProgressCard';
@@ -43,14 +41,6 @@ export default function LanguagesScreen() {
         </View>
       ) : (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <Pressable onPress={() => router.back()} style={styles.backButton}>
-              <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
-            </Pressable>
-            <Text style={styles.headerTitle}>All Languages</Text>
-            <View style={{ width: 24 }} />
-          </View>
-
           <View style={styles.section}>
             <View style={styles.languageCards}>
               {languages.map((language, index) => (
