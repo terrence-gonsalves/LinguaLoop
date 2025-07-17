@@ -18,6 +18,10 @@ export default {
     assetBundlePatterns: [
       "**/*"
     ],
+    updates: {
+      "url": "https://u.expo.dev/" + process.env.EAS_PROJECT_ID
+    },
+    runtimeVersion: "exposdk:53.0.0",
     extra: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
@@ -28,7 +32,7 @@ export default {
     },
     ios: {
       supportsTablet: true,
-      uildNumber: "1",
+      buildNumber: "1",
       splash: {
         image: "./assets/images/icon.png",
         resizeMode: "cover",
@@ -37,12 +41,8 @@ export default {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/images/icon.png",
-        backgroundColor: "#F0F3F4"
-      },
-      splash: {
-        image: "./assets/images/icon.png",
-        resizeMode: "cover",
+        foregroundImage: "./assets/images/adaptive-icon.png",
+        monochromeImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#F0F3F4"
       },
       versionCode: 1,
