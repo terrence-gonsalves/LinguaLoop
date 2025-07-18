@@ -87,13 +87,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.terrence.gonsalves.LinguaLoop'
+    namespace 'com.bloopa.LinguaLoop'
     defaultConfig {
-        applicationId 'com.terrence.gonsalves.LinguaLoop'
+        applicationId 'com.bloopa.LinguaLoop'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "0.2.0"
+        versionName "0.6.5"
     }
     signingConfigs {
         debug {
