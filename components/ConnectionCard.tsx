@@ -1,4 +1,6 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import DefaultAvatar from '@/components/DefaultAvatar';
+import { Image as ExpoImage } from 'expo-image';
+import { StyleSheet, Text, View } from 'react-native';
 
 export interface ConnectionCardProps {
   name: string;
@@ -12,10 +14,16 @@ export default function ConnectionCard({ name, username, nativeLanguage, avatarU
   return (
     <View style={styles.card}>
       <View style={styles.avatarContainer}>
-        <Image
-          source={avatarUrl ? { uri: avatarUrl } : require('../assets/images/default-avatar.png')}
-          style={styles.avatar}
-        />
+        {avatarUrl ? (
+          <ExpoImage
+            source={{ uri: avatarUrl }}
+            style={styles.avatar}
+            contentFit="cover"
+            transition={200}
+          />
+        ) : (
+          <DefaultAvatar size={40} letter={name?.[0] || '?'} />
+        )}
       </View>
       <View style={styles.info}>
         <Text style={styles.name}>{name}</Text>
