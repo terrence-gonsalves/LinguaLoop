@@ -1,8 +1,10 @@
 import { Stack } from "expo-router/stack";
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import AuthProvider from '@/providers/auth-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
@@ -51,19 +53,21 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <AuthProvider>        
-        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-          <StatusBar style="dark" backgroundColor="#F0F3F4" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          >
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="(stack)" />
-          </Stack>
-        </View>
+      <AuthProvider>    
+        <KeyboardProvider>    
+          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+            <StatusBar style="dark" backgroundColor="#F0F3F4" />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            >
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="(stack)" />
+            </Stack>
+          </View>
+        </KeyboardProvider>
       </AuthProvider>
     </ThemeProvider>
   );
