@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 
 import { useEffect, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/common/Button';
@@ -30,9 +31,6 @@ export default function EditProfileScreen() {
   // form errors
   const [usernameError, setUsernameError] = useState('');
   const [aboutMeError, setAboutMeError] = useState('');
-
-  // check if username was set during onboarding
-  const isUsernameSetDuringOnboarding = Boolean(profile?.user_name);
 
   useEffect(() => {
     loadLanguages();
@@ -95,7 +93,7 @@ export default function EditProfileScreen() {
       return;
     }
 
-    if (!isUsernameSetDuringOnboarding && !username) {
+    if (!username) {
       Alert.alert('Error', 'Please enter a username');
       return;
     }
@@ -133,7 +131,7 @@ export default function EditProfileScreen() {
         .from('profiles')
         .update({
           name: displayName || null,
-          user_name: isUsernameSetDuringOnboarding ? profile.user_name : username || null,
+          user_name: username || null,
           about_me: aboutMe || null,
           native_language: nativeLanguage,
         })
@@ -214,92 +212,87 @@ export default function EditProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.keyboardContainer}
+        bottomOffset={50}
         style={styles.keyboardAvoidingView}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView 
-          style={styles.scrollView} 
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.content}>
+        <View style={styles.content}>
 
-            {/* profile photo section */}
-            <View style={styles.card}>
-              <View style={styles.photoSection}>
-                <ImageUpload
-                  size={120}
-                  currentImageUrl={profile?.avatar_url}
-                  onImageSelected={handleImageSelected}
-                  onImageRemoved={handleImageRemoved}
-                  letter={profile?.name?.[0] || profile?.user_name?.[0] || '?'}
-                />
-              </View>
-            </View>
-
-            {/* form fields */}
-            <View style={styles.card}>
-              <FormInput
-                label="Display Name"
-                value={displayName}
-                onChangeText={setDisplayName}
-                placeholder="Enter your display name"
-                autoCapitalize="words"
-              />
-
-              <FormInput
-                label="Username"
-                value={username}
-                onChangeText={(text) => {
-                  setUsername(text);
-                  validateUsername(text);
-                }}
-                placeholder="Enter your username"
-                autoCapitalize="none"
-                error={usernameError}
-                editable={!isUsernameSetDuringOnboarding}
-              />
-
-              <FormInput
-                label="About Me"
-                value={aboutMe}
-                onChangeText={(text) => {
-                  setAboutMe(text);
-                  validateAboutMe(text);
-                }}
-                placeholder="Tell us about yourself"
-                multiline
-                maxLength={250}
-                error={aboutMeError}
-                style={styles.aboutMeInput}
-                textAlignVertical="top"
-              />
-              {aboutMe ? (
-                <Text style={styles.characterCount}>
-                  {aboutMe.length}/250
-                </Text>
-              ) : null}
-
-              <LanguageDropdown
-                label="Native Language"
-                data={languages}
-                value={nativeLanguage}
-                onChange={setNativeLanguage}
-                dropdownStyle={styles.profileDropdown}
+          {/* profile photo section */}
+          <View style={styles.card}>
+            <View style={styles.photoSection}>
+              <ImageUpload
+                size={120}
+                currentImageUrl={profile?.avatar_url}
+                onImageSelected={handleImageSelected}
+                onImageRemoved={handleImageRemoved}
+                letter={profile?.name?.[0] || profile?.user_name?.[0] || '?'}
               />
             </View>
+          </View>
 
-            <Button
-              title="Save Changes"
-              onPress={handleSubmit}
-              loading={isLoading}
-              style={styles.submitButton}
+          {/* form fields */}
+          <View style={styles.card}>
+            <FormInput
+              label="Display Name"
+              value={displayName}
+              onChangeText={setDisplayName}
+              placeholder="Enter your display name"
+              autoCapitalize="words"
+            />
+
+            <FormInput
+              label="Username"
+              value={username}
+              onChangeText={(text) => {
+                setUsername(text);
+                validateUsername(text);
+              }}
+              placeholder="Enter your username"
+              autoCapitalize="none"
+              error={usernameError}
+            />
+
+            <FormInput
+              label="About Me"
+              value={aboutMe}
+              onChangeText={(text) => {
+                setAboutMe(text);
+                validateAboutMe(text);
+              }}
+              placeholder="Tell us about yourself"
+              multiline
+              maxLength={250}
+              error={aboutMeError}
+              style={styles.aboutMeInput}
+              textAlignVertical="top"
+            />
+            {aboutMe ? (
+              <Text style={styles.characterCount}>
+                {aboutMe.length}/250
+              </Text>
+            ) : null}
+
+            <LanguageDropdown
+              label="Native Language"
+              data={languages}
+              value={nativeLanguage}
+              onChange={setNativeLanguage}
+              dropdownStyle={styles.profileDropdown}
             />
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          <Button
+            title="Save Changes"
+            onPress={handleSubmit}
+            loading={isLoading}
+            style={styles.submitButton}
+          />
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -309,15 +302,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.light.background,
   },
-  keyboardAvoidingView: {
-    flex: 1,
+  keyboardContainer: {
+    padding: 16,
+    gap: 16,
   },
-  scrollView: {
-    flex: 1,
+  keyboardAvoidingView: {
+    flex: 1, 
   },
   content: {
     padding: 16,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
   },
   card: {
     backgroundColor: Colors.light.background,

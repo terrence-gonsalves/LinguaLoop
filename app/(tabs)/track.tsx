@@ -3,7 +3,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LanguageDropdown } from '@/components/forms/LanguageDropdown';
@@ -94,7 +95,7 @@ export default function TrackActivityScreen() {
     setNotes('');
 
     // scroll to top
-    scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+    //scrollViewRef.current?.scrollTo({ y: 0, animated: true });
   }
 
   // format date as 'month day, year' and localize
@@ -172,173 +173,168 @@ export default function TrackActivityScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardAwareScrollView 
+        contentContainerStyle={styles.keyboardContainer}
         style={styles.keyboardAvoidingView}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView 
-          ref={scrollViewRef}
-          style={styles.scrollView} 
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollViewContent}
-        >
-          <View style={styles.content}>
+        <View style={styles.content}>
 
-            {/* header */}
-            <Text style={styles.headerTitle}>Track Activity</Text>
+          {/* header */}
+          <Text style={styles.headerTitle}>Track Activity</Text>
 
-            {/* date section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Date of Activity</Text>
-              <Pressable style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-                <MaterialCommunityIcons name="calendar" size={20} color={Colors.light.textSecondary} />
-                <Text style={styles.dateText}>{formatDate(date)}</Text>
-              </Pressable>
-              {showDatePicker && (
-                <DateTimePicker
-                  value={date}
-                  mode="date"
-                  display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                  maximumDate={new Date()}
-                  onChange={(event, selectedDate) => {
-                    setShowDatePicker(false);
-                    
-                    if (selectedDate) {
-                      setDate(selectedDate);
-                    }
-                  }}
-                  locale={undefined}
-                  style={styles.datePicker}
-                />
-              )}
+          {/* date section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Date of Activity</Text>
+            <Pressable style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+              <MaterialCommunityIcons name="calendar" size={20} color={Colors.light.textSecondary} />
+              <Text style={styles.dateText}>{formatDate(date)}</Text>
+            </Pressable>
+            {showDatePicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                maximumDate={new Date()}
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(false);
+                  
+                  if (selectedDate) {
+                    setDate(selectedDate);
+                  }
+                }}
+                locale={undefined}
+                style={styles.datePicker}
+              />
+            )}
+          </View>
+
+          {/* language section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Language</Text>
+            <View style={styles.languageDropdownContainer}>
+              <MaterialCommunityIcons name="translate" size={20} color={Colors.light.textSecondary} style={styles.languageIcon} />
+              <LanguageDropdown
+                label=""
+                data={languages}
+                value={selectedLanguage}
+                onChange={(value) => {
+                  setSelectedLanguage(value);
+                }}
+                dropdownStyle={styles.dropdownButton}
+                style={styles.languageDropdown}
+              />
             </View>
+          </View>
 
-            {/* language section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Language</Text>
-              <View style={styles.languageDropdownContainer}>
-                <MaterialCommunityIcons name="translate" size={20} color={Colors.light.textSecondary} style={styles.languageIcon} />
-                <LanguageDropdown
-                  label=""
-                  data={languages}
-                  value={selectedLanguage}
-                  onChange={(value) => {
-                    setSelectedLanguage(value);
-                  }}
-                  dropdownStyle={styles.dropdownButton}
-                  style={styles.languageDropdown}
-                />
-              </View>
-            </View>
-
-            {/* activity type section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Activity Type</Text>
-              <View style={styles.activityGrid}>
-                <ActivityOption
-                  title="Listening"
-                  icon={<MaterialCommunityIcons name="headphones" size={24} color={selectedActivity === 'listening' ? Colors.light.textTertiary : Colors.light.rust} />}
-                  isSelected={selectedActivity === 'listening'}
-                  onPress={() => {
-                    setSelectedActivity('listening');
-                  }}
-                />
-                <ActivityOption
-                  title="Reading"
-                  icon={<Ionicons name="book-outline" size={24} color={selectedActivity === 'reading' ? Colors.light.textTertiary : Colors.light.rust} />}
-                  isSelected={selectedActivity === 'reading'}
-                  onPress={() => {
-                    setSelectedActivity('reading');
-                  }}
-                />
-                <ActivityOption
-                  title="Writing"
-                  icon={<MaterialCommunityIcons name="pencil-outline" size={24} color={selectedActivity === 'writing' ? Colors.light.textTertiary : Colors.light.rust} />}
-                  isSelected={selectedActivity === 'writing'}
-                  onPress={() => {
-                    setSelectedActivity('writing');
-                  }}
-                />
-                <ActivityOption
-                  title="Speaking"
-                  icon={<MaterialCommunityIcons name="microphone-outline" size={24} color={selectedActivity === 'speaking' ? Colors.light.textTertiary : Colors.light.rust} />}
-                  isSelected={selectedActivity === 'speaking'}
-                  onPress={() => {
-                    setSelectedActivity('speaking');
-                  }}
-                />
-              </View>
-            </View>
-
-            {/* duration section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Duration</Text>
-              <View style={styles.durationContainer}>
-                <View style={styles.durationInputContainer}>
-                  <Pressable 
-                    style={styles.durationButton}
-                    onPress={() => {
-                      setDuration(prev => Math.max(0, prev - 1));
-                    }}
-                  >
-                    <Text style={styles.durationButtonText}>−</Text>
-                  </Pressable>
-                  <Text style={styles.durationValue}>{duration}</Text>
-                  <Pressable 
-                    style={styles.durationButton}
-                    onPress={() => {
-                      setDuration(prev => prev + 1);
-                    }}
-                  >
-                    <Text style={styles.durationButtonText}>+</Text>
-                  </Pressable>
-                  <Text style={styles.durationUnit}>minutes</Text>
-                </View>
-                <View style={styles.quickDurationContainer}>
-                  <Pressable style={styles.quickDurationButton} onPress={() => {
-                    setDuration(prev => prev +15);
-                  }}>
-                    <Text style={styles.quickDurationText}>+ 15 min</Text>
-                  </Pressable>
-                  <Pressable style={styles.quickDurationButton} onPress={() => {
-                    setDuration(prev => prev +30);
-                  }}>
-                    <Text style={styles.quickDurationText}>+ 30 min</Text>
-                  </Pressable>
-                  <Pressable style={styles.quickDurationButton} onPress={() => {
-                    setDuration(prev => prev +60);
-                  }}>
-                    <Text style={styles.quickDurationText}>+ 60 min</Text>
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-
-            {/* notes section */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Notes</Text>
-              <TextInput
-                style={styles.notesInput}
-                placeholder="Add details about your study session, e.g., 'Reviewed vocabulary on fruits' or 'Practiced pronunciation of 'R' sound.'"
-                placeholderTextColor={Colors.light.textSecondary}
-                multiline
-                numberOfLines={4}
-                maxLength={200}
-                value={notes}
-                onChangeText={(text) => {
-                  setNotes(text);
+          {/* activity type section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Activity Type</Text>
+            <View style={styles.activityGrid}>
+              <ActivityOption
+                title="Listening"
+                icon={<MaterialCommunityIcons name="headphones" size={24} color={selectedActivity === 'listening' ? Colors.light.textTertiary : Colors.light.rust} />}
+                isSelected={selectedActivity === 'listening'}
+                onPress={() => {
+                  setSelectedActivity('listening');
                 }}
               />
-              <Text style={styles.characterCount}>{notes.length}/200 characters</Text>
+              <ActivityOption
+                title="Reading"
+                icon={<Ionicons name="book-outline" size={24} color={selectedActivity === 'reading' ? Colors.light.textTertiary : Colors.light.rust} />}
+                isSelected={selectedActivity === 'reading'}
+                onPress={() => {
+                  setSelectedActivity('reading');
+                }}
+              />
+              <ActivityOption
+                title="Writing"
+                icon={<MaterialCommunityIcons name="pencil-outline" size={24} color={selectedActivity === 'writing' ? Colors.light.textTertiary : Colors.light.rust} />}
+                isSelected={selectedActivity === 'writing'}
+                onPress={() => {
+                  setSelectedActivity('writing');
+                }}
+              />
+              <ActivityOption
+                title="Speaking"
+                icon={<MaterialCommunityIcons name="microphone-outline" size={24} color={selectedActivity === 'speaking' ? Colors.light.textTertiary : Colors.light.rust} />}
+                isSelected={selectedActivity === 'speaking'}
+                onPress={() => {
+                  setSelectedActivity('speaking');
+                }}
+              />
             </View>
-
-            {/* save button */}
-            <Pressable style={styles.saveButton} onPress={handleSaveActivity}>
-              <Text style={styles.saveButtonText}>Save Activity</Text>
-            </Pressable>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          {/* duration section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Duration</Text>
+            <View style={styles.durationContainer}>
+              <View style={styles.durationInputContainer}>
+                <Pressable 
+                  style={styles.durationButton}
+                  onPress={() => {
+                    setDuration(prev => Math.max(0, prev - 1));
+                  }}
+                >
+                  <Text style={styles.durationButtonText}>−</Text>
+                </Pressable>
+                <Text style={styles.durationValue}>{duration}</Text>
+                <Pressable 
+                  style={styles.durationButton}
+                  onPress={() => {
+                    setDuration(prev => prev + 1);
+                  }}
+                >
+                  <Text style={styles.durationButtonText}>+</Text>
+                </Pressable>
+                <Text style={styles.durationUnit}>minutes</Text>
+              </View>
+              <View style={styles.quickDurationContainer}>
+                <Pressable style={styles.quickDurationButton} onPress={() => {
+                  setDuration(prev => prev +15);
+                }}>
+                  <Text style={styles.quickDurationText}>+ 15 min</Text>
+                </Pressable>
+                <Pressable style={styles.quickDurationButton} onPress={() => {
+                  setDuration(prev => prev +30);
+                }}>
+                  <Text style={styles.quickDurationText}>+ 30 min</Text>
+                </Pressable>
+                <Pressable style={styles.quickDurationButton} onPress={() => {
+                  setDuration(prev => prev +60);
+                }}>
+                  <Text style={styles.quickDurationText}>+ 60 min</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+
+          {/* notes section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Notes</Text>
+            <TextInput
+              style={styles.notesInput}
+              placeholder="Add details about your study session, e.g., 'Reviewed vocabulary on fruits' or 'Practiced pronunciation of 'R' sound.'"
+              placeholderTextColor={Colors.light.textSecondary}
+              multiline
+              numberOfLines={4}
+              maxLength={200}
+              value={notes}
+              onChangeText={(text) => {
+                setNotes(text);
+              }}
+            />
+            <Text style={styles.characterCount}>{notes.length}/200 characters</Text>
+          </View>
+
+          {/* save button */}
+          <Pressable style={styles.saveButton} onPress={handleSaveActivity}>
+            <Text style={styles.saveButtonText}>Save Activity</Text>
+          </Pressable>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -348,14 +344,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.light.generalBG,
   },
+  keyboardContainer: {
+    padding: 16,
+    gap: 16,
+  },
   keyboardAvoidingView: {
-    flex: 1,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    flexGrow: 1,
+    flex: 1, 
   },
   content: {
     flex: 1,
