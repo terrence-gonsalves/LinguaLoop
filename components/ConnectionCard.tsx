@@ -1,11 +1,13 @@
 import { Image as ExpoImage } from 'expo-image';
+import { router } from 'expo-router';
 
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 
 export interface ConnectionCardProps {
+  userId: string;
   name: string;
   username: string;
   nativeLanguage: string;
@@ -13,11 +15,21 @@ export interface ConnectionCardProps {
   aboutMe: string;
 }
 
-export default function ConnectionCard({ name, username, nativeLanguage, avatarUrl, aboutMe }: ConnectionCardProps) {
+export default function ConnectionCard({ userId, name, username, nativeLanguage, avatarUrl, aboutMe }: ConnectionCardProps) {
   const [imageError, setImageError] = useState(false);
 
+  const handlePress = () => {
+    router.push(`/(stack)/profile/${userId}`);
+  };
+
   return (
-    <View style={styles.card}>
+    <Pressable 
+      style={({ pressed }) => [
+        styles.card,
+        pressed && { opacity: 0.7 }
+      ]} 
+      onPress={handlePress}
+    >
       <View style={styles.avatarContainer}>
         {avatarUrl && !imageError ? (
           <ExpoImage
@@ -37,7 +49,7 @@ export default function ConnectionCard({ name, username, nativeLanguage, avatarU
         <Text style={styles.language}>{nativeLanguage}</Text>
         <Text style={styles.aboutMe} numberOfLines={2}>{aboutMe}</Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

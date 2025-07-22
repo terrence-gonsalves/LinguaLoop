@@ -212,6 +212,7 @@ export default function UserProfileScreen() {
     return connections.map((connection) => (
       <ProfileConnectionCard
         key={connection.id}
+        userId={connection.id}
         name={connection.name || ''}
         username={connection.user_name || ''}
         nativeLanguage={connection.native_language || 'Unknown'}
@@ -266,24 +267,17 @@ export default function UserProfileScreen() {
     });
   };
 
-  if (isLoading) {
-    return (
-      <>
-        <Stack.Screen options={{ title: 'Connection' }} />
-        <SafeAreaView style={styles.container}>
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={Colors.light.rust} />
-          </View>
-        </SafeAreaView>
-      </>
-    );
-  }
-
   if (!userProfile) {
     return (
       <>
-        <Stack.Screen options={{ title: 'Connection' }} />
         <SafeAreaView style={styles.container}>
+          <Stack.Screen 
+            options={{ 
+              title: 'Connection Profile',
+              headerShadowVisible: false,
+              headerStyle: { backgroundColor: Colors.light.background },
+            }} 
+          />        
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>User not found</Text>
           </View>
@@ -294,88 +288,100 @@ export default function UserProfileScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <Pressable onPress={() => router.back()} style={styles.backButton}>
-              <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
-            </Pressable>
-            <Text style={styles.headerTitle}>Connection</Text>
-            <View style={{ width: 24 }} />
+        <Stack.Screen 
+          options={{ 
+            title: 'Connection Profile',
+            headerShadowVisible: false,
+            headerStyle: { backgroundColor: Colors.light.background },
+          }} 
+        />
+        {(isLoading) ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.light.rust} />
           </View>
-
-          <View style={styles.profileSection}>
-            {userProfile.avatar_url ? (
-              <ExpoImage
-                source={{ uri: userProfile.avatar_url }}
-                style={styles.avatar}
-                contentFit="cover"
-                transition={200}
-              />
-            ) : (
-              <DefaultAvatar size={100} letter={userProfile.name?.[0] || userProfile.user_name?.[0] || '?'} />
-            )}
-            <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{userProfile.name || 'User'}</Text>
-              <Text style={styles.username}>@{userProfile.user_name || 'username'}</Text>
-              <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
-              <Text style={styles.bio}>
-                {userProfile.about_me || ''}
-              </Text>
-              <Pressable 
-                style={[styles.actionButton, isFollowing && styles.unfollowButton]}
-                onPress={toggleFollow}
-              >
-                <Text style={[styles.actionButtonText, isFollowing && styles.unfollowButtonText]}>
-                  {isFollowing ? 'Unfollow' : 'Follow'}
-                </Text>
+        ) : (
+          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <View style={styles.header}>
+              <Pressable onPress={() => router.back()} style={styles.backButton}>
+                <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
               </Pressable>
+              <Text style={styles.headerTitle}>Connection</Text>
+              <View style={{ width: 24 }} />
             </View>
-          </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Language Summary</Text>
-              {languages.length > 2 && (
-                <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/languages')}>
-                  <Text style={styles.viewAllText}>View All</Text>
-                </Pressable>
+            <View style={styles.profileSection}>
+              {userProfile.avatar_url ? (
+                <ExpoImage
+                  source={{ uri: userProfile.avatar_url }}
+                  style={styles.avatar}
+                  contentFit="cover"
+                  transition={200}
+                />
+              ) : (
+                <DefaultAvatar size={100} letter={userProfile.name?.[0] || userProfile.user_name?.[0] || '?'} />
               )}
+              <View style={styles.profileInfo}>
+                <Text style={styles.profileName}>{userProfile.name || 'User'}</Text>
+                <Text style={styles.username}>@{userProfile.user_name || 'username'}</Text>
+                <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
+                <Text style={styles.bio}>
+                  {userProfile.about_me || ''}
+                </Text>
+                <Pressable 
+                  style={[styles.actionButton, isFollowing && styles.unfollowButton]}
+                  onPress={toggleFollow}
+                >
+                  <Text style={[styles.actionButtonText, isFollowing && styles.unfollowButtonText]}>
+                    {isFollowing ? 'Unfollow' : 'Follow'}
+                  </Text>
+                </Pressable>
+              </View>
             </View>
-            <View style={styles.languageCards}>
-              {renderLanguageCards()}
-            </View>
-          </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Active Connections</Text>
-              {connectionsCount > 2 && (
-                <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
-                  <Text style={styles.viewAllText}>View All</Text>
-                </Pressable>
-              )}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Language Summary</Text>
+                {languages.length > 2 && (
+                  <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/languages')}>
+                    <Text style={styles.viewAllText}>View All</Text>
+                  </Pressable>
+                )}
+              </View>
+              <View style={styles.languageCards}>
+                {renderLanguageCards()}
+              </View>
             </View>
-            <View style={styles.connectionCards}>
-              {renderConnections()}
-            </View>
-          </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Achievements</Text>
-              {achievementsCount > 2 && (
-                <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/achievements')}>
-                  <Text style={styles.viewAllText}>History</Text>
-                </Pressable>
-              )}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Active Connections</Text>
+                {connectionsCount > 2 && (
+                  <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
+                    <Text style={styles.viewAllText}>View All</Text>
+                  </Pressable>
+                )}
+              </View>
+              <View style={styles.connectionCards}>
+                {renderConnections()}
+              </View>
             </View>
-            <View style={styles.achievements}>
-              {renderAchievements()}
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Achievements</Text>
+                {achievementsCount > 2 && (
+                  <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/achievements')}>
+                    <Text style={styles.viewAllText}>History</Text>
+                  </Pressable>
+                )}
+              </View>
+              <View style={styles.achievements}>
+                {renderAchievements()}
+              </View>
             </View>
-          </View>
-        </ScrollView>
+          </ScrollView>
+        )}
       </SafeAreaView>
     </>
   );

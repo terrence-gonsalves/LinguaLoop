@@ -110,6 +110,7 @@ export default function ProfileScreen() {
     return connections.map((connection) => (
       <ProfileConnectionCard
         key={connection.id}
+        userId={connection.id}
         name={connection.name || ''}
         username={connection.user_name || ''}
         nativeLanguage={connection.native_language || 'Unknown'}
