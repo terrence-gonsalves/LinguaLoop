@@ -1,9 +1,12 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+
 import { Colors } from '@/providers/theme-provider';
 
 
@@ -77,7 +80,7 @@ export function ProfileConnectionCard({
           )}
           <View style={styles.info}>
             <Text style={styles.name}>{name}</Text>
-            <Text style={styles.username}>{username}</Text>
+            {username && <Text style={styles.username}>@{username}</Text>}
             <Text style={styles.nativeLanguage}>Native: {nativeLanguage}</Text>
             <View style={styles.languagesContainer}>
               {languages.map((language, index) => (

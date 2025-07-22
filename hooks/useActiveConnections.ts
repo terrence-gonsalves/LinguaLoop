@@ -24,7 +24,7 @@ interface FollowData {
   };
 }
 
-export function useActiveConnections(userId: string) {
+export function useActiveConnections(userId: string, limit: number | null = 2) {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,9 +99,11 @@ export function useActiveConnections(userId: string) {
         .eq('follower_id', userId);
 
       if (countError) throw countError;
+      
       setTotalCount(count || 0);
 
-      const { data: followData, error: followError } = await supabase
+      // build the query
+      let query = supabase
         .from('follows')
         .select(`
           following_id,
@@ -114,11 +116,17 @@ export function useActiveConnections(userId: string) {
             native_language
           )
         `)
-        .eq('follower_id', userId)
-        .limit(2) as unknown as { 
-          data: FollowData[] | null;
-          error: any;
-        };
+        .eq('follower_id', userId);
+
+      // apply limit only if it's a number (not null or undefined)
+      if (typeof limit === 'number') {
+        query = query.limit(limit);
+      }
+
+      const { data: followData, error: followError } = await query as unknown as { 
+        data: FollowData[] | null;
+        error: any;
+      };
 
       if (followError) throw followError;
 
