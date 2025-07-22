@@ -1,4 +1,3 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router/stack';
@@ -302,14 +301,6 @@ export default function UserProfileScreen() {
           </View>
         ) : (
           <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-            <View style={styles.header}>
-              <Pressable onPress={() => router.back()} style={styles.backButton}>
-                <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
-              </Pressable>
-              <Text style={styles.headerTitle}>Connection</Text>
-              <View style={{ width: 24 }} />
-            </View>
-
             <View style={styles.profileSection}>
               {userProfile.avatar_url ? (
                 <ExpoImage
@@ -323,7 +314,7 @@ export default function UserProfileScreen() {
               )}
               <View style={styles.profileInfo}>
                 <Text style={styles.profileName}>{userProfile.name || 'User'}</Text>
-                <Text style={styles.username}>@{userProfile.user_name || 'username'}</Text>
+                {userProfile.user_name && <Text style={styles.username}>@{userProfile.user_name}</Text>}
                 <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
                 <Text style={styles.bio}>
                   {userProfile.about_me || ''}
