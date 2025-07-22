@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -11,6 +12,7 @@ import { Colors } from '@/providers/theme-provider';
 
 
 interface ProfileConnectionCardProps {
+  userId: string;
   name: string;
   languages: string[];
   streak: number;
@@ -22,6 +24,7 @@ interface ProfileConnectionCardProps {
 }
 
 export function ProfileConnectionCard({ 
+  userId,
   name, 
   languages, 
   streak, 
@@ -69,10 +72,20 @@ export function ProfileConnectionCard({
     );
   };
 
+  const handleProfilePress = () => {
+    router.push(`/(stack)/profile/${userId}`);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.mainContent}>
-        <View style={styles.leftContent}>
+        <Pressable 
+          style={({ pressed }) => [
+            styles.leftContent,
+            pressed && { opacity: 0.7 }
+          ]} 
+          onPress={handleProfilePress}
+        >
           {avatarUrl ? (
             <Image source={{ uri: avatarUrl }} style={styles.avatar} />
           ) : (
@@ -90,7 +103,7 @@ export function ProfileConnectionCard({
               ))}
             </View>
           </View>
-        </View>
+        </Pressable>
         
         {/* unfollow button in top right corner */}
         <Pressable onPress={handleUnfollow} style={styles.unfollowButton}>
