@@ -1,5 +1,6 @@
 import { Image as ExpoImage } from 'expo-image';
 
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
@@ -13,15 +14,18 @@ export interface ConnectionCardProps {
 }
 
 export default function ConnectionCard({ name, username, nativeLanguage, avatarUrl, aboutMe }: ConnectionCardProps) {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <View style={styles.card}>
       <View style={styles.avatarContainer}>
-        {avatarUrl ? (
+        {avatarUrl && !imageError ? (
           <ExpoImage
             source={{ uri: avatarUrl }}
             style={styles.avatar}
             contentFit="cover"
             transition={200}
+            onError={() => setImageError(true)}
           />
         ) : (
           <DefaultAvatar size={40} letter={name?.[0] || '?'} />

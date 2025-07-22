@@ -1,11 +1,16 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
+
 import React, { useEffect, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { getAvatarUrl } from '@/lib/supabase/storage';
+
 import { Colors } from '@/providers/theme-provider';
 
 interface AddConnectionModalProps {
@@ -60,28 +65,50 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
       .from('follows')
       .select('following_id')
       .eq('follower_id', profile?.id);
+      
     const followingIds = (followingData || []).map((f: any) => f.following_id);
-    const usersList: User[] = (userData || []).map((u: any) => {
+    
+    // process users and generate fresh avatar URLs
+    const usersList: User[] = await Promise.all((userData || []).map(async (u: any) => {
       const nativeLangName = masterLangs?.find((ml: any) => ml.id === u.native_language)?.name || 'Unknown';
       const targetLangs = (allLanguages || [])
         .filter((l: any) => l.user_id === u.id)
         .map((l: any) => l.name);
+      
+      // generate fresh signed URL for avatar if it exists
+      let avatarUrl = u.avatar_url;
+
+      if (avatarUrl) {
+        try {
+          const freshAvatarUrl = await getAvatarUrl(u.id);
+          if (freshAvatarUrl) {
+            avatarUrl = freshAvatarUrl;
+          }
+        } catch (error) {
+          console.error('Error getting fresh avatar URL for user:', u.id, error);
+
+          // keep the original URL if fresh URL generation fails
+        }
+      }
+      
       return {
         id: u.id,
         name: u.name || 'User',
         user_name: u.user_name || 'user',
-        avatar_url: u.avatar_url,
+        avatar_url: avatarUrl,
         native_language: nativeLangName,
         target_languages: targetLangs,
         is_following: followingIds.includes(u.id),
       };
-    });
+    }));
+
     setUsers(usersList);
     setLoading(false);
   }
 
   function filteredUsers() {
     if (!search.trim()) return users;
+
     const lower = search.toLowerCase();
     return users.filter((u) =>
       u.name.toLowerCase().includes(lower) ||
@@ -93,6 +120,7 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
 
   async function toggleFollow(userId: string) {
     const user = users.find((u) => u.id === userId);
+    
     if (!user) return;
     if (user.is_following) {
 
@@ -161,7 +189,12 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
               <View style={styles.userRow}>
                 <TouchableOpacity style={styles.userInfo} onPress={() => goToUserProfile(item.id)}>
                   {item.avatar_url ? (
-                    <DefaultAvatar size={48} letter={item.name[0]} />
+                    <ExpoImage
+                      source={{ uri: item.avatar_url }}
+                      style={styles.avatar}
+                      contentFit="cover"
+                      transition={200}
+                    />
                   ) : (
                     <DefaultAvatar size={48} letter={item.name[0]} />
                   )}
@@ -264,7 +297,7 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     flex: 1,
   },
   userDetails: {
@@ -322,5 +355,10 @@ const styles = StyleSheet.create({
   },
   followingText: {
     color: Colors.light.buttonPrimary,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
 }); 

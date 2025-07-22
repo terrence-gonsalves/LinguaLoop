@@ -1,6 +1,9 @@
-import { decode as base64Decode } from 'base64-arraybuffer';
 import * as FileSystem from 'expo-file-system';
+
 import { Platform } from 'react-native';
+
+import { decode as base64Decode } from 'base64-arraybuffer';
+
 import { supabase } from '../supabase';
 
 export async function uploadAvatar(userId: string, uri: string): Promise<string> {
@@ -62,24 +65,39 @@ export async function uploadAvatar(userId: string, uri: string): Promise<string>
 
 export async function getAvatarUrl(userId: string): Promise<string | null> {
   try {
+    console.log('Getting avatar URL for user:', userId);
 
     // list files to get the correct extension
-    const { data: files } = await supabase.storage
+    const { data: files, error: listError } = await supabase.storage
       .from('avatars')
       .list('', {
         limit: 1,
         search: userId
       });
 
-    if (!files || files.length === 0) {
+    if (listError) {
+      console.error('Error listing avatar files:', listError);
       return null;
     }
 
+    if (!files || files.length === 0) {
+      console.log('No avatar files found for user:', userId);
+      return null;
+    }
+
+    console.log('Found avatar file:', files[0].name);
+
     // get signed URL for the file
-    const { data } = await supabase.storage
+    const { data, error: urlError } = await supabase.storage
       .from('avatars')
       .createSignedUrl(files[0].name, 60 * 60 * 24); // 24 hour expiry
 
+    if (urlError) {
+      console.error('Error creating signed URL:', urlError);
+      return null;
+    }
+
+    console.log('Generated signed URL for user:', userId);
     return data?.signedUrl || null;
   } catch (error) {
     console.error('Error getting avatar URL:', error);

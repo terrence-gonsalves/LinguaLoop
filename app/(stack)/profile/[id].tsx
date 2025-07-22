@@ -18,6 +18,7 @@ import { useLanguageSummary } from '@/hooks/useLanguageSummary';
 
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { getAvatarUrl } from '@/lib/supabase/storage';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 import { Colors } from '@/providers/theme-provider';
@@ -69,6 +70,20 @@ export default function UserProfileScreen() {
         .single();
 
       if (error) throw error;
+
+      // generate fresh signed URL for avatar if it exists
+      if (profile.avatar_url) {
+        try {
+          const freshAvatarUrl = await getAvatarUrl(id);
+          if (freshAvatarUrl) {
+            profile.avatar_url = freshAvatarUrl;
+          }
+        } catch (error) {
+          console.error('Error getting fresh avatar URL for user:', id, error);
+          
+          // keep the original URL if fresh URL generation fails
+        }
+      }
 
       setUserProfile(profile);
 
