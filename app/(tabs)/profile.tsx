@@ -186,7 +186,7 @@ export default function ProfileScreen() {
           )}
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{profile?.name || 'User'}</Text>
-            <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>
+            {profile?.user_name && <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>}
             <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
             <Text style={styles.bio}>
               {profile?.about_me || ''}

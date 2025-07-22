@@ -1,26 +1,21 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Stack } from 'expo-router/stack';
+
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ConnectionCard from '@/components/ConnectionCard';
+
 import { useActiveConnections } from '@/hooks/useActiveConnections';
+
 import { useAuth } from '@/lib/auth-context';
+
 import { Colors } from '@/providers/theme-provider';
 
 export default function ConnectionsScreen() {
   const { profile } = useAuth();
-  const { connections, isLoading, error } = useActiveConnections(profile?.id || '');
+  const { connections, isLoading, error } = useActiveConnections(profile?.id || '', null);
 
   const renderContent = () => {
-    if (isLoading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.light.rust} />
-        </View>
-      );
-    }
-
     if (error) {
       return <Text style={styles.errorText}>Error loading connections: {error}</Text>;
     }
@@ -43,20 +38,26 @@ export default function ConnectionsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Active Connections</Text>
-        <View style={styles.placeholder} />
-      </View>
-      <ScrollView 
-        style={styles.scrollView} 
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {renderContent()}
-      </ScrollView>
+      <Stack.Screen 
+        options={{ 
+          title: 'Active Connections',
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: Colors.light.background },
+        }} 
+      />
+      {(isLoading) ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.light.rust} />
+        </View>
+      ) : (
+        <ScrollView 
+          style={styles.scrollView} 
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          {renderContent()}
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
