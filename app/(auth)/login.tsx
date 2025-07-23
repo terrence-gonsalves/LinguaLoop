@@ -2,13 +2,16 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import Link from 'expo-router/link';
+
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/common/Button';
 import { FormInput } from '@/components/forms/FormInput';
+
 import { useAuth } from '@/lib/auth-context';
+
 import { Colors } from '@/providers/theme-provider';
 
 export default function LoginScreen() {

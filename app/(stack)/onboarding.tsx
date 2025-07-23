@@ -1,12 +1,14 @@
-
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { FormInput } from '@/components/forms/FormInput';
 import { Language, LanguageDropdown } from '@/components/forms/LanguageDropdown';
+
 import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
@@ -52,14 +54,17 @@ export default function OnboardingScreen() {
       setUsernameError('Username must be at least 3 characters');
       return false;
     }
+
     if (value.length > 20) {
       setUsernameError('Username must be less than 20 characters');
       return false;
     }
+
     if (!/^[a-zA-Z0-9._]+$/.test(value)) {
       setUsernameError('Username can only contain letters, numbers, periods, and underscores');
       return false;
     }
+
     setUsernameError('');
     return true;
   }
@@ -69,6 +74,7 @@ export default function OnboardingScreen() {
       setAboutMeError('About me must be less than 250 characters');
       return false;
     }
+
     setAboutMeError('');
     return true;
   }
@@ -170,7 +176,13 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.keyboardContainer}
+        bottomOffset={20}
+        style={styles.keyboardAvoidingView}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>Welcome to LinguaLoop!</Text>
         <Text style={styles.subtitle}>Let's set up your learning preferences</Text>
 
@@ -256,7 +268,7 @@ export default function OnboardingScreen() {
             {isLoading ? 'Saving...' : 'Start Learning'}
           </Text>
         </Pressable>
-      </ScrollView>
+        </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -265,6 +277,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.generalBG,
+  },
+  keyboardContainer: {
+    padding: 16,
+    gap: 16,
+  },
+  keyboardAvoidingView: {
+    flex: 1, 
   },
   scrollView: {
     flex: 1,
@@ -284,7 +303,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   form: {
-    marginBottom: 24,
+    marginBottom: 0,
   },
   targetLanguagesContainer: {
     marginBottom: 16,

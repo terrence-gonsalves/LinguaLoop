@@ -1,8 +1,10 @@
 import { router } from 'expo-router';
 import { Tabs } from 'expo-router/tabs';
+
 import { useEffect } from 'react';
 
 import TabBarIcon from '@/components/navigation/TabBarIcons';
+
 import { useAuth } from '@/lib/auth-context';
 
 // default colors as fallback

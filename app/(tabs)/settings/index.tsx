@@ -1,11 +1,14 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
+
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
+
 import { useAuth } from '@/lib/auth-context';
+
 import { Colors as defaultColors } from '@/providers/theme-provider';
 
 export default function SettingsScreen() {
@@ -101,7 +104,7 @@ export default function SettingsScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* Profile Section */}
+        {/* profile section */}
         <View style={styles.profileSection}>
           {profile?.avatar_url ? (
             <ExpoImage
@@ -118,11 +121,11 @@ export default function SettingsScreen() {
           )}
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{profile?.name || 'User'}</Text>
-            <Text style={styles.username}>@{profile?.user_name || ''}</Text>
+            {profile?.user_name && <Text style={styles.username}>@{profile?.user_name}</Text>}
           </View>
         </View>
 
-        {/* Settings Sections */}
+        {/* settings sections */}
         {settingsItems.map((section, index) => (
           <View key={section.title} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
@@ -145,7 +148,7 @@ export default function SettingsScreen() {
           </View>
         ))}
 
-        {/* Sign Out Button */}
+        {/* sign out button */}
         <Pressable onPress={handleSignOut} style={styles.signOutButton}>
           <MaterialIcons name="logout" size={24} color={defaultColors.light.buttonPrimary} />
           <Text style={styles.signOutText}>Sign Out</Text>

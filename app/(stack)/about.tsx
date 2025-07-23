@@ -1,10 +1,13 @@
-import { SettingsSection } from '@/components/settings/SettingsSection';
-import Colors from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { Link } from 'expo-router/build/link/Link';
+
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { SettingsSection } from '@/components/settings/SettingsSection';
+
+import Colors from '@/constants/Colors';
 
 const tools = [
   {
