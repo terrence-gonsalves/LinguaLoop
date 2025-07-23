@@ -1,17 +1,21 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
+
 import React from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
+
 import Colors from '@/constants/Colors';
+
 import { useActivities } from '@/hooks/useActivities';
 import { useDailyQuote } from '@/hooks/useDailyQuote';
 import { useStudyStats } from '@/hooks/useStudyStats';
 import { useWeeklyStreak } from '@/hooks/useWeeklyStreak';
+
 import { useAuth } from '@/lib/auth-context';
 
 // map activity names to their respective icons
