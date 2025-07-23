@@ -145,7 +145,11 @@ export default function ProfileScreen() {
     return achievements.map((achievement: any) => {
       const dateToShow = achievement.obtained_date || achievement.created_at;
       const localizedDate = dateToShow
-        ? new Date(dateToShow).toLocaleDateString(undefined, { timeZone: userTimeZone, year: 'numeric', month: 'long', day: 'numeric' })
+        ? new Date(dateToShow).toLocaleDateString(undefined, { 
+          timeZone: userTimeZone, 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' })
         : '';
       return (
         <AchievementItem
