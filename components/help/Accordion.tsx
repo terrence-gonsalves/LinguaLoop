@@ -1,13 +1,15 @@
-import Colors from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
+
 import React, { useState } from 'react';
 import {
-    LayoutAnimation,
-    Pressable,
-    StyleSheet,
-    Text,
-    View
+  LayoutAnimation,
+  Pressable,
+  StyleSheet,
+  Text,
+  View
 } from 'react-native';
+
+import Colors from '@/constants/Colors';
 
 interface AccordionProps {
   title: string;
