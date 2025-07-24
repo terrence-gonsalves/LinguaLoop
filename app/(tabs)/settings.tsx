@@ -1,9 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
+import { Stack } from 'expo-router/stack';
 
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 
@@ -101,7 +101,16 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+        <Stack.Screen 
+        name="index" 
+            options={{
+            headerShown: true,
+            headerTitle: 'Settings',
+            headerStyle: { backgroundColor: defaultColors.light.background },
+            headerShadowVisible: true,
+            }}
+        />
       <ScrollView showsVerticalScrollIndicator={false}>
 
         {/* profile section */}
@@ -154,7 +163,7 @@ export default function SettingsScreen() {
           <Text style={styles.signOutText}>Sign Out</Text>
         </Pressable>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

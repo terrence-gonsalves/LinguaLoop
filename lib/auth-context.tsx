@@ -81,7 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) {
-        console.error('Error in loadProfile query:', error);
         throw error;
       }
       
@@ -92,8 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           profile.avatar_url = avatarUrl;
         }
       }
-
-      console.log('Profile loaded with avatar:', profile);
+      
       setProfile(profile);
 
       // only handle navigation if skipNavigation is false
@@ -107,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      // we can safley ignore this error as the user has not logged in yet
     }
   }
 
