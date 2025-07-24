@@ -103,13 +103,12 @@ export default function SettingsScreen() {
   return (
     <View style={styles.container}>
         <Stack.Screen 
-        name="index" 
-            options={{
+          options={{
             headerShown: true,
             headerTitle: 'Settings',
             headerStyle: { backgroundColor: defaultColors.light.background },
             headerShadowVisible: true,
-            }}
+          }}
         />
       <ScrollView showsVerticalScrollIndicator={false}>
 
