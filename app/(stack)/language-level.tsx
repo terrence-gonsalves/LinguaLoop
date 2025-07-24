@@ -1,10 +1,13 @@
 import { Stack } from 'expo-router/stack';
+
 import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { LanguageFlag } from '@/components/LanguageFlag';
 import { SetLevelModal } from '@/components/language-level/SetLevelModal';
+
 import Colors from '@/constants/Colors';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 
@@ -48,6 +51,7 @@ export default function LanguageLevelScreen() {
 
   const fetchLanguages = async () => {
     if (!profile?.id) return;
+
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -55,7 +59,9 @@ export default function LanguageLevelScreen() {
         .select('id, proficiency_level, master_languages(id, name, flag)')
         .eq('user_id', profile.id)
         .order('created_at', { ascending: true });
+
       if (error) throw error;
+
       const formatted = data.map((lang: any) => ({
         id: lang.id,
         name: lang.master_languages.name,
@@ -87,8 +93,8 @@ export default function LanguageLevelScreen() {
   return (
     <>
       <Stack.Screen options={{
-          title: 'Set Levels',
-          headerShadowVisible: false,
+          title: 'Set Language Levels',
+          headerShadowVisible: true,
         }}   />
       <View style={styles.container}>
         <ScrollView style={styles.content}>
