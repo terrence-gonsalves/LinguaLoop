@@ -1,11 +1,11 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Stack } from 'expo-router/stack';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LanguageDropdown } from '@/components/forms/LanguageDropdown';
 
@@ -56,7 +56,6 @@ export default function TrackActivityScreen() {
   const [notes, setNotes] = useState<string>('');
   const [date, setDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const scrollViewRef = useRef<ScrollView>(null);
   const hasInitializedRef = useRef(false);
   const navigation = useNavigation();
 
@@ -93,9 +92,6 @@ export default function TrackActivityScreen() {
     setSelectedActivity('');
     setDuration(0);
     setNotes('');
-
-    // scroll to top
-    //scrollViewRef.current?.scrollTo({ y: 0, animated: true });
   }
 
   // format date as 'month day, year' and localize
@@ -172,7 +168,15 @@ export default function TrackActivityScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: 'Track Activity',
+          headerStyle: { backgroundColor: Colors.light.background },
+          headerShadowVisible: true,
+        }}
+      />
       <KeyboardAwareScrollView 
         contentContainerStyle={styles.keyboardContainer}
         style={styles.keyboardAvoidingView}
@@ -180,9 +184,6 @@ export default function TrackActivityScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.content}>
-
-          {/* header */}
-          <Text style={styles.headerTitle}>Track Activity</Text>
 
           {/* date section */}
           <View style={styles.section}>
@@ -335,7 +336,7 @@ export default function TrackActivityScreen() {
           </Pressable>
         </View>
       </KeyboardAwareScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

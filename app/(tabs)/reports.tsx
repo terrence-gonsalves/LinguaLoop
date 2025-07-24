@@ -1,9 +1,7 @@
-
 import { Stack } from 'expo-router/stack';
 
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LanguageDropdown } from '@/components/forms/LanguageDropdown';
 import { ComparisonCard } from '@/components/reports/ComparisonCard';
@@ -17,8 +15,6 @@ import { TimePerActivityCard } from '@/components/reports/TimePerActivityCard';
 
 import Colors from '@/constants/Colors';
 
-import { useUserLanguages } from '@/hooks/useUserLanguages';
-
 import { useAuth } from '@/lib/auth-context';
 
 // hooks
@@ -27,6 +23,7 @@ import { useMilestoneTracker } from '@/hooks/useMilestoneTracker';
 import { useReportSummary } from '@/hooks/useReportSummary';
 import { useTimeDistribution } from '@/hooks/useTimeDistribution';
 import { useTimePerActivity } from '@/hooks/useTimePerActivity';
+import { useUserLanguages } from '@/hooks/useUserLanguages';
 import { useWeeklyProgress } from '@/hooks/useWeeklyProgress';
 
 export default function ReportsScreen() {
@@ -60,13 +57,13 @@ export default function ReportsScreen() {
   }));
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Reports',
           headerStyle: { backgroundColor: Colors.light.background },
-          headerShadowVisible: false,
+          headerShadowVisible: true,
           headerRight: () => (
             <View style={styles.headerRight}>
               <LanguageDropdown
@@ -110,7 +107,7 @@ export default function ReportsScreen() {
 
         <KeyInsightsCard />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -118,12 +115,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.background,
+    paddingBottom: 20,
   },
   headerRight: {
     marginRight: 16,
   },
   content: {
     paddingHorizontal: 16,
+    paddingTop: 20,
   },
   statRow: {
     flexDirection: 'row',

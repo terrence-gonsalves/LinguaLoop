@@ -39,11 +39,7 @@ export default function StackLayout() {
         <Stack.Screen name="goals" options={{ title: 'Goals' }} />
         <Stack.Screen name="terms" options={{ title: 'Terms & Conditions' }} />
         <Stack.Screen name="privacy" options={{ title: 'Privacy Policy' }} />
-        <Stack.Screen
-          name="onboarding"
-          options={{
-            headerShown: false,
-          }}
+        <Stack.Screen name="onboarding" options={{ headerShown: false }}
         />
       </Stack>
     </GestureHandlerRootView>

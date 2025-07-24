@@ -1,10 +1,10 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
+import { Stack } from 'expo-router/stack';
 
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 import { AchievementItem } from '@/components/profile/AchievementItem';
@@ -166,18 +166,24 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: 'Profile',
+          headerStyle: { backgroundColor: Colors.light.background,  },
+          headerShadowVisible: true,
+          headerRight: () => (
+            <Pressable 
+              style={styles.notificationButton}
+              onPress={() => router.push('/(stack)/notifications')}
+            >
+              <MaterialIcons name="notifications" size={24} color={Colors.light.textPrimary} />
+            </Pressable>
+          ),
+        }}
+      />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <Pressable 
-            style={styles.notificationButton}
-            onPress={() => router.push('/(stack)/notifications')}
-          >
-            <MaterialIcons name="notifications" size={24} color={Colors.light.textPrimary} />
-          </Pressable>
-        </View>
-
         <View style={styles.profileSection}>
           {profile?.avatar_url ? (
             <ExpoImage
@@ -257,7 +263,7 @@ export default function ProfileScreen() {
       </ScrollView>
       <AddConnectionModal visible={showAddConnection} onClose={() => { setShowAddConnection(false); refreshConnections(); }} />
       <AddAchievementModal visible={showAddAchievement} onClose={() => { setShowAddAchievement(false); refreshAchievements(); }} onAdded={() => { setShowAddAchievement(false); refreshAchievements(); }} saveLabel="Save" />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -287,7 +293,6 @@ const styles = StyleSheet.create({
   profileSection: {
     alignItems: 'center',
     paddingVertical: 24,
-    paddingHorizontal: 16,
     backgroundColor: Colors.light.background,
     marginBottom: 16,
   },
