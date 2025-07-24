@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AuthProvider from '@/providers/auth-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
@@ -16,6 +17,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 
 export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     async function prepare() {
@@ -56,7 +58,19 @@ export default function RootLayout() {
       <AuthProvider>    
         <KeyboardProvider>    
           <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-            <StatusBar style="dark" backgroundColor="#F0F3F4" />
+            
+            {/* status bar background for edge-to-edge */}
+            <View 
+              style={{ 
+                position: 'absolute', 
+                top: 0, 
+                left: 0, 
+                right: 0, 
+                height: insets.top, 
+                backgroundColor: '#F0F3F4' 
+              }} 
+            />
+            <StatusBar style="dark" />
             <Stack
               screenOptions={{
                 headerShown: false,

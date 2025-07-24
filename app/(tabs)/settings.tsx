@@ -71,6 +71,11 @@ export default function SettingsScreen() {
           icon: 'list',
           href: '/(stack)/goals',
         },
+        {
+          label: 'Tracked Activities',
+          icon: 'list',
+          href: '/(stack)/activities',
+        },
         // {
         //   label: 'Privacy',
         //   icon: 'lock',

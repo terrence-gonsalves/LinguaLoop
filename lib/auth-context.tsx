@@ -72,7 +72,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function loadProfile(userId: string, skipNavigation: boolean = false) {
-    console.log('Loading profile for user:', userId);
     try {
       const { data: profile, error } = await supabase
         .from('profiles')

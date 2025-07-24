@@ -1,4 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
+
 import React, { useEffect, useState } from 'react';
 import {
   Modal,
@@ -98,7 +99,8 @@ export function SetLevelModal({
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={handleClose} />
         <View style={styles.modalContainer}>
-          {/* Handle bar */}
+
+          {/* handle bar */}
           <View style={styles.handleBar} />
           
           {/* header */}
