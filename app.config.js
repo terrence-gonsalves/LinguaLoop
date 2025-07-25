@@ -4,7 +4,7 @@ export default {
   expo: {
     name: "LinguaLoop",
     slug: "LinguaLoop",
-    version: "0.6.7",
+    version: "0.6.8",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "lingualoop",
@@ -13,7 +13,7 @@ export default {
     splash: {
       image: "./assets/images/icon.png",
       backgroundColor: "#F0F3F4",
-      imageWidth: 500,
+      imageWidth: 1000,
     },
     assetBundlePatterns: [
       "**/*"
@@ -43,7 +43,7 @@ export default {
         foregroundImage: "./assets/images/adaptive-icon.png",
         monochromeImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#F0F3F4",
-        imageWidth: 500,
+        imageWidth: 1000,
       },
       versionCode: 1,
       edgeToEdgeEnabled: true,
@@ -65,7 +65,7 @@ export default {
         "expo-splash-screen",
         {
           image: "./assets/images/icon.png",
-          imageWidth: 500,
+          imageWidth: 1000,
           backgroundColor: "#F0F3F4"
         }
       ],
