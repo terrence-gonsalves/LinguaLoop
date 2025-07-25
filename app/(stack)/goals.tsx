@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 
 function formatDate(dateString: string) {
   if (!dateString) return '';
+
   const date = new Date(dateString);
   return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 }
@@ -39,6 +40,7 @@ export default function GoalsListScreen() {
 
   async function fetchGoals() {
     if (!profile?.id) return;
+
     setLoading(true);
 
     // fetch goals and join language name
@@ -47,7 +49,9 @@ export default function GoalsListScreen() {
       .select('*, languages(name)')
       .eq('user_id', profile.id)
       .order('created_at', { ascending: false });
+
     if (!error) setGoals(data || []);
+
     setLoading(false);
   }
 
