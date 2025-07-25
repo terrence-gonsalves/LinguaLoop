@@ -34,10 +34,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session?.user?.id);
       if (session) {
         await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(session));
         setSession(session);
+
         if (event === 'SIGNED_IN' && !profile) {
 
           // add a small delay to ensure the profile has been created
@@ -111,6 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // add reloadProfile function with skipNavigation
   async function reloadProfile() {
     if (!session?.user?.id) return;
+
     await loadProfile(session.user.id, true); // pass true to skip navigation
   }
 
@@ -175,7 +176,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // navigate to onboarding immediately without waiting for auth state change
       router.replace('/(stack)/onboarding');
     } catch (error) {
-      console.error('Error signing up:', error);
       showErrorToast(`Error creating account: ${(error as Error).message}`);
     } finally {
       setIsLoading(false);
@@ -186,6 +186,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       const { error } = await supabase.auth.signOut();
+
       if (error) throw error;
     } catch (error) {
       console.error('Error signing out:', error);
@@ -214,6 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
+  
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
