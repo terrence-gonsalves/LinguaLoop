@@ -37,6 +37,7 @@ export default function StackLayout() {
         <Stack.Screen name="help" options={{ title: 'Help Center' }} />
         <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
         <Stack.Screen name="goals" options={{ title: 'Goals' }} />
+        <Stack.Screen name="activities" options={{ title: 'Tracked Activities' }} />
         <Stack.Screen name="terms" options={{ title: 'Terms & Conditions' }} />
         <Stack.Screen name="privacy" options={{ title: 'Privacy Policy' }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false }}
