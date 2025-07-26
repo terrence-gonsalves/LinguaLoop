@@ -5,6 +5,7 @@ import Link from 'expo-router/link';
 
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/common/Button';
@@ -59,74 +60,82 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.logoContainer}>
-          <ExpoImage
-            source={require('../../assets/images/linguaLoopLogo.png')}
-            style={styles.logo}
-            contentFit="cover"
-          />
-        </View>
-
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to continue tracking your progress</Text>
-
-        <View style={styles.form}>
-          <FormInput
-            label=""
-            value={email}
-            onChangeText={setEmail}
-            placeholder="name@example.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            error={errors.email}
-          />
-
-          <FormInput
-            label=""
-            value={password}
-            onChangeText={setPassword}
-            placeholder="password"
-            secureTextEntry
-            error={errors.password}
-          />
-
-          <Button
-            title="Sign In"
-            onPress={handleLogin}
-            loading={loading}
-          />
-
-          <Link href="/(auth)/forgot-password" style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </Link>
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>Continue with</Text>
-            <View style={styles.dividerLine} />
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.keyboardContainer}
+        bottomOffset={10}
+        style={styles.keyboardAvoidingView}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.content}>
+          <View style={styles.logoContainer}>
+            <ExpoImage
+              source={require('../../assets/images/linguaLoopLogo.png')}
+              style={styles.logo}
+              contentFit="cover"
+            />
           </View>
 
-          <View style={styles.socialButtons}>
-            <Pressable style={styles.socialButtonWide}>
-              <FontAwesome name="google" size={24} color={Colors.light.textPrimary} />
-              <Text style={styles.socialButtonText}>Google</Text>
-            </Pressable>
-            <Pressable style={styles.socialButtonWide}>
-              <FontAwesome name="facebook" size={24} color={Colors.light.textPrimary} />
-              <Text style={styles.socialButtonText}>Facebook</Text>
-            </Pressable>
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>Sign in to continue tracking your progress</Text>
+
+          <View style={styles.form}>
+            <FormInput
+              label=""
+              value={email}
+              onChangeText={setEmail}
+              placeholder="name@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              error={errors.email}
+            />
+
+            <FormInput
+              label=""
+              value={password}
+              onChangeText={setPassword}
+              placeholder="password"
+              secureTextEntry
+              error={errors.password}
+            />
+
+            <Button
+              title="Sign In"
+              onPress={handleLogin}
+              loading={loading}
+            />
+
+            <Link href="/(auth)/forgot-password" style={styles.forgotPassword}>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </Link>
+
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>Continue with</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <View style={styles.socialButtons}>
+              <Pressable style={styles.socialButtonWide}>
+                <FontAwesome name="google" size={24} color={Colors.light.textPrimary} />
+                <Text style={styles.socialButtonText}>Google</Text>
+              </Pressable>
+              <Pressable style={styles.socialButtonWide}>
+                <FontAwesome name="facebook" size={24} color={Colors.light.textPrimary} />
+                <Text style={styles.socialButtonText}>Facebook</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Don't have an account?</Text>
+            <Link href="/(auth)/create-account">
+              <Text style={styles.footerLink}>Create Account</Text>
+            </Link>
           </View>
         </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account?</Text>
-          <Link href="/(auth)/create-account">
-            <Text style={styles.footerLink}>Create Account</Text>
-          </Link>
-        </View>
-      </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -135,6 +144,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.generalBG,
+  },
+  keyboardContainer: {
+    padding: 16,
+    gap: 16,
+  },
+  keyboardAvoidingView: {
+    flex: 1, 
   },
   content: {
     flex: 1,

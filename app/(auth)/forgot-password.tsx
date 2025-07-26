@@ -2,6 +2,7 @@ import Link from 'expo-router/link';
 
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Colors from '@/constants/Colors';
@@ -11,37 +12,45 @@ export default function ForgotPasswordScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Forgot Password?</Text>
-        <Text style={styles.subtitle}>
-          Enter your email address and we'll send you instructions to reset your password.
-        </Text>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.keyboardContainer}
+        bottomOffset={10}
+        style={styles.keyboardAvoidingView}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.content}>
+          <Text style={styles.title}>Forgot Password?</Text>
+          <Text style={styles.subtitle}>
+            Enter your email address and we'll send you instructions to reset your password.
+          </Text>
 
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="name@example.com"
-              placeholderTextColor={Colors.light.textSecondary}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
-          </View>
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="name@example.com"
+                placeholderTextColor={Colors.light.textSecondary}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+            </View>
 
-          <Pressable style={styles.resetButton}>
-            <Text style={styles.resetButtonText}>Send Reset Instructions</Text>
-          </Pressable>
+            <Pressable style={styles.resetButton}>
+              <Text style={styles.resetButtonText}>Send Reset Instructions</Text>
+            </Pressable>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Remember your password? </Text>
-            <Link href="/(auth)/login" style={styles.loginLink}>
-              Log in
-            </Link>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Remember your password? </Text>
+              <Link href="/(auth)/login" style={styles.loginLink}>
+                Log in
+              </Link>
+            </View>
           </View>
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -50,6 +59,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.generalBG,
+  },
+  keyboardContainer: {
+    padding: 16,
+    gap: 16,
+  },
+  keyboardAvoidingView: {
+    flex: 1, 
   },
   content: {
     flex: 1,
