@@ -78,7 +78,10 @@ export default function ReportsScreen() {
           ),
         }}
       />
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}>
         <View style={styles.statRow}>
           <StatCard 
             title="Total Time" 
@@ -115,7 +118,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.background,
-    paddingBottom: 20,
   },
   headerRight: {
     marginRight: 16,
