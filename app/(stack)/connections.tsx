@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router/stack';
 
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ConnectionCard from '@/components/ConnectionCard';
@@ -15,26 +15,22 @@ export default function ConnectionsScreen() {
   const { profile } = useAuth();
   const { connections, isLoading, error } = useActiveConnections(profile?.id || '', null);
 
-  const renderContent = () => {
+  const renderConnectionItem = ({ item: connection }: { item: any }) => (
+    <ConnectionCard
+      userId={connection.id}
+      name={connection.name || ''}
+      username={connection.user_name || ''}
+      nativeLanguage={connection.native_language || 'Unknown'}
+      avatarUrl={connection.avatar_url || undefined}
+      aboutMe={connection.about_me || ''}
+    />
+  );
+
+  const renderEmptyComponent = () => {
     if (error) {
       return <Text style={styles.errorText}>Error loading connections: {error}</Text>;
     }
-
-    if (connections.length === 0) {
-      return <Text style={styles.noDataText}>No active connections yet</Text>;
-    }
-
-    return connections.map((connection) => (
-      <ConnectionCard
-        key={connection.id}
-        userId={connection.id}
-        name={connection.name || ''}
-        username={connection.user_name || ''}
-        nativeLanguage={connection.native_language || 'Unknown'}
-        avatarUrl={connection.avatar_url || undefined}
-        aboutMe={connection.about_me || ''}
-      />
-    ));
+    return <Text style={styles.noDataText}>No active connections yet</Text>;
   };
 
   return (
@@ -51,13 +47,19 @@ export default function ConnectionsScreen() {
           <ActivityIndicator size="large" color={Colors.light.rust} />
         </View>
       ) : (
-        <ScrollView 
-          style={styles.scrollView} 
+        <FlatList
+          data={connections}
+          renderItem={renderConnectionItem}
+          keyExtractor={(item) => item.id}
+          ListEmptyComponent={renderEmptyComponent}
+          style={styles.scrollView}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
-        >
-          {renderContent()}
-        </ScrollView>
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+          removeClippedSubviews={true}
+        />
       )}
     </SafeAreaView>
   );

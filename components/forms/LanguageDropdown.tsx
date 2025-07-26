@@ -1,11 +1,12 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+
 import React, { useCallback, useState } from 'react';
 import {
   Animated,
   Dimensions,
+  FlatList,
   Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -14,12 +15,17 @@ import {
 } from 'react-native';
 
 import { LanguageFlag } from '@/components/LanguageFlag';
+
 import Colors from '@/constants/Colors';
 
 export interface Language {
   id: string;
   name: string;
   flag?: string | null;
+}
+
+interface ListItem extends Language {
+  isAllLanguages?: boolean;
 }
 
 interface LanguageDropdownProps {
@@ -61,6 +67,18 @@ export function LanguageDropdown({
   const searchFilteredData = filteredData.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // prepare data for FlatList (including "All Languages" option if needed)
+  const listData = React.useMemo(() => {
+    const data: ListItem[] = [];
+    
+    if (showAllLanguagesOption) {
+      data.push({ id: 'all-languages', name: 'All Languages', isAllLanguages: true });
+    }
+    
+    data.push(...searchFilteredData);
+    return data;
+  }, [searchFilteredData, showAllLanguagesOption]);
 
   const handleOpenModal = useCallback(() => {
     setIsModalVisible(true);
@@ -222,75 +240,88 @@ export function LanguageDropdown({
               </View>
 
               {/* language list */}
-              <ScrollView
-                style={styles.languageList}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-              >
-                {showAllLanguagesOption && (
-                  <Pressable
-                    style={[
-                      styles.languageItem,
-                      value === null && styles.languageItemSelected,
-                    ]}
-                    onPress={() => handleSelectLanguage(null)}
-                  >
-                    <View style={styles.languageInfo}>
-                      <View style={styles.allLanguagesFlag}>
-                        <MaterialCommunityIcons
-                          name="earth"
+              <FlatList
+                data={listData}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => {
+                  if (item.isAllLanguages) {
+                    return (
+                      <Pressable
+                        style={[
+                          styles.languageItem,
+                          value === null && styles.languageItemSelected,
+                        ]}
+                        onPress={() => handleSelectLanguage(null)}
+                      >
+                        <View style={styles.languageInfo}>
+                          <View style={styles.allLanguagesFlag}>
+                            <MaterialCommunityIcons
+                              name="earth"
+                              size={20}
+                              color={Colors.light.rust}
+                            />
+                          </View>
+                          <Text style={[
+                            styles.languageName,
+                            value === null && styles.languageNameSelected,
+                          ]}>
+                            All Languages
+                          </Text>
+                        </View>
+                        {value === null && (
+                          <MaterialIcons
+                            name="check"
+                            size={20}
+                            color={Colors.light.rust}
+                          />
+                        )}
+                      </Pressable>
+                    );
+                  }
+
+                  return (
+                    <Pressable
+                      style={[
+                        styles.languageItem,
+                        value === item.id && styles.languageItemSelected,
+                      ]}
+                      onPress={() => handleSelectLanguage(item.id)}
+                    >
+                      <View style={styles.languageInfo}>
+                        <LanguageFlag
+                          name={item.name}
+                          flagUrl={item.flag || null}
+                        />
+                        <Text style={[
+                          styles.languageName,
+                          value === item.id && styles.languageNameSelected,
+                        ]}>
+                          {item.name}
+                        </Text>
+                      </View>
+                      {value === item.id && (
+                        <MaterialIcons
+                          name="check"
                           size={20}
                           color={Colors.light.rust}
                         />
-                      </View>
-                      <Text style={[
-                        styles.languageName,
-                        value === null && styles.languageNameSelected,
-                      ]}>
-                        All Languages
-                      </Text>
-                    </View>
-                    {value === null && (
-                      <MaterialIcons
-                        name="check"
-                        size={20}
-                        color={Colors.light.rust}
-                      />
-                    )}
-                  </Pressable>
-                )}
-
-                {searchFilteredData.map((language) => (
-                  <Pressable
-                    key={language.id}
-                    style={[
-                      styles.languageItem,
-                      value === language.id && styles.languageItemSelected,
-                    ]}
-                    onPress={() => handleSelectLanguage(language.id)}
-                  >
-                    <View style={styles.languageInfo}>
-                      <LanguageFlag
-                        name={language.name}
-                        flagUrl={language.flag || null}
-                      />
-                      <Text style={[
-                        styles.languageName,
-                        value === language.id && styles.languageNameSelected,
-                      ]}>
-                        {language.name}
-                      </Text>
-                    </View>
-                    {value === language.id && (
-                      <MaterialIcons
-                        name="check"
-                        size={20}
-                        color={Colors.light.rust}
-                      />
-                    )}
-                  </Pressable>
-                ))}
-              </ScrollView>
+                      )}
+                    </Pressable>
+                  );
+                }}
+                style={styles.languageList}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                initialNumToRender={15}
+                maxToRenderPerBatch={10}
+                windowSize={10}
+                removeClippedSubviews={true}
+                getItemLayout={(data, index) => ({
+                  length: 65, // height of each language item
+                  offset: 65 * index,
+                  index,
+                })}
+              />
             </Pressable>
           </Animated.View>
         </Pressable>
