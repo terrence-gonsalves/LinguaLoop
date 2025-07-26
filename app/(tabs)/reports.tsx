@@ -17,7 +17,6 @@ import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
 
-// hooks
 import { useInputOutputAnalysis } from '@/hooks/useInputOutputAnalysis';
 import { useMilestoneTracker } from '@/hooks/useMilestoneTracker';
 import { useReportSummary } from '@/hooks/useReportSummary';
@@ -81,7 +80,8 @@ export default function ReportsScreen() {
       <ScrollView 
         style={styles.content} 
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}>
+        contentContainerStyle={{ paddingBottom: 30 }}
+      >
         <View style={styles.statRow}>
           <StatCard 
             title="Total Time" 

@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import Colors from '@/constants/Colors';
 
@@ -133,45 +133,56 @@ export default function ActivitiesListScreen() {
     );
   }
 
+  const renderActivityItem = ({ item: entry }: { item: any }) => (
+    <View style={styles.activityCard}>
+      <View style={styles.activityHeader}>
+        <Text style={styles.activityDate}>{formatDate(entry.activity_date)}</Text>
+        <Text style={styles.activityDuration}>
+          {formatDuration(entry.duration_seconds)}
+        </Text>
+      </View>
+      
+      <View style={styles.activityDetails}>
+        <Text style={styles.activityMeta}>
+          {entry.languages?.name ? `${entry.languages.name} • ` : ''}
+          {entry.activities?.name || 'Unknown Activity'}
+        </Text>
+      </View>
+      
+      {entry.notes && (
+        <Text style={styles.activityNotes}>{entry.notes}</Text>
+      )}
+      
+      <View style={styles.actionsRow}>
+        <Pressable style={styles.editButton} onPress={() => handleEdit(entry.id)}>
+          <Text style={styles.editButtonText}>Edit</Text>
+        </Pressable>
+        <Pressable 
+          style={styles.deleteButton} 
+          onPress={() => handleDelete(entry.id)} 
+          disabled={deletingId === entry.id}
+        >
+          <Text style={styles.deleteButtonText}>
+            {deletingId === entry.id ? 'Deleting...' : 'Delete'}
+          </Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+
   return (
-    <ScrollView style={styles.container}>
-      {timeEntries.map(entry => (
-        <View key={entry.id} style={styles.activityCard}>
-          <View style={styles.activityHeader}>
-            <Text style={styles.activityDate}>{formatDate(entry.activity_date)}</Text>
-            <Text style={styles.activityDuration}>
-              {formatDuration(entry.duration_seconds)}
-            </Text>
-          </View>
-          
-          <View style={styles.activityDetails}>
-            <Text style={styles.activityMeta}>
-              {entry.languages?.name ? `${entry.languages.name} • ` : ''}
-              {entry.activities?.name || 'Unknown Activity'}
-            </Text>
-          </View>
-          
-          {entry.notes && (
-            <Text style={styles.activityNotes}>{entry.notes}</Text>
-          )}
-          
-          <View style={styles.actionsRow}>
-            <Pressable style={styles.editButton} onPress={() => handleEdit(entry.id)}>
-              <Text style={styles.editButtonText}>Edit</Text>
-            </Pressable>
-            <Pressable 
-              style={styles.deleteButton} 
-              onPress={() => handleDelete(entry.id)} 
-              disabled={deletingId === entry.id}
-            >
-              <Text style={styles.deleteButtonText}>
-                {deletingId === entry.id ? 'Deleting...' : 'Delete'}
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      ))}
-    </ScrollView>
+    <FlatList
+      data={timeEntries}
+      renderItem={renderActivityItem}
+      keyExtractor={(item) => item.id}
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 30 }}
+      showsVerticalScrollIndicator={false}
+      initialNumToRender={10}
+      maxToRenderPerBatch={10}
+      windowSize={10}
+      removeClippedSubviews={true}
+    />
   );
 }
 

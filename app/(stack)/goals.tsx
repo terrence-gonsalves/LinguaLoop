@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import Colors from '@/constants/Colors';
 
@@ -89,44 +89,56 @@ export default function GoalsListScreen() {
     );
   }
 
+  const renderGoalItem = ({ item: goal }: { item: any }) => {
+
+    // calculate minutes remaining if applicable
+    let minutesRemaining = null;
+    
+    if (goal.target_value_numeric && ['daily_time', 'weekly_time'].includes(goal.goal_type)) {
+
+      // fetch time_entries for this goal (not implemented here, could be added with a hook or effect)
+      // for now, just show the target value
+      minutesRemaining = `${goal.target_value_numeric} min remaining`;
+    } else if (goal.target_value_numeric) {
+      minutesRemaining = `${goal.target_value_numeric}`;
+    }
+    
+    return (
+      <View style={styles.goalCard}>
+        <View style={styles.goalHeader}>
+          <Text style={styles.goalTitle}>{goal.title}</Text>
+          <Text style={styles.goalStatus}>{goal.status.charAt(0).toUpperCase() + goal.status.slice(1)}</Text>
+        </View>
+        <Text style={styles.goalMeta}>
+          {goal.languages?.name ? `${goal.languages.name} • ` : ''}
+          {getGoalTypeLabel(goal.goal_type)} • {formatDate(goal.end_date)}
+        </Text>
+        {minutesRemaining && <Text style={styles.goalMeta}>{minutesRemaining}</Text>}
+        <View style={styles.actionsRow}>
+          <Pressable style={styles.editButton} onPress={() => handleEdit(goal.id)}>
+            <Text style={styles.editButtonText}>Edit</Text>
+          </Pressable>
+          <Pressable style={styles.deleteButton} onPress={() => handleDelete(goal.id)} disabled={deletingId === goal.id}>
+            <Text style={styles.deleteButtonText}>{deletingId === goal.id ? 'Deleting...' : 'Delete'}</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      {goals.map(goal => {
-
-        // calculate minutes remaining if applicable
-        let minutesRemaining = null;
-        if (goal.target_value_numeric && ['daily_time', 'weekly_time'].includes(goal.goal_type)) {
-
-          // fetch time_entries for this goal (not implemented here, could be added with a hook or effect)
-          // for now, just show the target value
-          minutesRemaining = `${goal.target_value_numeric} min remaining`;
-        } else if (goal.target_value_numeric) {
-          minutesRemaining = `${goal.target_value_numeric}`;
-        }
-        
-        return (
-          <View key={goal.id} style={styles.goalCard}>
-            <View style={styles.goalHeader}>
-              <Text style={styles.goalTitle}>{goal.title}</Text>
-              <Text style={styles.goalStatus}>{goal.status.charAt(0).toUpperCase() + goal.status.slice(1)}</Text>
-            </View>
-            <Text style={styles.goalMeta}>
-              {goal.languages?.name ? `${goal.languages.name} • ` : ''}
-              {getGoalTypeLabel(goal.goal_type)} • {formatDate(goal.end_date)}
-            </Text>
-            {minutesRemaining && <Text style={styles.goalMeta}>{minutesRemaining}</Text>}
-            <View style={styles.actionsRow}>
-              <Pressable style={styles.editButton} onPress={() => handleEdit(goal.id)}>
-                <Text style={styles.editButtonText}>Edit</Text>
-              </Pressable>
-              <Pressable style={styles.deleteButton} onPress={() => handleDelete(goal.id)} disabled={deletingId === goal.id}>
-                <Text style={styles.deleteButtonText}>{deletingId === goal.id ? 'Deleting...' : 'Delete'}</Text>
-              </Pressable>
-            </View>
-          </View>
-        );
-      })}
-    </ScrollView>
+    <FlatList
+      data={goals}
+      renderItem={renderGoalItem}
+      keyExtractor={(item) => item.id}
+      style={styles.container}
+      contentContainerStyle={{ paddingBottom: 30 }}
+      showsVerticalScrollIndicator={false}
+      initialNumToRender={10}
+      maxToRenderPerBatch={10}
+      windowSize={10}
+      removeClippedSubviews={true}
+    />
   );
 }
 
