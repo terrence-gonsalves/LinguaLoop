@@ -4,6 +4,7 @@ import Link from 'expo-router/link';
 
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/common/Button';
@@ -64,109 +65,117 @@ export default function CreateAccountScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.keyboardContainer}
+        bottomOffset={10}
+        style={styles.keyboardAvoidingView}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.content}>
 
-        {/* logo */}
-        <View style={styles.logoContainer}>
-          <ExpoImage
-            source={require('../../assets/images/linguaLoopLogo.png')}
-            style={styles.logo}
-            contentFit="cover"
-          />
-        </View>
+          {/* logo */}
+          <View style={styles.logoContainer}>
+            <ExpoImage
+              source={require('../../assets/images/linguaLoopLogo.png')}
+              style={styles.logo}
+              contentFit="cover"
+            />
+          </View>
 
-        <Text style={styles.title}>Create Your Account</Text>
+          <Text style={styles.title}>Create Your Account</Text>
 
-        <View style={styles.form}>
-          <FormInput
-            label=""
-            value={email}
-            onChangeText={setEmail}
-            placeholder="name@example.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            error={errors.email}
-            editable={!isLoading}
-          />
+          <View style={styles.form}>
+            <FormInput
+              label=""
+              value={email}
+              onChangeText={setEmail}
+              placeholder="name@example.com"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              error={errors.email}
+              editable={!isLoading}
+            />
 
-          <FormInput
-            label=""
-            value={password}
-            onChangeText={setPassword}
-            placeholder="password"
-            secureTextEntry
-            error={errors.password}
-            editable={!isLoading}
-          />
+            <FormInput
+              label=""
+              value={password}
+              onChangeText={setPassword}
+              placeholder="password"
+              secureTextEntry
+              error={errors.password}
+              editable={!isLoading}
+            />
 
-          <FormInput
-            label=""
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            placeholder="confirm password"
-            secureTextEntry
-            error={errors.confirmPassword}
-            editable={!isLoading}
-          />
+            <FormInput
+              label=""
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="confirm password"
+              secureTextEntry
+              error={errors.confirmPassword}
+              editable={!isLoading}
+            />
 
-          <View style={styles.termsContainer}>
-            <Pressable
-              style={styles.checkbox}
-              onPress={() => setAcceptedTerms(!acceptedTerms)}
-              disabled={isLoading}
-            >
-              <FontAwesome
-                name={acceptedTerms ? 'check-square' : 'square-o'}
-                size={20}
-                color={Colors.light.checkBoxSecondary}
-              />
-            </Pressable>
-            <Text style={styles.termsText}>
-              I accept the {' '}
-              <Link href="../terms" style={styles.link}>
-                Terms of Use
+            <View style={styles.termsContainer}>
+              <Pressable
+                style={styles.checkbox}
+                onPress={() => setAcceptedTerms(!acceptedTerms)}
+                disabled={isLoading}
+              >
+                <FontAwesome
+                  name={acceptedTerms ? 'check-square' : 'square-o'}
+                  size={20}
+                  color={Colors.light.checkBoxSecondary}
+                />
+              </Pressable>
+              <Text style={styles.termsText}>
+                I accept the {' '}
+                <Link href="../terms" style={styles.link}>
+                  Terms of Use
+                </Link>
+                {' '}and{' '}
+                <Link href="../privacy" style={styles.link}>
+                  Privacy Policy
+                </Link>
+              </Text>
+            </View>
+            
+            {errors.terms && <Text style={styles.errorText}>{errors.terms}</Text>}
+
+            <Button
+              title="Create Account"
+              onPress={handleSignUp}
+              loading={loading}
+            />
+
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>Continue with</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <View style={styles.socialButtons}>
+              <Pressable style={styles.socialButtonWide}>
+                <FontAwesome name="google" size={24} color={Colors.light.textPrimary} />
+                <Text style={styles.socialButtonText}>Google</Text>
+              </Pressable>
+              <Pressable style={styles.socialButtonWide}>
+                <FontAwesome name="facebook" size={24} color={Colors.light.textPrimary} />
+                <Text style={styles.socialButtonText}>Facebook</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Already have an account? </Text>
+              <Link href="../login" style={styles.loginLink}>
+                Log in
               </Link>
-              {' '}and{' '}
-              <Link href="../privacy" style={styles.link}>
-                Privacy Policy
-              </Link>
-            </Text>
-          </View>
-          
-          {errors.terms && <Text style={styles.errorText}>{errors.terms}</Text>}
-
-          <Button
-            title="Create Account"
-            onPress={handleSignUp}
-            loading={loading}
-          />
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>Continue with</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <View style={styles.socialButtons}>
-            <Pressable style={styles.socialButtonWide}>
-              <FontAwesome name="google" size={24} color={Colors.light.textPrimary} />
-              <Text style={styles.socialButtonText}>Google</Text>
-            </Pressable>
-            <Pressable style={styles.socialButtonWide}>
-              <FontAwesome name="facebook" size={24} color={Colors.light.textPrimary} />
-              <Text style={styles.socialButtonText}>Facebook</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account? </Text>
-            <Link href="../login" style={styles.loginLink}>
-              Log in
-            </Link>
+            </View>
           </View>
         </View>
-      </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -175,6 +184,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.generalBG,
+  },
+  keyboardContainer: {
+    padding: 16,
+    gap: 16,
+  },
+  keyboardAvoidingView: {
+    flex: 1, 
   },
   content: {
     flex: 1,

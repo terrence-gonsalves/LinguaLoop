@@ -23,6 +23,31 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const SESSION_KEY = 'supabase-session';
+const ACCESS_TOKEN_KEY = 'supabase-access-token';
+const REFRESH_TOKEN_KEY = 'supabase-refresh-token';
+
+// helper function to extract essential session data
+function extractSessionData(session: Session) {
+  return {
+    access_token: session.access_token,
+    refresh_token: session.refresh_token,
+    expires_at: session.expires_at,
+    user_id: session.user.id,
+  };
+}
+
+// helper function to reconstruct session from stored data
+async function reconstructSession(storedData: any): Promise<Session | null> {
+  try {
+
+    // get the current session from Supabase to get the full session object
+    const { data: { session } } = await supabase.auth.getSession();
+    return session;
+  } catch (error) {
+    console.error('Error reconstructing session:', error);
+    return null;
+  }
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -35,7 +60,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session) {
-        await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(session));
+        
+        // store only essential session data instead of entire session object
+        const sessionData = extractSessionData(session);
+        await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(sessionData));
         setSession(session);
 
         if (event === 'SIGNED_IN' && !profile) {
@@ -58,14 +86,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function loadSession() {
     try {
-      const storedSession = await SecureStore.getItemAsync(SESSION_KEY);
-      if (storedSession) {
-        const session = JSON.parse(storedSession);
-        setSession(session);
-        await loadProfile(session.user.id, false); // don't skip navigation on initial load
+      const storedSessionData = await SecureStore.getItemAsync(SESSION_KEY);
+
+      if (storedSessionData) {
+        const sessionData = JSON.parse(storedSessionData);
+        
+        // check if the stored session is still valid
+        if (sessionData.expires_at && new Date(sessionData.expires_at * 1000) > new Date()) {
+
+          // try to reconstruct the session from Supabase
+          const session = await reconstructSession(sessionData);
+          if (session) {
+            setSession(session);
+            await loadProfile(session.user.id, false); // don't skip navigation on initial load
+          } else {
+
+            // if we can't reconstruct the session, clear stored data
+            await SecureStore.deleteItemAsync(SESSION_KEY);
+          }
+        } else {
+
+          // session has expired, clear stored data
+          await SecureStore.deleteItemAsync(SESSION_KEY);
+        }
       }
     } catch (error) {
       console.error('Error loading session:', error);
+
+      // clear corrupted session data
+      await SecureStore.deleteItemAsync(SESSION_KEY);
     } finally {
       setIsLoading(false);
     }
