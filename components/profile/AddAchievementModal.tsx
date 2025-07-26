@@ -1,5 +1,6 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
+
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -88,14 +89,16 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          {/* Header */}
+
+          {/* header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Add Achievement</Text>
             <Pressable onPress={onClose} style={styles.closeButton}>
               <MaterialIcons name="close" size={28} color={Colors.light.textPrimary} />
             </Pressable>
           </View>
-          {/* Form */}
+
+          {/* form */}
           <View style={styles.form}>
             <Text style={styles.label}>Achievement *</Text>
             <TextInput
@@ -106,7 +109,12 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
               maxLength={100}
             />
             <Text style={styles.label}>Achievement Type *</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeRow} contentContainerStyle={{ gap: 8 }}>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false} 
+              style={styles.typeRow} 
+              contentContainerStyle={{ gap: 8 }}
+            >
               {ACHIEVEMENT_TYPES.map((t) => (
                 <TouchableOpacity
                   key={t.value}
