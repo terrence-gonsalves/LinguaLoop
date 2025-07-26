@@ -73,7 +73,7 @@ export default function SettingsScreen() {
         },
         {
           label: 'Tracked Activities',
-          icon: 'list',
+          icon: 'manage-history',
           href: '/(stack)/activities',
         },
         // {
