@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
+import { Stack } from 'expo-router/stack';
 
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/common/Button';
 import { FormInput } from '@/components/forms/FormInput';
@@ -211,7 +211,12 @@ export default function EditProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+       <Stack.Screen options={{
+          title: 'Edit Profile',
+          headerShadowVisible: true,
+        }}   
+      />
       <KeyboardAwareScrollView
         contentContainerStyle={styles.keyboardContainer}
         bottomOffset={50}
@@ -293,7 +298,7 @@ export default function EditProfileScreen() {
           />
         </View>
       </KeyboardAwareScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

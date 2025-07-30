@@ -95,7 +95,8 @@ export default function LanguageLevelScreen() {
       <Stack.Screen options={{
           title: 'Set Language Levels',
           headerShadowVisible: true,
-        }}   />
+        }}   
+      />
       <View style={styles.container}>
         <ScrollView style={styles.content}>
           <View style={styles.section}>
