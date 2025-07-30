@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 
-import { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import Colors from '@/constants/Colors';
@@ -48,6 +49,15 @@ export default function ActivitiesListScreen() {
   useEffect(() => {
     fetchTimeEntries();
   }, [profile?.id]);
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (profile?.id) {
+        fetchTimeEntries();
+      }
+    }, [profile?.id])
+  );
 
   async function fetchTimeEntries() {
     if (!profile?.id) return;

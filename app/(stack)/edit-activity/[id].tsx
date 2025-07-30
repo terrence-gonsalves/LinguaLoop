@@ -78,7 +78,7 @@ export default function EditActivityScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
-  // Form state
+  // form state
   const [selectedActivity, setSelectedActivity] = useState<string>('');
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
@@ -249,26 +249,10 @@ export default function EditActivityScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{
-        title: 'Edit Activity',
-        headerShadowVisible: true,
-        headerLeft: () => (
-          <Pressable onPress={handleCancel} style={styles.headerButton}>
-            <Text style={styles.headerButtonText}>Cancel</Text>
-          </Pressable>
-        ),
-        headerRight: () => (
-          <Pressable 
-            onPress={handleSaveActivity} 
-            style={[styles.headerButton, saving && styles.headerButtonDisabled]}
-            disabled={saving}
-          >
-            <Text style={[styles.headerButtonText, saving && styles.headerButtonTextDisabled]}>
-              {saving ? 'Saving...' : 'Save'}
-            </Text>
-          </Pressable>
-        ),
-      }} />
+        <Stack.Screen options={{
+            title: 'Edit Activity',
+            headerShadowVisible: true,
+       }} />
       
       <KeyboardAwareScrollView
         contentContainerStyle={styles.keyboardContainer}
@@ -395,21 +379,40 @@ export default function EditActivityScreen() {
             </View>
           </View>
 
-          {/* notes */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Notes (Optional)</Text>
-            <FormInput
-              label=""
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Add notes about this activity..."
-              multiline
-              numberOfLines={4}
-              style={styles.notesInput}
-            />
-          </View>
-        </View>
-      </KeyboardAwareScrollView>
+            {/* notes */}
+           <View style={styles.section}>
+             <Text style={styles.sectionTitle}>Notes (Optional)</Text>
+             <FormInput
+               label=""
+               value={notes}
+               onChangeText={setNotes}
+               placeholder="Add notes about this activity..."
+               multiline
+               numberOfLines={4}
+               style={styles.notesInput}
+             />
+           </View>
+         </View>
+       </KeyboardAwareScrollView>
+
+       {/* bottom action buttons */}
+       <View style={styles.bottomActions}>
+            <Pressable 
+                style={styles.cancelButton} 
+                onPress={handleCancel}
+            >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+            </Pressable>
+            <Pressable 
+                style={[styles.saveButton, saving && styles.saveButtonDisabled]} 
+                onPress={handleSaveActivity}
+                disabled={saving}
+            >
+                <Text style={[styles.saveButtonText, saving && styles.saveButtonTextDisabled]}>
+                        {saving ? 'Saving...' : 'Save'}
+                </Text>
+            </Pressable>
+       </View>
 
       {showDatePicker && (
         <DateTimePicker
@@ -445,24 +448,9 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: {
     flex: 1,
   },
-  content: {
-    padding: 16,
-  },
-  headerButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  headerButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.light.rust,
-  },
-  headerButtonDisabled: {
-    opacity: 0.5,
-  },
-  headerButtonTextDisabled: {
-    color: Colors.light.textSecondary,
-  },
+     content: {
+     padding: 16,
+   },
   section: {
     marginBottom: 24,
   },
@@ -564,9 +552,47 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.light.text,
   },
-  notesInput: {
-    backgroundColor: Colors.light.background,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-  },
-});
+     notesInput: {
+     backgroundColor: Colors.light.background,
+     borderWidth: 1,
+     borderColor: Colors.light.border,
+   },
+   bottomActions: {
+     flexDirection: 'row',
+     padding: 16,
+     gap: 12,
+     borderTopWidth: 1,
+     borderTopColor: Colors.light.border,
+     backgroundColor: Colors.light.background,
+   },
+   cancelButton: {
+     flex: 1,
+     paddingVertical: 12,
+     alignItems: 'center',
+     justifyContent: 'center',
+   },
+   cancelButtonText: {
+     fontSize: 16,
+     fontWeight: '600',
+     color: Colors.light.textSecondary,
+   },
+   saveButton: {
+     flex: 1,
+     backgroundColor: Colors.light.rust,
+     paddingVertical: 12,
+     borderRadius: 8,
+     alignItems: 'center',
+     justifyContent: 'center',
+   },
+   saveButtonDisabled: {
+     opacity: 0.5,
+   },
+   saveButtonText: {
+     fontSize: 16,
+     fontWeight: '600',
+     color: Colors.light.background,
+   },
+   saveButtonTextDisabled: {
+     color: Colors.light.textSecondary,
+   },
+ });
