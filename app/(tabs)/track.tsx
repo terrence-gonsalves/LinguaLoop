@@ -59,18 +59,6 @@ export default function TrackActivityScreen() {
   const hasInitializedRef = useRef(false);
   const navigation = useNavigation();
 
-  // reset form when screen comes into focus (except on initial load)
-  useFocusEffect(
-    useCallback(() => {
-      if (!hasInitializedRef.current) {
-        hasInitializedRef.current = true;
-        return;
-      }
-      
-      resetFields();
-    }, [])
-  );
-
   // set initial activity from URL parameter
   useEffect(() => {
     const state = navigation.getState();
@@ -81,9 +69,38 @@ export default function TrackActivityScreen() {
       
       if (params?.activity) {
         setSelectedActivity(params.activity);
+ 
+        // clear the URL parameter after setting the activity
+        navigation.setParams({ ...params, activity: undefined } as any);
       }
     }
   }, [navigation]);
+
+  // reset form when screen comes into focus (except on initial load)
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasInitializedRef.current) {
+        hasInitializedRef.current = true;
+        return;
+      }
+      
+      // check if there's an activity parameter in the URL
+      const state = navigation.getState();
+      const route = state?.routes.find(route => route.name === 'track');
+      const params = route?.params as TrackScreenParams | undefined;
+      const activityFromParams = params?.activity;
+      
+      // only reset fields if there's no activity parameter (coming from tab navigation)
+      if (!activityFromParams) {
+        resetFields();
+      } else {
+
+        // if there's an activity parameter, set it and clear the parameter
+        setSelectedActivity(activityFromParams);
+        navigation.setParams({ ...params, activity: undefined } as any);
+      }
+    }, [navigation])
+  );
 
   // helper to reset all fields
   function resetFields() {
