@@ -4,7 +4,6 @@ import { Stack } from 'expo-router/stack';
 
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 import { AchievementItem } from '@/components/profile/AchievementItem';
@@ -266,38 +265,38 @@ export default function UserProfileScreen() {
     });
   };
 
-  if (!userProfile) {
+  if (isLoading) {
     return (
       <>
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
           <Stack.Screen 
             options={{ 
               title: 'Connection Profile',
-              headerShadowVisible: false,
+              headerShadowVisible: true,
               headerStyle: { backgroundColor: Colors.light.background },
             }} 
           />        
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>User not found</Text>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.light.rust} />
           </View>
-        </SafeAreaView>
+        </View>
       </>
     );
   }
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         <Stack.Screen 
           options={{ 
             title: 'Connection Profile',
-            headerShadowVisible: false,
+            headerShadowVisible: true,
             headerStyle: { backgroundColor: Colors.light.background },
           }} 
         />
-        {(isLoading) ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={Colors.light.rust} />
+        {(!userProfile) ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>User not found</Text>
           </View>
         ) : (
           <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -373,7 +372,7 @@ export default function UserProfileScreen() {
             </View>
           </ScrollView>
         )}
-      </SafeAreaView>
+      </View>
     </>
   );
 }
