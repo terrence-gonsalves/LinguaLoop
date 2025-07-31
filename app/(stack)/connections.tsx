@@ -1,7 +1,6 @@
 import { Stack } from 'expo-router/stack';
 
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ConnectionCard from '@/components/ConnectionCard';
 
@@ -30,11 +29,12 @@ export default function ConnectionsScreen() {
     if (error) {
       return <Text style={styles.errorText}>Error loading connections: {error}</Text>;
     }
+    
     return <Text style={styles.noDataText}>No active connections yet</Text>;
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Screen 
         options={{ 
           title: 'Active Connections',
@@ -61,7 +61,7 @@ export default function ConnectionsScreen() {
           removeClippedSubviews={true}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
