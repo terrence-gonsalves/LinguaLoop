@@ -6,9 +6,15 @@ import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+/*
+import { NavigationContainer } from '@react-navigation/native';
+import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
+*/
 
 import AuthProvider from '@/providers/auth-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
+
+//const Stack = createSharedElementStackNavigator();
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().catch(() => {

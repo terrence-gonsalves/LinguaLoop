@@ -1,9 +1,10 @@
 
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
@@ -88,78 +89,85 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+          <View style={styles.modalContent}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.keyboardContainer}
+          style={styles.keyboardAvoidingView}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
 
-          {/* header */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>Add Achievement</Text>
-            <Pressable onPress={onClose} style={styles.closeButton}>
-              <MaterialIcons name="close" size={28} color={Colors.light.textPrimary} />
-            </Pressable>
-          </View>
+            {/* header */}
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>Add Achievement</Text>
+              <Pressable onPress={onClose} style={styles.closeButton}>
+                <MaterialIcons name="close" size={28} color={Colors.light.textPrimary} />
+              </Pressable>
+            </View>
 
-          {/* form */}
-          <View style={styles.form}>
-            <Text style={styles.label}>Achievement *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. Completed B2 Exam"
-              value={title}
-              onChangeText={setTitle}
-              maxLength={100}
-            />
-            <Text style={styles.label}>Achievement Type *</Text>
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false} 
-              style={styles.typeRow} 
-              contentContainerStyle={{ gap: 8 }}
-            >
-              {ACHIEVEMENT_TYPES.map((t) => (
-                <TouchableOpacity
-                  key={t.value}
-                  style={[styles.typeChip, type === t.value && styles.typeChipSelected]}
-                  onPress={() => setType(t.value)}
-                >
-                  <MaterialIcons name={t.icon as any} size={22} color={type === t.value ? Colors.light.background : Colors.light.textSecondary} />
-                  <Text style={[styles.typeChipText, type === t.value && styles.typeChipTextSelected]}>{t.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <Text style={styles.label}>Date Obtained *</Text>
-            <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-              <MaterialIcons name="event" size={20} color={Colors.light.textSecondary} />
-              <Text style={styles.dateText}>{formatDate(date)}</Text>
-            </TouchableOpacity>
-            {showDatePicker && (
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                maximumDate={new Date()}
-                onChange={(event, selectedDate) => {
-                  setShowDatePicker(false);
-                  if (selectedDate) setDate(selectedDate);
-                }}
-                locale={undefined}
+            {/* form */}
+            <View style={styles.form}>
+              <Text style={styles.label}>Achievement *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. Completed B2 Exam"
+                value={title}
+                onChangeText={setTitle}
+                maxLength={100}
               />
-            )}
-            <Text style={styles.label}>Notes</Text>
-            <TextInput
-              style={styles.notesInput}
-              placeholder="Add details about this achievement..."
-              value={notes}
-              onChangeText={setNotes}
-              multiline
-              numberOfLines={8}
-              maxLength={200}
-            />
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            <Pressable style={styles.saveButton} onPress={handleSave} disabled={loading}>
-              <Text style={styles.saveButtonText}>{loading ? 'Saving...' : (saveLabel || 'Save Achievement')}</Text>
-            </Pressable>
+              <Text style={styles.label}>Achievement Type *</Text>
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false} 
+                style={styles.typeRow} 
+                contentContainerStyle={{ gap: 8 }}
+              >
+                {ACHIEVEMENT_TYPES.map((t) => (
+                  <TouchableOpacity
+                    key={t.value}
+                    style={[styles.typeChip, type === t.value && styles.typeChipSelected]}
+                    onPress={() => setType(t.value)}
+                  >
+                    <MaterialCommunityIcons name={t.icon as any} size={22} color={type === t.value ? Colors.light.background : Colors.light.textSecondary} />
+                    <Text style={[styles.typeChipText, type === t.value && styles.typeChipTextSelected]}>{t.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <Text style={styles.label}>Date Obtained *</Text>
+              <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+                <MaterialIcons name="event" size={20} color={Colors.light.textSecondary} />
+                <Text style={styles.dateText}>{formatDate(date)}</Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                  maximumDate={new Date()}
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) setDate(selectedDate);
+                  }}
+                  locale={undefined}
+                />
+              )}
+              <Text style={styles.label}>Notes</Text>
+              <TextInput
+                style={styles.notesInput}
+                placeholder="Add details about this achievement..."
+                value={notes}
+                onChangeText={setNotes}
+                multiline
+                numberOfLines={8}
+                maxLength={200}
+              />
+              {error && <Text style={styles.errorText}>{error}</Text>}
+              <Pressable style={styles.saveButton} onPress={handleSave} disabled={loading}>
+                <Text style={styles.saveButtonText}>{loading ? 'Saving...' : (saveLabel || 'Save Achievement')}</Text>
+              </Pressable>
+            </View>
+            </KeyboardAwareScrollView>
           </View>
-        </View>
       </View>
     </Modal>
   );
@@ -182,6 +190,13 @@ const styles = StyleSheet.create({
     minHeight: '80%',
     maxHeight: '95%',
     paddingBottom: 16,
+  },
+  keyboardContainer: {
+    padding: 16,
+    gap: 16,
+  },
+  keyboardAvoidingView: {
+    flex: 1, 
   },
   header: {
     flexDirection: 'row',
