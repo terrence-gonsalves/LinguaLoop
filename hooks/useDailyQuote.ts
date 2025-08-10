@@ -23,13 +23,28 @@ export function useDailyQuote() {
   async function fetchRandomQuote() {
     try {
       
-      // get a random quote from the database
+      // first, get all quote IDs to randomly select from
+      const { data: quoteIds, error: idsError } = await supabase
+        .from('quotes')
+        .select('id');
+
+      if (idsError || !quoteIds || quoteIds.length === 0) {
+
+        // if there's an error or no quotes, use the default quote
+        setQuote(DEFAULT_QUOTE);
+        setError(null);
+        return;
+      }
+
+      // randomly select one ID from the available quotes
+      const randomIndex = Math.floor(Math.random() * quoteIds.length);
+      const randomQuoteId = quoteIds[randomIndex].id;
+
+      // fetch the randomly selected quote
       const { data, error: fetchError } = await supabase
         .from('quotes')
         .select('quote, author')
-        .limit(1)
-        .order('id', { ascending: false })
-        .limit(1)
+        .eq('id', randomQuoteId)
         .single();
 
       if (fetchError) {

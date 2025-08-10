@@ -101,11 +101,13 @@ export default function DashboardScreen() {
 
   const renderActivityIcon = (activityName: string) => {
     const iconConfig = ACTIVITY_ICONS[activityName];
+    
     if (!iconConfig) return null;
 
     if (iconConfig.type === 'ionicon') {
       return <Ionicons name={iconConfig.icon as any} size={24} color={Colors.light.rust} />;
     }
+
     return <MaterialCommunityIcons name={iconConfig.icon} size={24} color={Colors.light.rust} />;
   };
 
