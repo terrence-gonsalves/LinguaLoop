@@ -4,7 +4,7 @@ export default {
   expo: {
     name: "LinguaLoop",
     slug: "LinguaLoop",
-    version: "0.6.8",
+    version: "0.6.10",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "lingualoop",
@@ -13,7 +13,7 @@ export default {
     splash: {
       image: "./assets/images/icon.png",
       backgroundColor: "#F0F3F4",
-      imageWidth: 1000,
+      resizeMode: "cover"
     },
     assetBundlePatterns: [
       "**/*"
@@ -35,7 +35,8 @@ export default {
       buildNumber: "1",
       splash: {
         image: "./assets/images/icon.png",
-        backgroundColor: "#F0F3F4"
+        backgroundColor: "#F0F3F4",
+        resizeMode: "cover"
       }
     },
     android: {
@@ -43,7 +44,7 @@ export default {
         foregroundImage: "./assets/images/adaptive-icon.png",
         monochromeImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#F0F3F4",
-        imageWidth: 1000,
+        resizeMode: "cover"
       },
       versionCode: 1,
       edgeToEdgeEnabled: true,
@@ -65,8 +66,8 @@ export default {
         "expo-splash-screen",
         {
           image: "./assets/images/icon.png",
-          imageWidth: 1000,
-          backgroundColor: "#F0F3F4"
+          backgroundColor: "#F0F3F4",
+          resizeMode: "cover"
         }
       ],
       "expo-secure-store",
@@ -77,7 +78,8 @@ export default {
           color: "#F0F3F4"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-background-task"
     ],
     experiments: {
       typedRoutes: true

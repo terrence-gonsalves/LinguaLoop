@@ -233,143 +233,40 @@ export default function EditActivityScreen() {
     router.back();
   };
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Stack.Screen options={{
+  return (
+    <View style={styles.container}>
+      <Stack.Screen options={{
           title: 'Edit Activity',
           headerShadowVisible: true,
-        }} />
+      }} />
+
+      {(loading) ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={Colors.light.rust} />
         </View>
-      </View>
-    );
-  }
+      ) : (
+        <KeyboardAwareScrollView
+          contentContainerStyle={styles.keyboardContainer}
+          bottomOffset={50}
+          style={styles.keyboardAvoidingView}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.content}>
 
-  return (
-    <View style={styles.container}>
-        <Stack.Screen options={{
-            title: 'Edit Activity',
-            headerShadowVisible: true,
-       }} />
-      
-      <KeyboardAwareScrollView
-        contentContainerStyle={styles.keyboardContainer}
-        bottomOffset={50}
-        style={styles.keyboardAvoidingView}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.content}>
-
-          {/* date selection */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Date</Text>
-            <Pressable
-              style={styles.dateButton}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <MaterialCommunityIcons
-                name="calendar"
-                size={20}
-                color={Colors.light.textSecondary}
-              />
-              <Text style={styles.dateButtonText}>{formatDate(date)}</Text>
-              <MaterialCommunityIcons
-                name="chevron-down"
-                size={20}
-                color={Colors.light.textSecondary}
-              />
-            </Pressable>
-          </View>
-
-          {/* language selection */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Language</Text>
-            <LanguageDropdown
-              label=""
-              data={languages}
-              value={selectedLanguage}
-              onChange={setSelectedLanguage}
-              dropdownStyle={styles.dropdownStyle}
-            />
-          </View>
-
-          {/* activity type selection */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Activity Type</Text>
-            <View style={styles.activityGrid}>
-              <ActivityOption
-                title="Reading"
-                icon={<Ionicons name="book" size={24} color={Colors.light.activityBlue1} />}
-                isSelected={selectedActivity === 'reading'}
-                onPress={() => setSelectedActivity('reading')}
-              />
-              <ActivityOption
-                title="Writing"
-                icon={<Ionicons name="create" size={24} color={Colors.light.activityBlue2} />}
-                isSelected={selectedActivity === 'writing'}
-                onPress={() => setSelectedActivity('writing')}
-              />
-              <ActivityOption
-                title="Speaking"
-                icon={<Ionicons name="mic" size={24} color={Colors.light.activityOrange} />}
-                isSelected={selectedActivity === 'speaking'}
-                onPress={() => setSelectedActivity('speaking')}
-              />
-              <ActivityOption
-                title="Listening"
-                icon={<Ionicons name="headset" size={24} color={Colors.light.activityPink} />}
-                isSelected={selectedActivity === 'listening'}
-                onPress={() => setSelectedActivity('listening')}
-              />
-            </View>
-          </View>
-
-          {/* duration */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Duration (minutes)</Text>
-            <TextInput
-              style={styles.durationInput}
-              value={duration.toString()}
-              onChangeText={(text) => {
-                const value = parseInt(text) || 0;
-                setDuration(value);
-              }}
-              keyboardType="numeric"
-              placeholder="Enter duration in minutes"
-              placeholderTextColor={Colors.light.textSecondary}
-            />
-          </View>
-
-          {/* associated goal */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Associated Goal (Optional)</Text>
-            <View style={styles.goalDropdown}>
+            {/* date selection */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Date of Activity</Text>
               <Pressable
-                style={styles.goalButton}
-                onPress={() => {
-                  Alert.alert(
-                    'Select Goal',
-                    'Choose a goal to associate with this activity',
-                    [
-                      { text: 'Cancel', style: 'cancel' },
-                      { text: 'No Goal', style: 'destructive', onPress: () => setSelectedGoal(null) },
-                      ...goals.map(goal => ({
-                        text: goal.title,
-                        onPress: () => setSelectedGoal(goal.id)
-                      }))
-                    ]
-                  );
-                }}
+                style={styles.dateButton}
+                onPress={() => setShowDatePicker(true)}
               >
-                <Text style={styles.goalButtonText}>
-                  {selectedGoal 
-                    ? goals.find(g => g.id === selectedGoal)?.title || 'Unknown Goal'
-                    : 'Select a goal (optional)'
-                  }
-                </Text>
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={20}
+                  color={Colors.light.textSecondary}
+                />
+                <Text style={styles.dateButtonText}>{formatDate(date)}</Text>
                 <MaterialCommunityIcons
                   name="chevron-down"
                   size={20}
@@ -377,42 +274,151 @@ export default function EditActivityScreen() {
                 />
               </Pressable>
             </View>
+
+            {/* language selection */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Language</Text>
+              <View style={styles.languageDropdownContainer}>
+                <MaterialCommunityIcons name="translate" size={20} color={Colors.light.textSecondary} style={styles.languageIcon} />
+                <LanguageDropdown
+                  label=""
+                  data={languages}
+                  value={selectedLanguage}
+                  onChange={(value) => {
+                    setSelectedLanguage(value);
+                  }}
+                  dropdownStyle={styles.dropdownButton}
+                  style={styles.languageDropdown}
+                />
+            </View>
+            </View>
+
+            {/* activity type selection */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Activity Type</Text>
+              <View style={styles.activityGrid}>
+                <ActivityOption
+                  title="Listening"
+                  icon={<MaterialCommunityIcons name="headphones" size={24} color={selectedActivity === 'listening' ? Colors.light.textTertiary : Colors.light.rust} />}
+                  isSelected={selectedActivity === 'listening'}
+                  onPress={() => {
+                    setSelectedActivity('listening');
+                  }}
+                />
+                <ActivityOption
+                  title="Reading"
+                  icon={<Ionicons name="book-outline" size={24} color={selectedActivity === 'reading' ? Colors.light.textTertiary : Colors.light.rust} />}
+                  isSelected={selectedActivity === 'reading'}
+                  onPress={() => {
+                    setSelectedActivity('reading');
+                  }}
+                />
+                <ActivityOption
+                  title="Writing"
+                  icon={<MaterialCommunityIcons name="pencil-outline" size={24} color={selectedActivity === 'writing' ? Colors.light.textTertiary : Colors.light.rust} />}
+                  isSelected={selectedActivity === 'writing'}
+                  onPress={() => {
+                    setSelectedActivity('writing');
+                  }}
+                />
+                <ActivityOption
+                  title="Speaking"
+                  icon={<MaterialCommunityIcons name="microphone-outline" size={24} color={selectedActivity === 'speaking' ? Colors.light.textTertiary : Colors.light.rust} />}
+                  isSelected={selectedActivity === 'speaking'}
+                  onPress={() => {
+                    setSelectedActivity('speaking');
+                  }}
+                />
+              </View>
+            </View>
+
+            {/* duration */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Duration (minutes)</Text>
+              <TextInput
+                style={styles.durationInput}
+                value={duration.toString()}
+                onChangeText={(text) => {
+                  const value = parseInt(text) || 0;
+                  setDuration(value);
+                }}
+                keyboardType="numeric"
+                placeholder="Enter duration in minutes"
+                placeholderTextColor={Colors.light.textSecondary}
+              />
+            </View>
+
+            {/* associated goal */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Associated Goal (Optional)</Text>
+              <View style={styles.goalDropdown}>
+                <Pressable
+                  style={styles.goalButton}
+                  onPress={() => {
+                    Alert.alert(
+                      'Select Goal',
+                      'Choose a goal to associate with this activity',
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'No Goal', style: 'destructive', onPress: () => setSelectedGoal(null) },
+                        ...goals.map(goal => ({
+                          text: goal.title,
+                          onPress: () => setSelectedGoal(goal.id)
+                        }))
+                      ]
+                    );
+                  }}
+                >
+                  <Text style={styles.goalButtonText}>
+                    {selectedGoal 
+                      ? goals.find(g => g.id === selectedGoal)?.title || 'Unknown Goal'
+                      : 'Select a goal (optional)'
+                    }
+                  </Text>
+                  <MaterialCommunityIcons
+                    name="chevron-down"
+                    size={20}
+                    color={Colors.light.textSecondary}
+                  />
+                </Pressable>
+              </View>
+            </View>
+
+              {/* notes */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Notes (Optional)</Text>
+              <FormInput
+                label=""
+                value={notes}
+                onChangeText={setNotes}
+                placeholder="Add notes about this activity..."
+                multiline
+                numberOfLines={4}
+                style={styles.notesInput}
+              />
+            </View>
           </View>
+        </KeyboardAwareScrollView>
+      )}
 
-            {/* notes */}
-           <View style={styles.section}>
-             <Text style={styles.sectionTitle}>Notes (Optional)</Text>
-             <FormInput
-               label=""
-               value={notes}
-               onChangeText={setNotes}
-               placeholder="Add notes about this activity..."
-               multiline
-               numberOfLines={4}
-               style={styles.notesInput}
-             />
-           </View>
-         </View>
-       </KeyboardAwareScrollView>
-
-       {/* bottom action buttons */}
-       <View style={styles.bottomActions}>
-            <Pressable 
-                style={styles.cancelButton} 
-                onPress={handleCancel}
-            >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-            </Pressable>
-            <Pressable 
-                style={[styles.saveButton, saving && styles.saveButtonDisabled]} 
-                onPress={handleSaveActivity}
-                disabled={saving}
-            >
-                <Text style={[styles.saveButtonText, saving && styles.saveButtonTextDisabled]}>
-                        {saving ? 'Saving...' : 'Save'}
-                </Text>
-            </Pressable>
-       </View>
+      {/* bottom action buttons */}
+      <View style={styles.bottomActions}>
+          <Pressable 
+              style={styles.cancelButton} 
+              onPress={handleCancel}
+          >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+          </Pressable>
+          <Pressable 
+              style={[styles.saveButton, saving && styles.saveButtonDisabled]} 
+              onPress={handleSaveActivity}
+              disabled={saving}
+          >
+              <Text style={[styles.saveButtonText, saving && styles.saveButtonTextDisabled]}>
+                      {saving ? 'Saving...' : 'Save'}
+              </Text>
+          </Pressable>
+      </View>
 
       {showDatePicker && (
         <DateTimePicker
@@ -448,43 +454,67 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: {
     flex: 1,
   },
-     content: {
-     padding: 16,
+  content: {
+    flex: 1,
+    padding: 16,
+    paddingBottom: 32,
+  },
+   section: {
+     marginBottom: 10,
+     marginTop: 10,
    },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
+   sectionTitle: {
+     fontSize: 16,
+     fontWeight: '600',
+     color: Colors.light.textPrimary,
+     marginBottom: 12,
+   },
+   dateButton: {
+     flexDirection: 'row',
+     alignItems: 'center',
+     backgroundColor: Colors.light.background,
+     padding: 16,
+     borderRadius: 12,
+     gap: 8,
+     shadowColor: '#000',
+     shadowOffset: { width: 0, height: 2 },
+     shadowOpacity: 0.1,
+     shadowRadius: 4,
+     elevation: 3,
+   },
+  dateButtonText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: Colors.light.text,
-    marginBottom: 12,
+    color: Colors.light.textPrimary,
   },
-  dateButton: {
+  
+  languageDropdownContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.light.background,
+    borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    minHeight: 56,
   },
-  dateButtonText: {
+  languageIcon: {
+    marginRight: 0,
+  },
+  languageDropdown: {
     flex: 1,
-    fontSize: 16,
-    color: Colors.light.text,
+    marginBottom: 0,
   },
-  dropdownStyle: {
-    backgroundColor: Colors.light.background,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
+  dropdownButton: {
+    borderWidth: 0,
   },
   activityGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
   activityOption: {
     flex: 1,
