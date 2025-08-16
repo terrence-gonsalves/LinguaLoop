@@ -112,6 +112,7 @@ export default function SettingsScreen() {
             headerShown: true,
             headerTitle: 'Settings',
             headerStyle: { backgroundColor: defaultColors.light.background },
+            headerTitleStyle: { fontSize: 24 },
             headerShadowVisible: true,
           }}
         />

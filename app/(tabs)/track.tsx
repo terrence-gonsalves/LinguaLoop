@@ -191,6 +191,7 @@ export default function TrackActivityScreen() {
           headerShown: true,
           headerTitle: 'Track Activity',
           headerStyle: { backgroundColor: Colors.light.background },
+          headerTitleStyle: { fontSize: 24 },
           headerShadowVisible: true,
         }}
       />

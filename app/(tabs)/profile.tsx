@@ -172,6 +172,7 @@ export default function ProfileScreen() {
           headerShown: true,
           headerTitle: 'Profile',
           headerStyle: { backgroundColor: Colors.light.background,  },
+          headerTitleStyle: { fontSize: 24 },
           headerShadowVisible: true,
           headerRight: () => (
             <Pressable 

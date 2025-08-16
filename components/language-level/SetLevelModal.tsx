@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.light.border,
   },
   saveButton: {
-    backgroundColor: Colors.light.rust,
+    backgroundColor: Colors.light.buttonBG,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
