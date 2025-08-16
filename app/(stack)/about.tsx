@@ -62,7 +62,7 @@ export default function AboutScreen() {
               key={tool.name} 
               style={[
                 styles.toolItem,
-                index === tools.length - 1 && styles.lastItem
+                index === tools.length - 1 && styles.lastItemDescription
               ]}
             >
               <View style={styles.toolHeader}>
@@ -141,6 +141,11 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
   },
   toolDescription: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    marginLeft: 44, // 32 (icon width) + 12 (margin)
+  },
+  lastItemDescription: {
     fontSize: 14,
     color: Colors.light.textSecondary,
     marginLeft: 44, // 32 (icon width) + 12 (margin)

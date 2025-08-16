@@ -62,6 +62,7 @@ export default function ReportsScreen() {
           headerShown: true,
           headerTitle: 'Reports',
           headerStyle: { backgroundColor: Colors.light.background },
+          headerTitleStyle: { fontSize: 24 },
           headerShadowVisible: true,
           headerRight: () => (
             <View style={styles.headerRight}>
