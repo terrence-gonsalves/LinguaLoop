@@ -12,7 +12,13 @@ import { Colors } from '@/providers/theme-provider';
 
 export default function ConnectionsScreen() {
   const { profile } = useAuth();
-  const { connections, isLoading, error } = useActiveConnections(profile?.id || '', null);
+  const { connections, isLoading, error, refresh } = useActiveConnections(profile?.id || '', null);
+
+  const handleUnfollow = () => {
+
+    // refresh the connections list after unfollowing
+    refresh();
+  };
 
   const renderConnectionItem = ({ item: connection }: { item: any }) => (
     <ConnectionCard
@@ -22,6 +28,7 @@ export default function ConnectionsScreen() {
       nativeLanguage={connection.native_language || 'Unknown'}
       avatarUrl={connection.avatar_url || undefined}
       aboutMe={connection.about_me || ''}
+      onUnfollow={handleUnfollow}
     />
   );
 
@@ -59,6 +66,8 @@ export default function ConnectionsScreen() {
           maxToRenderPerBatch={10}
           windowSize={10}
           removeClippedSubviews={true}
+          refreshing={isLoading}
+          onRefresh={refresh}
         />
       )}
     </View>
