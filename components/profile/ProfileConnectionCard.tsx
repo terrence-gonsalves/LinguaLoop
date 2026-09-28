@@ -1,15 +1,13 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 
 import { useAuth } from '@/lib/auth-context';
-import { supabase } from '@/lib/supabase';
 
 import { Colors } from '@/providers/theme-provider';
-
 
 interface ProfileConnectionCardProps {
   userId: string;
@@ -35,42 +33,6 @@ export function ProfileConnectionCard({
   onUnfollow
 }: ProfileConnectionCardProps) {
   const { profile } = useAuth();
-
-  const handleUnfollow = () => {
-    Alert.alert(
-      'Unfollow User',
-      `Are you sure you want to unfollow ${name}?`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Unfollow',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const { error } = await supabase
-                .from('follows')
-                .delete()
-                .match({ 
-                  follower_id: profile?.id, 
-                  following_id: connectionId 
-                });
-
-              if (error) throw error;
-              
-              // call the callback to refresh the connections list
-              onUnfollow?.();
-            } catch (error) {
-              console.error('Error unfollowing user:', error);
-              Alert.alert('Error', 'Failed to unfollow user. Please try again.');
-            }
-          },
-        },
-      ]
-    );
-  };
 
   const handleProfilePress = () => {
     router.push(`/(stack)/profile/${userId}`);
@@ -105,14 +67,7 @@ export function ProfileConnectionCard({
           </View>
         </Pressable>
         
-        {/* unfollow button in top right corner */}
-        <Pressable onPress={handleUnfollow} style={styles.unfollowButton}>
-          <MaterialCommunityIcons name="account-remove" size={20} color={Colors.light.error} />
-        </Pressable>
-      </View>
-      
-      {/* streak indicator in bottom right section */}
-      <View style={styles.bottomSection}>
+        {/* streak indicator */}
         <View style={styles.streakContainer}>
           <MaterialCommunityIcons name="fire" size={16} color={Colors.light.rust} />
           <Text style={styles.streakText}>{streak} days</Text>
@@ -200,7 +155,7 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: 8,
   },
