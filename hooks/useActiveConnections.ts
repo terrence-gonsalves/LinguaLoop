@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { FEATURES } from '@/config/features';
+
 import { supabase } from '@/lib/supabase';
-import { getAvatarUrl } from '@/lib/supabase/storage';
 
 export interface Connection {
   id: string;
@@ -28,7 +29,7 @@ interface FollowData {
 export function useActiveConnections(userId: string, limit: number | null = 2) {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(FEATURES.connections);
   const [error, setError] = useState<string | null>(null);
   const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
@@ -89,6 +90,10 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
   }
 
   async function loadConnections() {
+
+    // connections is off: never query follows or other users' data
+    if (!FEATURES.connections) return;
+
     try {
       setIsLoading(true);
       setError(null);
@@ -145,28 +150,13 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
       const connectionsWithStreaks = await Promise.all(
         ((followData || []) as unknown as FollowData[]).map(async (follow) => {
           const streak = await calculateUserStreak(follow.following.id);
-          
-          // generate fresh signed URL for avatar if it exists
-          let avatarUrl = follow.following.avatar_url;
-          if (avatarUrl) {
-            try {
-              const freshAvatarUrl = await getAvatarUrl(follow.following.id);
-              if (freshAvatarUrl) {
-                avatarUrl = freshAvatarUrl;
-              }
-            } catch (error) {
-              console.error('Error getting fresh avatar URL for user:', follow.following.id, error);
-              
-              // keep the original URL if fresh URL generation fails
-            }
-          }
-          
+
           return {
             id: follow.following.id,
             name: follow.following.name,
             user_name: follow.following.user_name,
             about_me: follow.following.about_me,
-            avatar_url: avatarUrl,
+            avatar_url: follow.following.avatar_url,
             native_language: languageMap.get(follow.following.native_language) || 'Unknown',
             streak,
           };
@@ -183,6 +173,10 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
   }
 
   useEffect(() => {
+
+    // connections is off: no queries and no realtime channel
+    if (!FEATURES.connections) return;
+
     let isMounted = true;
 
     // clean up any existing subscription

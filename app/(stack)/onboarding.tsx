@@ -184,7 +184,7 @@ export default function OnboardingScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>Welcome to LinguaLoop!</Text>
-        <Text style={styles.subtitle}>Let's set up your learning preferences</Text>
+        <Text style={styles.subtitle}>Let&apos;s set up your learning preferences</Text>
 
         <View style={styles.form}>
           <FormInput

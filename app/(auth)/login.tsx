@@ -1,10 +1,9 @@
-import { FontAwesome } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 import Link from 'expo-router/link';
 
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -109,27 +108,10 @@ export default function LoginScreen() {
             <Link href="/(auth)/forgot-password" style={styles.forgotPassword}>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </Link>
-
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>Continue with</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <View style={styles.socialButtons}>
-              <Pressable style={styles.socialButtonWide}>
-                <FontAwesome name="google" size={24} color={Colors.light.textPrimary} />
-                <Text style={styles.socialButtonText}>Google</Text>
-              </Pressable>
-              <Pressable style={styles.socialButtonWide}>
-                <FontAwesome name="facebook" size={24} color={Colors.light.textPrimary} />
-                <Text style={styles.socialButtonText}>Facebook</Text>
-              </Pressable>
-            </View>
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account?</Text>
+            <Text style={styles.footerText}>Don&apos;t have an account?</Text>
             <Link href="/(auth)/create-account">
               <Text style={styles.footerLink}>Create Account</Text>
             </Link>
@@ -191,47 +173,6 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     color: Colors.light.textSecondary,
     fontSize: 14,
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 15,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Colors.light.border,
-  },
-  dividerText: {
-    marginHorizontal: 16,
-    color: Colors.light.textSecondary,
-    fontSize: 14,
-  },
-  socialButtons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-    marginTop: 15,
-  },
-  socialButtonWide: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.light.generalBG,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    minWidth: 140,
-    marginHorizontal: 8,
-    flex: 1,
-  },
-  socialButtonText: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: Colors.light.textPrimary,
-    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',

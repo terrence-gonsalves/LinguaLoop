@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface Activity {
   id: string;
@@ -7,11 +7,13 @@ export interface Activity {
   created_at: string;
 }
 
+// activities is reference data (Reading, Writing, Listening, Speaking) that only
+// the service role can change, and it isn't in the supabase_realtime publication,
+// so it's loaded once with no Realtime subscription.
 export function useActivities() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -42,42 +44,12 @@ export function useActivities() {
       }
     }
 
-    // clean up any existing subscription
-    if (subscriptionRef.current) {
-      subscriptionRef.current.unsubscribe();
-      subscriptionRef.current = null;
-    }
-
     loadActivities();
-
-    // set up real-time subscription
-    const channelName = `activities-changes-global-${Date.now()}`;
-    subscriptionRef.current = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'activities',
-        },
-        () => {
-          if (isMounted) {
-            loadActivities();
-          }
-        }
-      )
-      .subscribe();
 
     return () => {
       isMounted = false;
-      
-      if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe();
-        subscriptionRef.current = null;
-      }
     };
   }, []);
 
   return { activities, isLoading, error };
-} 
+}

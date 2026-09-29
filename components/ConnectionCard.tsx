@@ -8,6 +8,7 @@ import DefaultAvatar from '@/components/DefaultAvatar';
 
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { showErrorToast } from '@/lib/toast';
 
 import { Colors } from '@/providers/theme-provider';
 
@@ -39,21 +40,23 @@ export default function ConnectionCard({ userId, name, username, nativeLanguage,
           style: 'destructive',
           onPress: async () => {
             try {
-              const { error } = await supabase
+              const { data, error } = await supabase
                 .from('follows')
                 .delete()
                 .match({ 
                   follower_id: profile?.id, 
                   following_id: userId 
-                });
+                })
+                .select('follower_id');
 
               if (error) throw error;
+              if (!data || data.length === 0) throw new Error('No follow was deleted');
               
               // call the callback to refresh the connections list
               onUnfollow?.();
             } catch (error) {
               console.error('Error unfollowing user:', error);
-              Alert.alert('Error', 'Failed to unfollow user. Please try again.');
+              showErrorToast('Failed to unfollow user. Please try again.');
             }
           },
         },
