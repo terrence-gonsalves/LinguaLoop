@@ -8,6 +8,7 @@ import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { showErrorToast } from '@/lib/toast';
 
 interface TimeEntry {
   id: string;
@@ -97,16 +98,18 @@ export default function ActivitiesListScreen() {
         onPress: async () => {
           setDeletingId(entryId);
           try {
-            const { error } = await supabase
+            const { data, error } = await supabase
               .from('time_entries')
               .delete()
-              .eq('id', entryId);
-            
+              .eq('id', entryId)
+              .select('id');
+
             if (error) throw error;
+            if (!data || data.length === 0) throw new Error('No time entry was deleted');
 
             await fetchTimeEntries();
           } catch (error) {
-            Alert.alert('Error', 'Failed to delete activity. Please try again.');
+            showErrorToast('Failed to delete activity. Please try again.');
           } finally {
             setDeletingId(null);
           }

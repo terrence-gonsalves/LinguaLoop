@@ -6,125 +6,69 @@ import { decode as base64Decode } from 'base64-arraybuffer';
 
 import { supabase } from '../supabase';
 
-export async function uploadAvatar(userId: string, uri: string): Promise<string> {
-  try {
+const AVATAR_BUCKET = 'avatars';
 
-    // get file extension from URI
-    const extension = uri.split('.').pop()?.toLowerCase() || 'jpg';
-    const fileName = `${userId}.${extension}`;
-    const contentType = `image/${extension === 'jpg' || extension === 'jpeg' ? 'jpeg' : 'png'}`;
+// ImageUpload always re-encodes to JPEG, so every avatar is <user_id>.jpg.
+// the bucket's INSERT policy requires the name before the dot to be the uploader's id.
+function avatarPath(userId: string) {
+  return `${userId}.jpg`;
+}
+
+// uploads the avatar and returns the public URL to store in profiles.avatar_url.
+// the ?v= timestamp changes on every upload so image caches pick up the new file.
+export async function uploadAvatar(userId: string, uri: string): Promise<string> {
+  const path = avatarPath(userId);
+
+  try {
+    let body: ArrayBuffer | Blob;
 
     if (Platform.OS !== 'web') {
 
       // read file as base64
-      const base64 = await FileSystem.readAsStringAsync(uri, { 
-        encoding: FileSystem.EncodingType.Base64 
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64
       });
-
-      // upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, base64Decode(base64), {
-          upsert: true,
-          contentType
-        });
-
-      if (uploadError) throw uploadError;
-
+      body = base64Decode(base64);
     } else {
 
       // handle web upload
       const response = await fetch(uri);
-      const blob = await response.blob();
-      
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, blob, {
-          upsert: true,
-          contentType: blob.type,
-        });
-
-      if (uploadError) throw uploadError;
+      body = await response.blob();
     }
 
-    // get the download URL for the uploaded file
-    const { data } = await supabase.storage
-      .from('avatars')
-      .createSignedUrl(fileName, 60 * 60 * 24); // 24 hour expiry
+    const { error: uploadError } = await supabase.storage
+      .from(AVATAR_BUCKET)
+      .upload(path, body, {
+        upsert: true,
+        contentType: 'image/jpeg',
+      });
 
-    if (!data?.signedUrl) {
-      throw new Error('Failed to get download URL');
-    }
+    if (uploadError) throw uploadError;
 
-    return data.signedUrl;
+    // the bucket is public, so this URL doesn't expire
+    const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path);
+
+    return `${data.publicUrl}?v=${Date.now()}`;
   } catch (error) {
     console.error('Upload error:', error);
     throw error;
   }
 }
 
-export async function getAvatarUrl(userId: string): Promise<string | null> {
-  try {
-
-    // list files to get the correct extension
-    const { data: files, error: listError } = await supabase.storage
-      .from('avatars')
-      .list('', {
-        limit: 1,
-        search: userId
-      });
-
-    if (listError) {
-      return null;
-    }
-
-    if (!files || files.length === 0) {
-      return null;
-    }
-
-    // get signed URL for the file
-    const { data, error: urlError } = await supabase.storage
-      .from('avatars')
-      .createSignedUrl(files[0].name, 60 * 60 * 24); // 24 hour expiry
-
-    if (urlError) {
-      return null;
-    }
-
-    return data?.signedUrl || null;
-  } catch (error) {
-    return null;
-  }
-}
-
+// deletes the user's avatar file. throws if nothing was deleted.
 export async function deleteAvatar(userId: string): Promise<void> {
-  try {
-    
-    // first, try to delete with .jpg extension
-    let { error: jpgError } = await supabase.storage
-      .from('avatars')
-      .remove([`${userId}.jpg`]);
 
-    // if not found, try .jpeg
-    if (jpgError) {
-      let { error: jpegError } = await supabase.storage
-        .from('avatars')
-        .remove([`${userId}.jpeg`]);
+  // .jpeg and .png are names older app versions could have used
+  const { data, error } = await supabase.storage
+    .from(AVATAR_BUCKET)
+    .remove([avatarPath(userId), `${userId}.jpeg`, `${userId}.png`]);
 
-      // if not found, try .png
-      if (jpegError) {
-        let { error: pngError } = await supabase.storage
-          .from('avatars')
-          .remove([`${userId}.png`]);
-
-        // if all attempts fail, throw error only if it's not a "not found" error
-        if (pngError && !pngError.message.includes('not found')) {
-          throw pngError;
-        }
-      }
-    }
-  } catch (error) {
+  if (error) {
     console.error('Error deleting avatar:', error);
     throw new Error('Failed to delete avatar');
+  }
+
+  if (!data || data.length === 0) {
+    throw new Error('No avatar file was found to delete');
   }
 }

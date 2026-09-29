@@ -10,13 +10,15 @@ import { AchievementItem } from '@/components/profile/AchievementItem';
 import { LanguageProgressCard } from '@/components/profile/LanguageProgressCard';
 import { ProfileConnectionCard } from '@/components/profile/ProfileConnectionCard';
 
+import FeatureOffRedirect from '@/components/common/FeatureOffRedirect';
+import { FEATURES } from '@/config/features';
+
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveConnections } from '@/hooks/useActiveConnections';
 import { useLanguageSummary } from '@/hooks/useLanguageSummary';
 
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
-import { getAvatarUrl } from '@/lib/supabase/storage';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 import { Colors } from '@/providers/theme-provider';
@@ -31,7 +33,17 @@ interface UserProfile {
   onboarding_completed: boolean;
 }
 
+// other users' profiles are part of connections, which is hidden for v1.
+// redirect before any of the screen's hooks run their queries.
 export default function UserProfileScreen() {
+  if (!FEATURES.connections) {
+    return <FeatureOffRedirect to="/(tabs)/profile" />;
+  }
+
+  return <UserProfileScreenContent />;
+}
+
+function UserProfileScreenContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { profile: currentUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -68,20 +80,6 @@ export default function UserProfileScreen() {
         .single();
 
       if (error) throw error;
-
-      // generate fresh signed URL for avatar if it exists
-      if (profile.avatar_url) {
-        try {
-          const freshAvatarUrl = await getAvatarUrl(id);
-          if (freshAvatarUrl) {
-            profile.avatar_url = freshAvatarUrl;
-          }
-        } catch (error) {
-          console.error('Error getting fresh avatar URL for user:', id, error);
-          
-          // keep the original URL if fresh URL generation fails
-        }
-      }
 
       setUserProfile(profile);
 
@@ -131,13 +129,15 @@ export default function UserProfileScreen() {
     try {
       if (isFollowing) {
 
-        // unfollow
-        const { error } = await supabase
+        // unfollow, and check a row was actually removed
+        const { data, error } = await supabase
           .from('follows')
           .delete()
-          .match({ follower_id: currentUser.id, following_id: id });
+          .match({ follower_id: currentUser.id, following_id: id })
+          .select('follower_id');
 
         if (error) throw error;
+        if (!data || data.length === 0) throw new Error('No follow was deleted');
         setIsFollowing(false);
         showSuccessToast('Unfollowed user');
       } else {

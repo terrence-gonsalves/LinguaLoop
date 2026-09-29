@@ -5,7 +5,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { LanguageDropdown } from '@/components/forms/LanguageDropdown';
 import { ComparisonCard } from '@/components/reports/ComparisonCard';
-import { KeyInsightsCard } from '@/components/reports/KeyInsightsCard';
 import { MilestoneTrackerCard } from '@/components/reports/MilestoneTrackerCard';
 import { PerformanceOverviewCard } from '@/components/reports/PerformanceOverviewCard';
 import { StatCard } from '@/components/reports/StatCard';
@@ -109,7 +108,6 @@ export default function ReportsScreen() {
           analysisData={analysis}
         />
 
-        <KeyInsightsCard />
       </ScrollView>
     </View>
   );

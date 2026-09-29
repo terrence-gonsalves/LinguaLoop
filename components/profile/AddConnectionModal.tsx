@@ -7,9 +7,11 @@ import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpaci
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 
+import { FEATURES } from '@/config/features';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
-import { getAvatarUrl } from '@/lib/supabase/storage';
+import { showErrorToast } from '@/lib/toast';
 
 import { Colors } from '@/providers/theme-provider';
 
@@ -28,7 +30,14 @@ interface User {
   is_following: boolean;
 }
 
-export default function AddConnectionModal({ visible, onClose }: AddConnectionModalProps) {
+// connections is hidden for v1: render nothing so no profile or language queries run
+export default function AddConnectionModal(props: AddConnectionModalProps) {
+  if (!FEATURES.connections) return null;
+
+  return <AddConnectionModalContent {...props} />;
+}
+
+function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps) {
   const { profile } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState('');
@@ -74,28 +83,12 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
       const targetLangs = (allLanguages || [])
         .filter((l: any) => l.user_id === u.id)
         .map((l: any) => l.name);
-      
-      // generate fresh signed URL for avatar if it exists
-      let avatarUrl = u.avatar_url;
 
-      if (avatarUrl) {
-        try {
-          const freshAvatarUrl = await getAvatarUrl(u.id);
-          if (freshAvatarUrl) {
-            avatarUrl = freshAvatarUrl;
-          }
-        } catch (error) {
-          console.error('Error getting fresh avatar URL for user:', u.id, error);
-
-          // keep the original URL if fresh URL generation fails
-        }
-      }
-      
       return {
         id: u.id,
         name: u.name || 'User',
         user_name: u.user_name || 'user',
-        avatar_url: avatarUrl,
+        avatar_url: u.avatar_url,
         native_language: nativeLangName,
         target_languages: targetLangs,
         is_following: followingIds.includes(u.id),
@@ -124,12 +117,26 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
     if (!user) return;
     if (user.is_following) {
 
-      // unfollow
-      await supabase.from('follows').delete().match({ follower_id: profile?.id, following_id: userId });
+      // unfollow, and check a row was actually removed
+      const { data, error } = await supabase
+        .from('follows')
+        .delete()
+        .match({ follower_id: profile?.id, following_id: userId })
+        .select('follower_id');
+
+      if (error || !data || data.length === 0) {
+        showErrorToast('Failed to unfollow user. Please try again.');
+        return;
+      }
     } else {
 
       // follow
-      await supabase.from('follows').insert({ follower_id: profile?.id, following_id: userId });
+      const { error } = await supabase.from('follows').insert({ follower_id: profile?.id, following_id: userId });
+
+      if (error) {
+        showErrorToast('Failed to follow user. Please try again.');
+        return;
+      }
     }
 
     // update local state
