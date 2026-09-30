@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 import { getAvatarUrl } from '@/lib/supabase/storage';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
@@ -22,103 +21,69 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const SESSION_KEY = 'supabase-session';
-const ACCESS_TOKEN_KEY = 'supabase-access-token';
-const REFRESH_TOKEN_KEY = 'supabase-refresh-token';
-
-// helper function to extract essential session data
-function extractSessionData(session: Session) {
-  return {
-    access_token: session.access_token,
-    refresh_token: session.refresh_token,
-    expires_at: session.expires_at,
-    user_id: session.user.id,
-  };
-}
-
-// helper function to reconstruct session from stored data
-async function reconstructSession(storedData: any): Promise<Session | null> {
-  try {
-
-    // get the current session from Supabase to get the full session object
-    const { data: { session } } = await supabase.auth.getSession();
-    return session;
-  } catch (error) {
-    console.error('Error reconstructing session:', error);
-    return null;
-  }
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // the user whose profile is loaded, so a repeated SIGNED_IN event doesn't reload and re-navigate
+  const loadedUserIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    loadSession();
-    
-    // listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        
-        // store only essential session data instead of entire session object
-        const sessionData = extractSessionData(session);
-        await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(sessionData));
+    let isMounted = true;
+
+    // restore the session that supabase-js persisted in AsyncStorage
+    async function restoreSession() {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error) throw error;
+        if (!isMounted) return;
+
         setSession(session);
 
-        if (event === 'SIGNED_IN' && !profile) {
-
-          // add a small delay to ensure the profile has been created
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          await loadProfile(session.user.id, false); // don't skip navigation on initial sign in
+        // supabase-js may already have emitted SIGNED_IN for a restored session,
+        // in which case the listener below is loading the profile
+        if (session && loadedUserIdRef.current !== session.user.id) {
+          loadedUserIdRef.current = session.user.id;
+          await loadProfile(session.user.id, false); // don't skip navigation on initial load
         }
-      } else {
-        await SecureStore.deleteItemAsync(SESSION_KEY);
-        setSession(null);
+      } catch (error) {
+        console.error('Error restoring session:', error);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    restoreSession();
+
+    // listen for auth state changes. the callback must not await supabase calls:
+    // supabase-js holds a lock while it runs and they can deadlock, so the
+    // profile load is deferred with setTimeout.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+
+      setSession(session);
+
+      if (!session) {
+        loadedUserIdRef.current = null;
         setProfile(null);
+        return;
+      }
+
+      if (event === 'SIGNED_IN' && loadedUserIdRef.current !== session.user.id) {
+        loadedUserIdRef.current = session.user.id;
+        setTimeout(() => {
+          loadProfile(session.user.id, false); // don't skip navigation on sign in
+        }, 0);
       }
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
-
-  async function loadSession() {
-    try {
-      const storedSessionData = await SecureStore.getItemAsync(SESSION_KEY);
-
-      if (storedSessionData) {
-        const sessionData = JSON.parse(storedSessionData);
-        
-        // check if the stored session is still valid
-        if (sessionData.expires_at && new Date(sessionData.expires_at * 1000) > new Date()) {
-
-          // try to reconstruct the session from Supabase
-          const session = await reconstructSession(sessionData);
-          if (session) {
-            setSession(session);
-            await loadProfile(session.user.id, false); // don't skip navigation on initial load
-          } else {
-
-            // if we can't reconstruct the session, clear stored data
-            await SecureStore.deleteItemAsync(SESSION_KEY);
-          }
-        } else {
-
-          // session has expired, clear stored data
-          await SecureStore.deleteItemAsync(SESSION_KEY);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading session:', error);
-
-      // clear corrupted session data
-      await SecureStore.deleteItemAsync(SESSION_KEY);
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   async function loadProfile(userId: string, skipNavigation: boolean = false) {
     try {
