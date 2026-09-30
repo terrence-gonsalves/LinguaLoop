@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
+import { clearGoalNotifications } from '@/lib/goal-notifications';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 import { Session } from '@supabase/supabase-js';
@@ -171,6 +172,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signOut() {
     try {
       setIsLoading(true);
+
+      // goal reminders are per user, so don't leave them for the next account on this device
+      await clearGoalNotifications();
+
       const { error } = await supabase.auth.signOut();
 
       if (error) throw error;

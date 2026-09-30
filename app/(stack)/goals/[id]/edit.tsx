@@ -10,8 +10,17 @@ import { GoalFormSteps } from '@/components/goals/GoalFormSteps';
 import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
+import { cancelGoalNotification, scheduleGoalNotification } from '@/lib/goal-notifications';
+import {
+  canMarkCompleted,
+  getGoalDisplayStatus,
+  markGoalCompleted,
+  parseDateOnly,
+  toDateString,
+  type Goal,
+} from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
-import { showErrorToast } from '@/lib/toast';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 export default function EditGoalScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -21,6 +30,8 @@ export default function EditGoalScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
+  const [goal, setGoal] = useState<Goal | null>(null);
+  const [completing, setCompleting] = useState(false);
 
   useEffect(() => {
     fetchGoalAndLanguages();
@@ -54,14 +65,15 @@ export default function EditGoalScreen() {
         .single();
       if (error || !goal) throw error || new Error('Goal not found');
 
+      setGoal(goal as Goal);
       setFormData({
         title: goal.title,
         languageId: goal.language_id,
         goalType: goal.goal_type,
         targetValueNumeric: goal.target_value_numeric,
         targetValueText: goal.target_value_text,
-        startDate: goal.start_date ? new Date(goal.start_date) : new Date(),
-        endDate: goal.end_date ? new Date(goal.end_date) : new Date(),
+        startDate: goal.start_date ? parseDateOnly(goal.start_date) : new Date(),
+        endDate: goal.end_date ? parseDateOnly(goal.end_date) : new Date(),
         description: goal.description || '',
       });
     } catch (err) {
@@ -87,22 +99,27 @@ export default function EditGoalScreen() {
     try {
       setIsLoading(true);
 
-      const { error } = await supabase
+      const { data: updatedGoal, error } = await supabase
         .from('goals')
         .update({
-          user_id: profile.id,
           language_id: formData.languageId,
           title: formData.title,
           description: formData.description,
           goal_type: formData.goalType,
           target_value_numeric: formData.targetValueNumeric,
           target_value_text: formData.targetValueText,
-          start_date: formData.startDate.toISOString(),
-          end_date: formData.endDate.toISOString(),
+          start_date: toDateString(formData.startDate),
+          end_date: toDateString(formData.endDate),
         })
-        .eq('id', id);
-        
+        .eq('id', id)
+        .select()
+        .single();
+
       if (error) throw error;
+
+      // the end date or title may have changed, so move the reminder
+      await scheduleGoalNotification(updatedGoal as Goal);
+
       router.replace('/(stack)/goals');
     } catch (error) {
       Alert.alert('Error', 'Failed to update goal');
@@ -132,10 +149,27 @@ export default function EditGoalScreen() {
             return;
           }
 
+          await cancelGoalNotification(id);
           router.replace('/(stack)/goals');
         }
       }
     ]);
+  };
+
+  const handleMarkCompleted = async () => {
+    setCompleting(true);
+
+    try {
+      const completedGoal = await markGoalCompleted(id);
+      await cancelGoalNotification(id);
+      setGoal(completedGoal);
+      showSuccessToast('Goal completed');
+    } catch (error) {
+      console.error('Error completing goal:', error);
+      showErrorToast('Failed to update goal. Please try again.');
+    } finally {
+      setCompleting(false);
+    }
   };
 
   const validateStep = () => {
@@ -170,6 +204,16 @@ export default function EditGoalScreen() {
         </View>
       ) : (
         <>
+            {goal && (
+              <View style={styles.statusRow}>
+                <Text style={styles.statusText}>Status: {getGoalDisplayStatus(goal)}</Text>
+                {canMarkCompleted(goal) && (
+                  <Pressable style={styles.completeButton} onPress={handleMarkCompleted} disabled={completing}>
+                    <Text style={styles.completeButtonText}>{completing ? 'Saving...' : 'Mark as completed'}</Text>
+                  </Pressable>
+                )}
+              </View>
+            )}
             <View style={styles.progressContainer}>
               {[1, 2, 3].map((step) => (
                 <React.Fragment key={step}>
@@ -246,6 +290,32 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    marginTop: 12,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: Colors.light.generalBG,
+  },
+  statusText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.light.text,
+  },
+  completeButton: {
+    backgroundColor: Colors.light.green,
+    borderRadius: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  completeButtonText: {
+    color: Colors.light.background,
+    fontWeight: '600',
+    fontSize: 15,
   },
   progressContainer: {
     flexDirection: 'row',

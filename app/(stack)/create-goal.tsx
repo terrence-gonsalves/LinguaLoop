@@ -15,9 +15,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GoalFormSteps } from '@/components/goals/GoalFormSteps';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/lib/auth-context';
+import { requestGoalNotificationPermission, scheduleGoalNotification } from '@/lib/goal-notifications';
+import { toDateString, type Goal, type GoalType } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
-
-type GoalType = 'daily_time' | 'weekly_time' | 'monthly_vocab' | 'lessons_completed' | 'skill_level' | 'custom';
 
 interface Language {
   id: string;
@@ -118,7 +118,7 @@ export default function CreateGoalsScreen() {
     }
 
     try {
-      const { error } = await supabase
+      const { data: goal, error } = await supabase
         .from('goals')
         .insert({
           user_id: profile.id,
@@ -128,11 +128,18 @@ export default function CreateGoalsScreen() {
           goal_type: formData.goalType,
           target_value_numeric: formData.targetValueNumeric,
           target_value_text: formData.targetValueText,
-          start_date: formData.startDate.toISOString(),
-          end_date: formData.endDate.toISOString(),
-        });
+          start_date: toDateString(formData.startDate),
+          end_date: toDateString(formData.endDate),
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // the first goal is when the app asks for notification permission, then
+      // the "your goal ended" reminder is scheduled if it was granted
+      await requestGoalNotificationPermission(profile.id);
+      await scheduleGoalNotification(goal as Goal);
 
       router.back();
     } catch (error) {

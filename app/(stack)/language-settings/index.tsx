@@ -11,6 +11,7 @@ import { LanguageFlag } from '@/components/LanguageFlag';
 import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
+import { syncGoalNotifications } from '@/lib/goal-notifications';
 import { supabase } from '@/lib/supabase';
 import { showErrorToast } from '@/lib/toast';
 
@@ -93,6 +94,11 @@ export default function LanguageSettingsScreen() {
 
               if (error) throw error;
               if (!data || data.length === 0) throw new Error('No language was deleted');
+
+              // the cascade removed this language's goals, so drop their reminders
+              if (profile?.id) {
+                await syncGoalNotifications(profile.id);
+              }
 
               // refresh the language list after successful deletion
               fetchUserLanguages();

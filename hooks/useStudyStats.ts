@@ -1,17 +1,36 @@
+import {
+  fetchTimeGoalProgress,
+  getGoalDisplayStatus,
+  parseDateOnly,
+  type Goal as GoalRow,
+  type GoalDisplayStatus,
+  type TimeGoalProgress,
+} from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useRef, useState } from 'react';
 
-interface Goal {
-  id: string;
-  title: string;
-  description: string | null;
-  goal_type: 'daily_time' | 'weekly_time' | 'monthly_vocab' | 'lessons_completed' | 'skill_level' | 'custom';
-  target_value_numeric: number | null;
-  target_value_text: string | null;
-  start_date: string;
-  end_date: string;
-  status: 'active' | 'completed' | 'failed' | 'paused' | 'archived';
+type Goal = GoalRow & {
+
+  // percent shown in the dashboard ring
   progress: number;
+  displayStatus: GoalDisplayStatus;
+
+  // logged time for daily_time and weekly_time goals that are in progress
+  timeProgress: TimeGoalProgress | null;
+};
+
+// share of the goal's days that have passed, 0 to 100. used for goals that
+// aren't measured in logged time.
+function getElapsedPercent(goal: GoalRow, now: Date): number {
+  const start = parseDateOnly(goal.start_date).getTime();
+  const endExclusive = parseDateOnly(goal.end_date);
+  endExclusive.setDate(endExclusive.getDate() + 1);
+
+  const total = endExclusive.getTime() - start;
+  if (total <= 0) return 0;
+
+  const elapsed = now.getTime() - start;
+  return Math.max(0, Math.min(Math.round((elapsed / total) * 100), 100));
 }
 
 interface StudyStats {
@@ -53,15 +72,18 @@ export function useStudyStats(userId: string | undefined) {
 
         if (goalError && goalError.code !== 'PGRST116') throw goalError;
 
-        // calculate goal progress if it's a time-based goal
-        let goalProgress = 0;
+        // time goals show logged minutes against the target, other goals show elapsed days
+        let goal: Goal | null = null;
         if (goalData) {
           const now = new Date();
-          const startDate = new Date(goalData.start_date);
-          const endDate = new Date(goalData.end_date);
-          const totalDuration = endDate.getTime() - startDate.getTime();
-          const elapsedDuration = now.getTime() - startDate.getTime();
-          goalProgress = Math.min(Math.round((elapsedDuration / totalDuration) * 100), 100);
+          const timeProgress = await fetchTimeGoalProgress(goalData as GoalRow, now);
+
+          goal = {
+            ...(goalData as GoalRow),
+            progress: timeProgress ? timeProgress.percent : getElapsedPercent(goalData as GoalRow, now),
+            displayStatus: getGoalDisplayStatus(goalData as GoalRow),
+            timeProgress,
+          };
         }
 
         // fetch total study time
@@ -87,7 +109,7 @@ export function useStudyStats(userId: string | undefined) {
         if (!isMounted) return;
 
         setStats({
-          goal: goalData ? { ...goalData, progress: goalProgress } : null,
+          goal,
           totalStudyTime: { hours, minutes },
           languageCount: languageCount || 0,
         });

@@ -184,6 +184,12 @@ export default function DashboardScreen() {
                     <Text style={styles.goalTitle}>{stats.goal.title}</Text>
                     {renderGoalProgress(stats.goal.progress)}
                   </View>
+                  <Text style={styles.goalStatusText}>
+                    {stats.goal.displayStatus}
+                    {stats.goal.timeProgress
+                      ? ` • ${stats.goal.timeProgress.minutes} of ${stats.goal.timeProgress.targetMinutes} min ${stats.goal.timeProgress.period}`
+                      : ''}
+                  </Text>
                   {stats.goal.description && (
                     <Text style={styles.goalDescription}>{stats.goal.description}</Text>
                   )}
@@ -540,6 +546,12 @@ const styles = StyleSheet.create({
   goalDescription: {
     fontSize: 14,
     color: Colors.light.textSecondary,
+  },
+  goalStatusText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.light.textSecondary,
+    marginBottom: 4,
   },
   goalProgressContainer: {
     width: 40,
