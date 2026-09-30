@@ -10,6 +10,9 @@ import { AchievementItem } from '@/components/profile/AchievementItem';
 import { LanguageProgressCard } from '@/components/profile/LanguageProgressCard';
 import { ProfileConnectionCard } from '@/components/profile/ProfileConnectionCard';
 
+import FeatureOffRedirect from '@/components/common/FeatureOffRedirect';
+import { FEATURES } from '@/config/features';
+
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveConnections } from '@/hooks/useActiveConnections';
 import { useLanguageSummary } from '@/hooks/useLanguageSummary';
@@ -31,7 +34,17 @@ interface UserProfile {
   onboarding_completed: boolean;
 }
 
+// other users' profiles are part of connections, which is hidden for v1.
+// redirect before any of the screen's hooks run their queries.
 export default function UserProfileScreen() {
+  if (!FEATURES.connections) {
+    return <FeatureOffRedirect to="/(tabs)/profile" />;
+  }
+
+  return <UserProfileScreenContent />;
+}
+
+function UserProfileScreenContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { profile: currentUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);

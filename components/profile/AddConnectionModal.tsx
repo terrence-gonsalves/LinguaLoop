@@ -7,6 +7,8 @@ import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpaci
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 
+import { FEATURES } from '@/config/features';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { getAvatarUrl } from '@/lib/supabase/storage';
@@ -28,7 +30,14 @@ interface User {
   is_following: boolean;
 }
 
-export default function AddConnectionModal({ visible, onClose }: AddConnectionModalProps) {
+// connections is hidden for v1: render nothing so no profile or language queries run
+export default function AddConnectionModal(props: AddConnectionModalProps) {
+  if (!FEATURES.connections) return null;
+
+  return <AddConnectionModalContent {...props} />;
+}
+
+function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps) {
   const { profile } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState('');

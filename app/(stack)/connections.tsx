@@ -4,13 +4,25 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-nativ
 
 import ConnectionCard from '@/components/ConnectionCard';
 
+import FeatureOffRedirect from '@/components/common/FeatureOffRedirect';
+import { FEATURES } from '@/config/features';
+
 import { useActiveConnections } from '@/hooks/useActiveConnections';
 
 import { useAuth } from '@/lib/auth-context';
 
 import { Colors } from '@/providers/theme-provider';
 
+// connections is hidden for v1: send anyone who lands here back to their profile
 export default function ConnectionsScreen() {
+  if (!FEATURES.connections) {
+    return <FeatureOffRedirect to="/(tabs)/profile" />;
+  }
+
+  return <ConnectionsScreenContent />;
+}
+
+function ConnectionsScreenContent() {
   const { profile } = useAuth();
   const { connections, isLoading, error, refresh } = useActiveConnections(profile?.id || '', null);
 

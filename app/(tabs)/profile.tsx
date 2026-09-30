@@ -13,6 +13,8 @@ import AddConnectionModal from '@/components/profile/AddConnectionModal';
 import { LanguageProgressCard } from '@/components/profile/LanguageProgressCard';
 import { ProfileConnectionCard } from '@/components/profile/ProfileConnectionCard';
 
+import { FEATURES } from '@/config/features';
+
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveConnections } from '@/hooks/useActiveConnections';
 import { useLanguageSummary } from '@/hooks/useLanguageSummary';
@@ -228,22 +230,24 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Active Connections</Text>
-            {connectionsCount > 2 && (
-              <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
-                <Text style={styles.viewAllText}>View All</Text>
-              </Pressable>
-            )}
-          </View>
-          <View style={styles.connectionCards}>
-            {renderConnections()}
-          </View>
-          <Pressable style={styles.addConnectionButton} onPress={() => setShowAddConnection(true)}>
+        {FEATURES.connections && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Active Connections</Text>
+              {connectionsCount > 2 && (
+                <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
+                  <Text style={styles.viewAllText}>View All</Text>
+                </Pressable>
+              )}
+            </View>
+            <View style={styles.connectionCards}>
+              {renderConnections()}
+            </View>
+            <Pressable style={styles.addConnectionButton} onPress={() => setShowAddConnection(true)}>
               <Text style={styles.addConnectionButtonText}>Add Connection</Text>
             </Pressable>
-        </View>
+          </View>
+        )}
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -262,7 +266,9 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
       </ScrollView>
-      <AddConnectionModal visible={showAddConnection} onClose={() => { setShowAddConnection(false); refreshConnections(); }} />
+      {FEATURES.connections && (
+        <AddConnectionModal visible={showAddConnection} onClose={() => { setShowAddConnection(false); refreshConnections(); }} />
+      )}
       <AddAchievementModal visible={showAddAchievement} onClose={() => { setShowAddAchievement(false); refreshAchievements(); }} onAdded={() => { setShowAddAchievement(false); refreshAchievements(); }} saveLabel="Save" />
     </View>
   );

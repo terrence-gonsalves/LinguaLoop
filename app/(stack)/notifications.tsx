@@ -7,6 +7,7 @@ import { Switch } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SettingsSection } from '@/components/settings/SettingsSection';
+import { FEATURES } from '@/config/features';
 import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
@@ -293,17 +294,19 @@ export default function NotificationsScreen() {
                 </Pressable>
               </SettingsSection>
 
-              {/* user notifications section */}
-              <SettingsSection title="User Notifications">
-                <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>Messages and follows</Text>
-                  <Switch
-                    value={settings.user_notifications}
-                    onValueChange={(value) => handleSettingChange('user_notifications', value)}
-                    trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
-                  />
-                </View>
-              </SettingsSection>
+              {/* user notifications section (follows are part of connections) */}
+              {FEATURES.connections && (
+                <SettingsSection title="User Notifications">
+                  <View style={styles.settingRow}>
+                    <Text style={styles.settingLabel}>Messages and follows</Text>
+                    <Switch
+                      value={settings.user_notifications}
+                      onValueChange={(value) => handleSettingChange('user_notifications', value)}
+                      trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
+                    />
+                  </View>
+                </SettingsSection>
+              )}
 
               {/* goal notifications section */}
               <SettingsSection title="Goal Notifications">
