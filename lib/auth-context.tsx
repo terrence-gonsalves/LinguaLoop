@@ -35,7 +35,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // restore the session that supabase-js persisted in AsyncStorage
     async function restoreSession() {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
 
         if (error) throw error;
         if (!isMounted) return;
@@ -60,7 +63,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // listen for auth state changes. the callback must not await supabase calls:
     // supabase-js holds a lock while it runs and they can deadlock, so the
     // profile load is deferred with setTimeout.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
 
       setSession(session);
@@ -101,7 +106,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // only handle navigation if skipNavigation is false
       if (!skipNavigation) {
-        
         // check if onboarding is needed
         if (profile && !profile.onboarding_completed) {
           router.push('/(stack)/onboarding');
@@ -154,11 +158,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!authData.user) throw new Error('No user data returned');
 
       if (authData.session) {
-
         // signed in straight away: the SIGNED_IN listener loads the profile and opens onboarding
         showSuccessToast("Account created! Let's set up your profile.");
       } else {
-
         // only happens if "Confirm email" is turned on in Supabase: no session until the user confirms
         showSuccessToast('Account created! Confirm your email, then sign in.');
       }
@@ -206,11 +208,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
 
-export default AuthContext; 
+export default AuthContext;

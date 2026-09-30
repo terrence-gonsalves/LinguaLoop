@@ -4,7 +4,8 @@ import { supabase } from '@/lib/supabase';
 // update_expired_goals job moves active goals past their end_date to missed.
 export type GoalStatus = 'active' | 'completed' | 'missed';
 
-export type GoalType = 'daily_time' | 'weekly_time' | 'monthly_vocab' | 'lessons_completed' | 'skill_level' | 'custom';
+export type GoalType =
+  'daily_time' | 'weekly_time' | 'monthly_vocab' | 'lessons_completed' | 'skill_level' | 'custom';
 
 export type Goal = {
   id: string;
@@ -54,7 +55,10 @@ export function parseDateOnly(value: string): Date {
   return new Date(year, month - 1, day);
 }
 
-export function getGoalDisplayStatus(goal: Pick<Goal, 'status' | 'start_date' | 'end_date'>, today: string = toDateString(new Date())): GoalDisplayStatus {
+export function getGoalDisplayStatus(
+  goal: Pick<Goal, 'status' | 'start_date' | 'end_date'>,
+  today: string = toDateString(new Date())
+): GoalDisplayStatus {
   if (goal.status === 'completed') return 'Completed';
   if (goal.status === 'missed') return 'Missed';
 
@@ -79,7 +83,10 @@ export function isTimeGoal(goal: Pick<Goal, 'goal_type'>): boolean {
 // the days whose logged time counts toward a time goal right now: today for a
 // daily goal, the current Monday to Sunday week for a weekly goal. clipped to
 // the goal's own dates. null when the goal isn't in progress.
-function getProgressWindow(goal: Goal, now: Date): { from: Date; toExclusive: Date; period: TimeGoalProgress['period'] } | null {
+function getProgressWindow(
+  goal: Goal,
+  now: Date
+): { from: Date; toExclusive: Date; period: TimeGoalProgress['period'] } | null {
   const today = toDateString(now);
 
   if (getGoalDisplayStatus(goal, today) !== 'In progress') return null;
@@ -90,7 +97,6 @@ function getProgressWindow(goal: Goal, now: Date): { from: Date; toExclusive: Da
   let period: TimeGoalProgress['period'] = 'today';
 
   if (goal.goal_type === 'weekly_time') {
-
     // getDay() is 0 for Sunday, so Sunday belongs to the week that started 6 days earlier
     const daysSinceMonday = (todayStart.getDay() + 6) % 7;
     from = new Date(todayStart);
@@ -113,7 +119,10 @@ function getProgressWindow(goal: Goal, now: Date): { from: Date; toExclusive: Da
 // minutes logged toward a daily_time or weekly_time goal, from time_entries.
 // counts only the goal's language, or every language if the goal has none.
 // returns null for other goal types and for goals that aren't in progress.
-export async function fetchTimeGoalProgress(goal: Goal, now: Date = new Date()): Promise<TimeGoalProgress | null> {
+export async function fetchTimeGoalProgress(
+  goal: Goal,
+  now: Date = new Date()
+): Promise<TimeGoalProgress | null> {
   if (!isTimeGoal(goal) || !goal.target_value_numeric) return null;
 
   const range = getProgressWindow(goal, now);

@@ -20,8 +20,8 @@ export default function StackLayout() {
         }}
       >
         <Stack.Screen name="language-settings/index" />
-        <Stack.Screen 
-          name="language-settings/add" 
+        <Stack.Screen
+          name="language-settings/add"
           options={{
             presentation: 'modal',
             animation: 'slide_from_bottom',
@@ -40,8 +40,7 @@ export default function StackLayout() {
         <Stack.Screen name="activities" options={{ title: 'Tracked Activities' }} />
         <Stack.Screen name="terms" options={{ title: 'Terms & Conditions' }} />
         <Stack.Screen name="privacy" options={{ title: 'Privacy Policy' }} />
-        <Stack.Screen name="onboarding" options={{ headerShown: false }}
-        />
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       </Stack>
     </GestureHandlerRootView>
   );
@@ -51,4 +50,4 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-}); 
+});

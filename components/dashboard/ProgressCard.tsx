@@ -18,7 +18,12 @@ interface ProgressCardProps {
   chartConfig: any;
 }
 
-export function ProgressCard({ activityData, weeklyLabels, weeklyValues, chartConfig }: ProgressCardProps) {
+export function ProgressCard({
+  activityData,
+  weeklyLabels,
+  weeklyValues,
+  chartConfig,
+}: ProgressCardProps) {
   return (
     <View style={styles.container}>
       <View style={styles.chartContainer}>
@@ -72,4 +77,4 @@ const styles = StyleSheet.create({
     color: Colors.light.textPrimary,
     marginBottom: 12,
   },
-}); 
+});

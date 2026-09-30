@@ -10,7 +10,6 @@ import { supabase } from '@/lib/supabase';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Goal = GoalRow & {
-
   // percent shown in the dashboard ring
   progress: number;
   displayStatus: GoalDisplayStatus;
@@ -81,7 +80,9 @@ export function useStudyStats(userId: string | undefined) {
 
           goal = {
             ...(goalData as GoalRow),
-            progress: timeProgress ? timeProgress.percent : getElapsedPercent(goalData as GoalRow, now),
+            progress: timeProgress
+              ? timeProgress.percent
+              : getElapsedPercent(goalData as GoalRow, now),
             displayStatus: getGoalDisplayStatus(goalData as GoalRow),
             timeProgress,
           };
@@ -95,7 +96,10 @@ export function useStudyStats(userId: string | undefined) {
 
         if (timeError) throw timeError;
 
-        const totalSeconds = (timeData || []).reduce((sum, entry) => sum + entry.duration_seconds, 0);
+        const totalSeconds = (timeData || []).reduce(
+          (sum, entry) => sum + entry.duration_seconds,
+          0
+        );
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
 
@@ -172,7 +176,7 @@ export function useStudyStats(userId: string | undefined) {
     return () => {
       isMounted = false;
       loadRef.current = null;
-      
+
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
         subscriptionRef.current = null;
@@ -186,4 +190,4 @@ export function useStudyStats(userId: string | undefined) {
   }, []);
 
   return { stats, isLoading, refresh };
-} 
+}

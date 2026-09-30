@@ -35,9 +35,25 @@ const ACHIEVEMENT_TYPE_ICONS: Record<string, keyof typeof MaterialCommunityIcons
 export default function ProfileScreen() {
   const { profile } = useAuth();
   const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
-  const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(profile?.id || '');
-  const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError, refresh: refreshConnections } = useActiveConnections(profile?.id || '');
-  const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError, refresh: refreshAchievements } = useAchievements(profile?.id || '');
+  const {
+    languages,
+    isLoading: isLoadingLanguages,
+    error: languagesError,
+  } = useLanguageSummary(profile?.id || '');
+  const {
+    connections,
+    totalCount: connectionsCount,
+    isLoading: isLoadingConnections,
+    error: connectionsError,
+    refresh: refreshConnections,
+  } = useActiveConnections(profile?.id || '');
+  const {
+    achievements,
+    totalCount: achievementsCount,
+    isLoading: isLoadingAchievements,
+    error: achievementsError,
+    refresh: refreshAchievements,
+  } = useAchievements(profile?.id || '');
   const [showAddConnection, setShowAddConnection] = useState(false);
   const [showAddAchievement, setShowAddAchievement] = useState(false);
 
@@ -82,14 +98,16 @@ export default function ProfileScreen() {
     }
 
     // only show up to 2 languages
-    return languages.slice(0, 2).map((lang: any) => (
-      <LanguageProgressCard
-        key={lang.id}
-        language={lang.name}
-        level={lang.level}
-        activities={lang.activities}
-      />
-    ));
+    return languages
+      .slice(0, 2)
+      .map((lang: any) => (
+        <LanguageProgressCard
+          key={lang.id}
+          language={lang.name}
+          level={lang.level}
+          activities={lang.activities}
+        />
+      ));
   };
 
   const renderConnections = () => {
@@ -147,11 +165,12 @@ export default function ProfileScreen() {
     return achievements.map((achievement: any) => {
       const dateToShow = achievement.obtained_date || achievement.created_at;
       const localizedDate = dateToShow
-        ? new Date(dateToShow).toLocaleDateString(undefined, { 
-          timeZone: userTimeZone, 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' })
+        ? new Date(dateToShow).toLocaleDateString(undefined, {
+            timeZone: userTimeZone,
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
         : '';
       return (
         <AchievementItem
@@ -173,11 +192,11 @@ export default function ProfileScreen() {
         options={{
           headerShown: true,
           headerTitle: 'Profile',
-          headerStyle: { backgroundColor: Colors.light.background,  },
+          headerStyle: { backgroundColor: Colors.light.background },
           headerTitleStyle: { fontSize: 24 },
           headerShadowVisible: true,
           headerRight: () => (
-            <Pressable 
+            <Pressable
               style={styles.notificationButton}
               onPress={() => router.push('/(stack)/notifications')}
             >
@@ -196,22 +215,23 @@ export default function ProfileScreen() {
               transition={200}
             />
           ) : (
-            <DefaultAvatar size={100} letter={profile?.name?.[0] || profile?.user_name?.[0] || '?'} />
+            <DefaultAvatar
+              size={100}
+              letter={profile?.name?.[0] || profile?.user_name?.[0] || '?'}
+            />
           )}
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{profile?.name || 'User'}</Text>
-            {profile?.user_name && <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>}
+            {profile?.user_name && (
+              <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>
+            )}
             <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
-            <Text style={styles.bio}>
-              {profile?.about_me || ''}
-            </Text>
-            <Pressable 
+            <Text style={styles.bio}>{profile?.about_me || ''}</Text>
+            <Pressable
               style={styles.actionButton}
               onPress={() => router.push('/(stack)/edit-profile')}
             >
-              <Text style={styles.actionButtonText}>
-                Edit Profile
-              </Text>
+              <Text style={styles.actionButtonText}>Edit Profile</Text>
             </Pressable>
           </View>
         </View>
@@ -220,14 +240,15 @@ export default function ProfileScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Language Summary</Text>
             {languages.length > 2 && (
-              <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/languages')}>
+              <Pressable
+                style={styles.viewAllLink}
+                onPress={() => router.push('/(stack)/languages')}
+              >
                 <Text style={styles.viewAllText}>View All</Text>
               </Pressable>
             )}
           </View>
-          <View style={styles.languageCards}>
-            {renderLanguageCards()}
-          </View>
+          <View style={styles.languageCards}>{renderLanguageCards()}</View>
         </View>
 
         {FEATURES.connections && (
@@ -235,15 +256,19 @@ export default function ProfileScreen() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Active Connections</Text>
               {connectionsCount > 2 && (
-                <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
+                <Pressable
+                  style={styles.viewAllLink}
+                  onPress={() => router.push('/(stack)/connections')}
+                >
                   <Text style={styles.viewAllText}>View All</Text>
                 </Pressable>
               )}
             </View>
-            <View style={styles.connectionCards}>
-              {renderConnections()}
-            </View>
-            <Pressable style={styles.addConnectionButton} onPress={() => setShowAddConnection(true)}>
+            <View style={styles.connectionCards}>{renderConnections()}</View>
+            <Pressable
+              style={styles.addConnectionButton}
+              onPress={() => setShowAddConnection(true)}
+            >
               <Text style={styles.addConnectionButtonText}>Add Connection</Text>
             </Pressable>
           </View>
@@ -253,23 +278,44 @@ export default function ProfileScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Achievements</Text>
             {achievementsCount > 2 && (
-              <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/achievements')}>
+              <Pressable
+                style={styles.viewAllLink}
+                onPress={() => router.push('/(stack)/achievements')}
+              >
                 <Text style={styles.viewAllText}>History</Text>
               </Pressable>
             )}
           </View>
-          <View style={styles.achievements}>
-            {renderAchievements()}
-          </View>
-          <Pressable style={styles.addAchievementButton} onPress={() => setShowAddAchievement(true)}>
+          <View style={styles.achievements}>{renderAchievements()}</View>
+          <Pressable
+            style={styles.addAchievementButton}
+            onPress={() => setShowAddAchievement(true)}
+          >
             <Text style={styles.addAchievementButtonText}>Add Achievement</Text>
           </Pressable>
         </View>
       </ScrollView>
       {FEATURES.connections && (
-        <AddConnectionModal visible={showAddConnection} onClose={() => { setShowAddConnection(false); refreshConnections(); }} />
+        <AddConnectionModal
+          visible={showAddConnection}
+          onClose={() => {
+            setShowAddConnection(false);
+            refreshConnections();
+          }}
+        />
       )}
-      <AddAchievementModal visible={showAddAchievement} onClose={() => { setShowAddAchievement(false); refreshAchievements(); }} onAdded={() => { setShowAddAchievement(false); refreshAchievements(); }} saveLabel="Save" />
+      <AddAchievementModal
+        visible={showAddAchievement}
+        onClose={() => {
+          setShowAddAchievement(false);
+          refreshAchievements();
+        }}
+        onAdded={() => {
+          setShowAddAchievement(false);
+          refreshAchievements();
+        }}
+        saveLabel="Save"
+      />
     </View>
   );
 }
@@ -413,7 +459,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignSelf: 'center',
     marginLeft: 8,
-    marginTop: 10
+    marginTop: 10,
   },
   addAchievementButtonText: {
     color: Colors.light.background,
@@ -421,4 +467,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 0.2,
   },
-}); 
+});

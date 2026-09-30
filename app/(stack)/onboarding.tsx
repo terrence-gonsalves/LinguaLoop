@@ -18,14 +18,14 @@ export default function OnboardingScreen() {
   const { profile, reloadProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [languages, setLanguages] = useState<Language[]>([]);
-  
+
   // form state
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
   const [aboutMe, setAboutMe] = useState('');
   const [nativeLanguage, setNativeLanguage] = useState<string | null>(null);
   const [targetLanguages, setTargetLanguages] = useState<string[]>(['']);
-  
+
   // form errors
   const [usernameError, setUsernameError] = useState('');
   const [aboutMeError, setAboutMeError] = useState('');
@@ -98,7 +98,7 @@ export default function OnboardingScreen() {
 
   async function handleSubmit() {
     if (!profile?.id) return;
-    
+
     // validate required fields
     if (!nativeLanguage) {
       Alert.alert('Error', 'Please select your native language');
@@ -114,7 +114,7 @@ export default function OnboardingScreen() {
     if (aboutMe && !validateAboutMe(aboutMe)) return;
 
     // remove empty target languages
-    const validTargetLanguages = targetLanguages.filter(lang => lang);
+    const validTargetLanguages = targetLanguages.filter((lang) => lang);
 
     // check for duplicate target languages
     const uniqueTargets = new Set(validTargetLanguages);
@@ -133,12 +133,13 @@ export default function OnboardingScreen() {
     setIsLoading(true);
 
     try {
-
       // check if username is unique. RLS hides other users' profiles, so this
       // goes through a security definer RPC
       if (username) {
-        const { data: isAvailable, error: userCheckError } = await supabase
-          .rpc('is_username_available', { p_user_name: username });
+        const { data: isAvailable, error: userCheckError } = await supabase.rpc(
+          'is_username_available',
+          { p_user_name: username }
+        );
 
         if (userCheckError) {
           console.error('Error checking username uniqueness:', userCheckError);
@@ -167,15 +168,13 @@ export default function OnboardingScreen() {
       if (profileError) throw profileError;
 
       // insert target languages
-      const languageInserts = validTargetLanguages.map(langId => ({
+      const languageInserts = validTargetLanguages.map((langId) => ({
         user_id: profile.id,
         master_language_id: langId,
-        name: languages.find(l => l.id === langId)?.name || '',
+        name: languages.find((l) => l.id === langId)?.name || '',
       }));
 
-      const { error: languagesError } = await supabase
-        .from('languages')
-        .insert(languageInserts);
+      const { error: languagesError } = await supabase.from('languages').insert(languageInserts);
 
       if (languagesError) throw languagesError;
 
@@ -244,11 +243,14 @@ export default function OnboardingScreen() {
               <View key={index} style={styles.targetLanguageRow}>
                 <View style={styles.targetLanguageDropdown}>
                   <LanguageDropdown
-                    label=''
+                    label=""
                     data={languages}
                     value={lang}
                     onChange={(value) => updateTargetLanguage(index, value || '')}
-                    excludeValues={[nativeLanguage || '', ...targetLanguages.filter((_, i) => i !== index)]}
+                    excludeValues={[
+                      nativeLanguage || '',
+                      ...targetLanguages.filter((_, i) => i !== index),
+                    ]}
                   />
                 </View>
                 {index > 0 && (
@@ -256,7 +258,11 @@ export default function OnboardingScreen() {
                     onPress={() => removeTargetLanguage(index)}
                     style={styles.removeButton}
                   >
-                    <MaterialIcons name="remove-circle-outline" size={24} color={Colors.light.rust} />
+                    <MaterialIcons
+                      name="remove-circle-outline"
+                      size={24}
+                      color={Colors.light.rust}
+                    />
                   </Pressable>
                 )}
               </View>
@@ -282,11 +288,9 @@ export default function OnboardingScreen() {
           onPress={handleSubmit}
           disabled={isLoading}
         >
-          <Text style={styles.submitButtonText}>
-            {isLoading ? 'Saving...' : 'Start Learning'}
-          </Text>
+          <Text style={styles.submitButtonText}>{isLoading ? 'Saving...' : 'Start Learning'}</Text>
         </Pressable>
-        </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -301,7 +305,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   keyboardAvoidingView: {
-    flex: 1, 
+    flex: 1,
   },
   scrollView: {
     flex: 1,
@@ -367,4 +371,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-}); 
+});

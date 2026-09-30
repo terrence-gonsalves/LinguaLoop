@@ -23,25 +23,21 @@ export async function uploadAvatar(userId: string, uri: string): Promise<string>
     let body: ArrayBuffer | Blob;
 
     if (Platform.OS !== 'web') {
-
       // read file as base64
       const base64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64
+        encoding: FileSystem.EncodingType.Base64,
       });
       body = base64Decode(base64);
     } else {
-
       // handle web upload
       const response = await fetch(uri);
       body = await response.blob();
     }
 
-    const { error: uploadError } = await supabase.storage
-      .from(AVATAR_BUCKET)
-      .upload(path, body, {
-        upsert: true,
-        contentType: 'image/jpeg',
-      });
+    const { error: uploadError } = await supabase.storage.from(AVATAR_BUCKET).upload(path, body, {
+      upsert: true,
+      contentType: 'image/jpeg',
+    });
 
     if (uploadError) throw uploadError;
 
@@ -57,7 +53,6 @@ export async function uploadAvatar(userId: string, uri: string): Promise<string>
 
 // deletes the user's avatar file. throws if nothing was deleted.
 export async function deleteAvatar(userId: string): Promise<void> {
-
   // .jpeg and .png are names older app versions could have used
   const { data, error } = await supabase.storage
     .from(AVATAR_BUCKET)

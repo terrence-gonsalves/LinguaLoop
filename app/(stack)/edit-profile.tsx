@@ -1,24 +1,21 @@
-import { router } from "expo-router";
-import { Stack } from "expo-router/stack";
+import { router } from 'expo-router';
+import { Stack } from 'expo-router/stack';
 
-import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
-import { Button } from "@/components/common/Button";
-import { FormInput } from "@/components/forms/FormInput";
-import { ImageUpload } from "@/components/forms/ImageUpload";
-import {
-  Language,
-  LanguageDropdown,
-} from "@/components/forms/LanguageDropdown";
+import { Button } from '@/components/common/Button';
+import { FormInput } from '@/components/forms/FormInput';
+import { ImageUpload } from '@/components/forms/ImageUpload';
+import { Language, LanguageDropdown } from '@/components/forms/LanguageDropdown';
 
-import Colors from "@/constants/Colors";
+import Colors from '@/constants/Colors';
 
-import { useAuth } from "@/lib/auth-context";
-import { supabase } from "@/lib/supabase";
-import { deleteAvatar, uploadAvatar } from "@/lib/supabase/storage";
-import { showErrorToast, showSuccessToast } from "@/lib/toast";
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
+import { deleteAvatar, uploadAvatar } from '@/lib/supabase/storage';
+import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 export default function EditProfileScreen() {
   const { profile, reloadProfile } = useAuth();
@@ -26,16 +23,16 @@ export default function EditProfileScreen() {
   const [languages, setLanguages] = useState<Language[]>([]);
 
   // form state
-  const [displayName, setDisplayName] = useState(profile?.name || "");
-  const [username, setUsername] = useState(profile?.user_name || "");
-  const [aboutMe, setAboutMe] = useState(profile?.about_me || "");
+  const [displayName, setDisplayName] = useState(profile?.name || '');
+  const [username, setUsername] = useState(profile?.user_name || '');
+  const [aboutMe, setAboutMe] = useState(profile?.about_me || '');
   const [nativeLanguage, setNativeLanguage] = useState<string | null>(
-    profile?.native_language || null,
+    profile?.native_language || null
   );
 
   // form errors
-  const [usernameError, setUsernameError] = useState("");
-  const [aboutMeError, setAboutMeError] = useState("");
+  const [usernameError, setUsernameError] = useState('');
+  const [aboutMeError, setAboutMeError] = useState('');
 
   useEffect(() => {
     loadLanguages();
@@ -44,64 +41,62 @@ export default function EditProfileScreen() {
   async function loadLanguages() {
     try {
       const { data, error } = await supabase
-        .from("master_languages")
-        .select("id, name, flag")
-        .order("name");
+        .from('master_languages')
+        .select('id, name, flag')
+        .order('name');
 
       if (error) throw error;
       setLanguages(data || []);
     } catch (error) {
-      console.error("Error loading languages:", error);
-      Alert.alert("Error", "Failed to load languages. Please try again.");
+      console.error('Error loading languages:', error);
+      Alert.alert('Error', 'Failed to load languages. Please try again.');
     }
   }
 
   function validateUsername(value: string) {
     if (!value) {
-      setUsernameError("Username is required");
+      setUsernameError('Username is required');
       return false;
     }
     if (value.length < 3) {
-      setUsernameError("Username must be at least 3 characters");
+      setUsernameError('Username must be at least 3 characters');
       return false;
     }
     if (value.length > 20) {
-      setUsernameError("Username must be less than 20 characters");
+      setUsernameError('Username must be less than 20 characters');
       return false;
     }
     if (!/^[a-zA-Z0-9._]+$/.test(value)) {
-      setUsernameError(
-        "Username can only contain letters, numbers, periods, and underscores",
-      );
+      setUsernameError('Username can only contain letters, numbers, periods, and underscores');
       return false;
     }
-    setUsernameError("");
+    setUsernameError('');
     return true;
   }
 
   function validateAboutMe(value: string) {
     if (value.length > 250) {
-      setAboutMeError("About me must be less than 250 characters");
+      setAboutMeError('About me must be less than 250 characters');
       return false;
     }
-    setAboutMeError("");
+    setAboutMeError('');
     return true;
   }
 
   async function handleSubmit() {
     if (!profile?.id) {
-      console.error("No profile ID found");
+      console.error('No profile ID found');
       return;
     }
 
     // validate required fields
     if (!nativeLanguage) {
-      Alert.alert("Error", "Please select your native language");
+      Alert.alert('Error', 'Please select your native language');
       return;
     }
 
     if (!username) {
-      Alert.alert("Error", "Please enter a username");
+      Alert.alert('Error', 'Please enter a username');
       return;
     }
 
@@ -115,17 +110,17 @@ export default function EditProfileScreen() {
       // other users' profiles, so this goes through a security definer RPC
       if (username && username !== profile.user_name) {
         const { data: isAvailable, error: userCheckError } = await supabase.rpc(
-          "is_username_available",
-          { p_user_name: username },
+          'is_username_available',
+          { p_user_name: username }
         );
 
         if (userCheckError) {
-          console.error("Error checking username uniqueness:", userCheckError);
+          console.error('Error checking username uniqueness:', userCheckError);
           throw userCheckError;
         }
 
         if (!isAvailable) {
-          setUsernameError("This username is already taken");
+          setUsernameError('This username is already taken');
           setIsLoading(false);
           return;
         }
@@ -133,17 +128,17 @@ export default function EditProfileScreen() {
 
       // update profile
       const { error: profileError } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({
           name: displayName || null,
           user_name: username || null,
           about_me: aboutMe || null,
           native_language: nativeLanguage,
         })
-        .eq("id", profile.id);
+        .eq('id', profile.id);
 
       if (profileError) {
-        console.error("Error updating profile:", profileError);
+        console.error('Error updating profile:', profileError);
         throw profileError;
       }
 
@@ -151,13 +146,13 @@ export default function EditProfileScreen() {
       await reloadProfile();
 
       // show success toast and navigate to settings
-      showSuccessToast("Profile Updated");
+      showSuccessToast('Profile Updated');
 
       // navigate to settings screen
-      router.replace("/(tabs)/settings");
+      router.replace('/(tabs)/settings');
     } catch (error) {
-      console.error("Error saving profile:", error);
-      showErrorToast("Failed to save your profile. Please try again.");
+      console.error('Error saving profile:', error);
+      showErrorToast('Failed to save your profile. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -172,19 +167,19 @@ export default function EditProfileScreen() {
 
       // update the profile with the new avatar URL
       const { error: updateError } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({ avatar_url: publicUrl })
-        .eq("id", profile.id);
+        .eq('id', profile.id);
 
       if (updateError) throw updateError;
 
       // reload the profile to update the UI
       await reloadProfile();
 
-      showSuccessToast("Profile Photo Updated");
+      showSuccessToast('Profile Photo Updated');
     } catch (error) {
-      console.error("Error updating profile photo:", error);
-      showErrorToast("Failed to update profile photo. Please try again.");
+      console.error('Error updating profile photo:', error);
+      showErrorToast('Failed to update profile photo. Please try again.');
     }
   }
 
@@ -197,19 +192,19 @@ export default function EditProfileScreen() {
 
       // update the profile to remove the avatar URL
       const { error: updateError } = await supabase
-        .from("profiles")
+        .from('profiles')
         .update({ avatar_url: null })
-        .eq("id", profile.id);
+        .eq('id', profile.id);
 
       if (updateError) throw updateError;
 
       // reload the profile to update the UI
       await reloadProfile();
 
-      showSuccessToast("Profile Photo Removed");
+      showSuccessToast('Profile Photo Removed');
     } catch (error) {
-      console.error("Error removing profile photo:", error);
-      showErrorToast("Failed to remove profile photo. Please try again.");
+      console.error('Error removing profile photo:', error);
+      showErrorToast('Failed to remove profile photo. Please try again.');
     }
   }
 
@@ -217,7 +212,7 @@ export default function EditProfileScreen() {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: "Edit Profile",
+          title: 'Edit Profile',
           headerShadowVisible: true,
         }}
       />
@@ -237,7 +232,7 @@ export default function EditProfileScreen() {
                 currentImageUrl={profile?.avatar_url}
                 onImageSelected={handleImageSelected}
                 onImageRemoved={handleImageRemoved}
-                letter={profile?.name?.[0] || profile?.user_name?.[0] || "?"}
+                letter={profile?.name?.[0] || profile?.user_name?.[0] || '?'}
               />
             </View>
           </View>
@@ -278,9 +273,7 @@ export default function EditProfileScreen() {
               style={styles.aboutMeInput}
               textAlignVertical="top"
             />
-            {aboutMe ? (
-              <Text style={styles.characterCount}>{aboutMe.length}/250</Text>
-            ) : null}
+            {aboutMe ? <Text style={styles.characterCount}>{aboutMe.length}/250</Text> : null}
 
             <LanguageDropdown
               label="Native Language"
@@ -323,7 +316,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -333,7 +326,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   photoSection: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   aboutMeInput: {
     height: 120,
@@ -342,7 +335,7 @@ const styles = StyleSheet.create({
   characterCount: {
     fontSize: 12,
     color: Colors.light.textSecondary,
-    textAlign: "right",
+    textAlign: 'right',
     marginTop: -12,
   },
   submitButton: {

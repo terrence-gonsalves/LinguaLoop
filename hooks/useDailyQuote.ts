@@ -6,8 +6,8 @@ import { supabase } from '@/lib/supabase';
 const QUOTE_STORAGE_KEY = '@daily_quote';
 const QUOTE_TIMESTAMP_KEY = '@daily_quote_timestamp';
 const DEFAULT_QUOTE = {
-  quote: "The limits of my language mean the limits of my world.",
-  author: "Ludwig Wittgenstein"
+  quote: 'The limits of my language mean the limits of my world.',
+  author: 'Ludwig Wittgenstein',
 };
 
 interface Quote {
@@ -22,14 +22,10 @@ export function useDailyQuote() {
 
   async function fetchRandomQuote() {
     try {
-      
       // first, get all quote IDs to randomly select from
-      const { data: quoteIds, error: idsError } = await supabase
-        .from('quotes')
-        .select('id');
+      const { data: quoteIds, error: idsError } = await supabase.from('quotes').select('id');
 
       if (idsError || !quoteIds || quoteIds.length === 0) {
-
         // if there's an error or no quotes, use the default quote
         setQuote(DEFAULT_QUOTE);
         setError(null);
@@ -48,11 +44,10 @@ export function useDailyQuote() {
         .single();
 
       if (fetchError) {
-        
         // if there's an error, use the default quote
         setQuote(DEFAULT_QUOTE);
         setError(null);
-        
+
         return;
       }
 
@@ -62,10 +57,10 @@ export function useDailyQuote() {
 
         return;
       }
-      
+
       const newQuote = {
         quote: data.quote,
-        author: data.author
+        author: data.author,
       };
 
       // store the quote and timestamp
@@ -89,7 +84,6 @@ export function useDailyQuote() {
       const storedTimestamp = await AsyncStorage.getItem(QUOTE_TIMESTAMP_KEY);
 
       if (!storedQuote || !storedTimestamp) {
-
         // no stored quote, fetch a new one
         await fetchRandomQuote();
         return;
@@ -100,11 +94,9 @@ export function useDailyQuote() {
       const hoursSinceLastUpdate = (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60);
 
       if (hoursSinceLastUpdate >= 24) {
-
         // quote is older than 24 hours, fetch a new one
         await fetchRandomQuote();
       } else {
-
         // use stored quote
         setQuote(JSON.parse(storedQuote));
         setIsLoading(false);
@@ -122,4 +114,4 @@ export function useDailyQuote() {
   }, []);
 
   return { quote, isLoading, error };
-} 
+}

@@ -28,7 +28,10 @@ interface StudyProgressCardProps {
 
 export function StudyProgressCard({ weeklyProgressData }: StudyProgressCardProps) {
   const chartData = {
-    labels: weeklyProgressData.labels.length > 0 ? weeklyProgressData.labels : ['1', '2', '3', '4', '5', '6'],
+    labels:
+      weeklyProgressData.labels.length > 0
+        ? weeklyProgressData.labels
+        : ['1', '2', '3', '4', '5', '6'],
     datasets: [
       {
         data: weeklyProgressData.data.length > 0 ? weeklyProgressData.data : [0, 0, 0, 0, 0, 0],
@@ -57,7 +60,7 @@ export function StudyProgressCard({ weeklyProgressData }: StudyProgressCardProps
             },
             propsForLabels: {
               fontSize: '12',
-            }
+            },
           }}
           bezier
         />
@@ -85,4 +88,4 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     fontSize: 12,
   },
-}); 
+});

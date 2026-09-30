@@ -10,7 +10,16 @@ export interface FormInputProps extends TextInputProps {
   helperText?: string;
 }
 
-export function FormInput({ label, error, helperText, style, secureTextEntry, multiline, numberOfLines, ...props }: FormInputProps) {
+export function FormInput({
+  label,
+  error,
+  helperText,
+  style,
+  secureTextEntry,
+  multiline,
+  numberOfLines,
+  ...props
+}: FormInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const isPasswordField = secureTextEntry !== undefined;
   const shouldShowPassword = isPasswordField && !secureTextEntry;
@@ -18,12 +27,12 @@ export function FormInput({ label, error, helperText, style, secureTextEntry, mu
   // calculate height for multiline inputs based on numberOfLines
   const getMultilineStyle = () => {
     if (!multiline) return {};
-    
+
     // approximate line height (fontSize + padding)
     const lineHeight = 20; // fontSize 16 + some padding
     const baseHeight = 40; // base input height
-    const calculatedHeight = numberOfLines ? (numberOfLines * lineHeight) + baseHeight : 100;
-    
+    const calculatedHeight = numberOfLines ? numberOfLines * lineHeight + baseHeight : 100;
+
     return {
       minHeight: calculatedHeight,
       textAlignVertical: 'top' as const,
@@ -51,10 +60,7 @@ export function FormInput({ label, error, helperText, style, secureTextEntry, mu
           {...props}
         />
         {isPasswordField && (
-          <Pressable
-            style={styles.eyeIcon}
-            onPress={() => setShowPassword(!showPassword)}
-          >
+          <Pressable style={styles.eyeIcon} onPress={() => setShowPassword(!showPassword)}>
             <MaterialIcons
               name={showPassword ? 'visibility' : 'visibility-off'}
               size={24}
@@ -116,4 +122,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
-}); 
+});

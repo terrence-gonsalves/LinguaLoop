@@ -87,7 +87,7 @@ export function useAchievements(userId: string) {
 
     return () => {
       isMounted = false;
-      
+
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
         subscriptionRef.current = null;
@@ -96,4 +96,4 @@ export function useAchievements(userId: string) {
   }, [userId]);
 
   return { achievements, totalCount, isLoading, error, refresh: loadAchievements };
-} 
+}

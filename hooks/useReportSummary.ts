@@ -30,21 +30,23 @@ export function useReportSummary(userId: string | undefined, selectedLanguageId:
     const loadSummaryData = async () => {
       setIsLoading(true);
       try {
-
         // --- total time ---
         let timeQuery = supabase
           .from('time_entries')
           .select('duration_seconds')
           .eq('user_id', userId);
-        
+
         if (selectedLanguageId) {
           timeQuery = timeQuery.eq('language_id', selectedLanguageId);
         }
-        
+
         const { data: timeData, error: timeError } = await timeQuery;
         if (timeError) throw timeError;
 
-        const totalSeconds = (timeData || []).reduce((sum, entry) => sum + entry.duration_seconds, 0);
+        const totalSeconds = (timeData || []).reduce(
+          (sum, entry) => sum + entry.duration_seconds,
+          0
+        );
         const totalHours = Math.floor(totalSeconds / 3600);
         const totalMinutes = Math.floor((totalSeconds % 3600) / 60);
         const remainingSeconds = totalSeconds % 60;
@@ -55,23 +57,41 @@ export function useReportSummary(userId: string | undefined, selectedLanguageId:
         const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 
         // today's sessions
-        let todayQuery = supabase.from('time_entries').select('duration_seconds').eq('user_id', userId).gte('activity_date', today.toISOString()).lt('activity_date', new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
+        let todayQuery = supabase
+          .from('time_entries')
+          .select('duration_seconds')
+          .eq('user_id', userId)
+          .gte('activity_date', today.toISOString())
+          .lt('activity_date', new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
         if (selectedLanguageId) todayQuery = todayQuery.eq('language_id', selectedLanguageId);
         const { data: todayData, error: todayError } = await todayQuery;
         if (todayError) throw todayError;
 
         // yesterday's sessions
-        let yesterdayQuery = supabase.from('time_entries').select('duration_seconds').eq('user_id', userId).gte('activity_date', yesterday.toISOString()).lt('activity_date', today.toISOString());
-        if (selectedLanguageId) yesterdayQuery = yesterdayQuery.eq('language_id', selectedLanguageId);
+        let yesterdayQuery = supabase
+          .from('time_entries')
+          .select('duration_seconds')
+          .eq('user_id', userId)
+          .gte('activity_date', yesterday.toISOString())
+          .lt('activity_date', today.toISOString());
+        if (selectedLanguageId)
+          yesterdayQuery = yesterdayQuery.eq('language_id', selectedLanguageId);
         const { data: yesterdayData, error: yesterdayError } = await yesterdayQuery;
         if (yesterdayError) throw yesterdayError;
-        
-        const todayTotalSeconds = (todayData || []).reduce((sum, entry) => sum + entry.duration_seconds, 0);
-        const yesterdayTotalSeconds = (yesterdayData || []).reduce((sum, entry) => sum + entry.duration_seconds, 0);
-        
+
+        const todayTotalSeconds = (todayData || []).reduce(
+          (sum, entry) => sum + entry.duration_seconds,
+          0
+        );
+        const yesterdayTotalSeconds = (yesterdayData || []).reduce(
+          (sum, entry) => sum + entry.duration_seconds,
+          0
+        );
+
         const todayAverage = todayData.length > 0 ? todayTotalSeconds / todayData.length : 0;
-        const yesterdayAverage = yesterdayData.length > 0 ? yesterdayTotalSeconds / yesterdayData.length : 0;
-        
+        const yesterdayAverage =
+          yesterdayData.length > 0 ? yesterdayTotalSeconds / yesterdayData.length : 0;
+
         let changePercent: number | null = null;
         if (yesterdayAverage > 0) {
           changePercent = ((todayAverage - yesterdayAverage) / yesterdayAverage) * 100;
@@ -79,11 +99,14 @@ export function useReportSummary(userId: string | undefined, selectedLanguageId:
 
         setSummary({
           totalTime: { hours: totalHours, minutes: totalMinutes, seconds: remainingSeconds },
-          averageSession: { currentDay: todayAverage, previousDay: yesterdayAverage, changePercent },
+          averageSession: {
+            currentDay: todayAverage,
+            previousDay: yesterdayAverage,
+            changePercent,
+          },
         });
-
       } catch (error) {
-        console.error("Error loading report summary:", error);
+        console.error('Error loading report summary:', error);
       } finally {
         setIsLoading(false);
       }
@@ -106,4 +129,4 @@ export function useReportSummary(userId: string | undefined, selectedLanguageId:
   }, [userId, selectedLanguageId]);
 
   return { summary, isLoading };
-} 
+}

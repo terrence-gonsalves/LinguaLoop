@@ -20,11 +20,14 @@ import { useWeeklyStreak } from '@/hooks/useWeeklyStreak';
 import { useAuth } from '@/lib/auth-context';
 
 // map activity names to their respective icons
-const ACTIVITY_ICONS: Record<string, { icon: keyof typeof MaterialCommunityIcons.glyphMap, type: 'material' | 'ionicon' }> = {
-  'Reading': { icon: 'book-outline', type: 'ionicon' },
-  'Writing': { icon: 'pencil-outline', type: 'material' },
-  'Listening': { icon: 'headphones', type: 'material' },
-  'Speaking': { icon: 'microphone-outline', type: 'material' },
+const ACTIVITY_ICONS: Record<
+  string,
+  { icon: keyof typeof MaterialCommunityIcons.glyphMap; type: 'material' | 'ionicon' }
+> = {
+  Reading: { icon: 'book-outline', type: 'ionicon' },
+  Writing: { icon: 'pencil-outline', type: 'material' },
+  Listening: { icon: 'headphones', type: 'material' },
+  Speaking: { icon: 'microphone-outline', type: 'material' },
 };
 
 interface ActivityCardProps {
@@ -34,11 +37,8 @@ interface ActivityCardProps {
 }
 
 const ActivityCard = ({ title, icon, onPress }: ActivityCardProps) => (
-  <Pressable 
-    style={({ pressed }) => [
-      styles.activityCard,
-      pressed && styles.activityCardPressed
-    ]}
+  <Pressable
+    style={({ pressed }) => [styles.activityCard, pressed && styles.activityCardPressed]}
     onPress={onPress}
   >
     {icon}
@@ -118,7 +118,7 @@ export default function DashboardScreen() {
 
   const renderActivityIcon = (activityName: string) => {
     const iconConfig = ACTIVITY_ICONS[activityName];
-    
+
     if (!iconConfig) return null;
 
     if (iconConfig.type === 'ionicon') {
@@ -135,7 +135,6 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-
         {/* user profile section */}
         <View style={styles.profileSection}>
           <View style={styles.profileInfo}>
@@ -180,7 +179,11 @@ export default function DashboardScreen() {
                       <MaterialCommunityIcons name="fire" size={24} color={Colors.light.rust} />
                     )
                   ) : (
-                    <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color={Colors.light.textTertiary} />
+                    <MaterialCommunityIcons
+                      name="checkbox-blank-circle-outline"
+                      size={24}
+                      color={Colors.light.textTertiary}
+                    />
                   )}
                 </View>
               );

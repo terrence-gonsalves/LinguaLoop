@@ -29,7 +29,6 @@ type Theme = {
 // define the base colors that will always be available
 const baseColors: Theme = {
   light: {
-
     // text colors
     text: '#1B1C20',
     textPrimary: '#1B1C20',
@@ -66,18 +65,13 @@ const ThemeContext = createContext<Theme>(baseColors);
 
 // create the provider component
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  return (
-    <ThemeContext.Provider value={baseColors}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={baseColors}>{children}</ThemeContext.Provider>;
 }
 
 // create a hook to use the theme
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) {
-
     // if context is not available, return the base colors
     return baseColors;
   }
@@ -93,4 +87,4 @@ export function useColors() {
 }
 
 // export the ThemeProvider as default
-export default ThemeProvider; 
+export default ThemeProvider;

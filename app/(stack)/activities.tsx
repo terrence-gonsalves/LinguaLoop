@@ -2,7 +2,15 @@ import { router } from 'expo-router';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import Colors from '@/constants/Colors';
 
@@ -33,7 +41,7 @@ function formatDate(dateString: string) {
 function formatDuration(seconds: number) {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m`;
   } else {
@@ -68,19 +76,21 @@ export default function ActivitiesListScreen() {
     try {
       const { data, error } = await supabase
         .from('time_entries')
-        .select(`
+        .select(
+          `
           id,
           activity_date,
           duration_seconds,
           notes,
           activities(name),
           languages(name)
-        `)
+        `
+        )
         .eq('user_id', profile.id)
         .order('activity_date', { ascending: false });
 
       if (error) throw error;
-      
+
       setTimeEntries((data as any[]) || []);
     } catch (error) {
       console.error('Error fetching time entries:', error);
@@ -93,8 +103,8 @@ export default function ActivitiesListScreen() {
     Alert.alert('Delete Activity', 'Are you sure you want to delete this tracked activity?', [
       { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Delete', 
-        style: 'destructive', 
+        text: 'Delete',
+        style: 'destructive',
         onPress: async () => {
           setDeletingId(entryId);
           try {
@@ -113,13 +123,12 @@ export default function ActivitiesListScreen() {
           } finally {
             setDeletingId(null);
           }
-        }
-      }
+        },
+      },
     ]);
   }
 
   function handleEdit(entryId: string) {
-
     // navigate to edit screen (you'll need to create this)
     router.push(`/(stack)/edit-activity/${entryId}`);
   }
@@ -140,7 +149,11 @@ export default function ActivitiesListScreen() {
     return (
       <View style={styles.center}>
         <Text style={styles.emptyText}>
-          You have no tracked activities. <Text style={styles.link} onPress={handleCreate}>Track one</Text>.
+          You have no tracked activities.{' '}
+          <Text style={styles.link} onPress={handleCreate}>
+            Track one
+          </Text>
+          .
         </Text>
       </View>
     );
@@ -150,29 +163,25 @@ export default function ActivitiesListScreen() {
     <View style={styles.activityCard}>
       <View style={styles.activityHeader}>
         <Text style={styles.activityDate}>{formatDate(entry.activity_date)}</Text>
-        <Text style={styles.activityDuration}>
-          {formatDuration(entry.duration_seconds)}
-        </Text>
+        <Text style={styles.activityDuration}>{formatDuration(entry.duration_seconds)}</Text>
       </View>
-      
+
       <View style={styles.activityDetails}>
         <Text style={styles.activityMeta}>
           {entry.languages?.name ? `${entry.languages.name} • ` : ''}
           {entry.activities?.name || 'Unknown Activity'}
         </Text>
       </View>
-      
-      {entry.notes && (
-        <Text style={styles.activityNotes}>{entry.notes}</Text>
-      )}
-      
+
+      {entry.notes && <Text style={styles.activityNotes}>{entry.notes}</Text>}
+
       <View style={styles.actionsRow}>
         <Pressable style={styles.editButton} onPress={() => handleEdit(entry.id)}>
           <Text style={styles.editButtonText}>Edit</Text>
         </Pressable>
-        <Pressable 
-          style={styles.deleteButton} 
-          onPress={() => handleDelete(entry.id)} 
+        <Pressable
+          style={styles.deleteButton}
+          onPress={() => handleDelete(entry.id)}
           disabled={deletingId === entry.id}
         >
           <Text style={styles.deleteButtonText}>

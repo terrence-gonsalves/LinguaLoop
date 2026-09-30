@@ -8,20 +8,24 @@ interface DefaultAvatarProps {
 
 export default function DefaultAvatar({ size = 40, letter = '?' }: DefaultAvatarProps) {
   return (
-    <View style={[
-      styles.container,
-      {
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-      }
-    ]}>
-      <Text style={[
-        styles.letter,
+    <View
+      style={[
+        styles.container,
         {
-          fontSize: size * 0.4,
-        }
-      ]}>
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+        },
+      ]}
+    >
+      <Text
+        style={[
+          styles.letter,
+          {
+            fontSize: size * 0.4,
+          },
+        ]}
+      >
         {letter}
       </Text>
     </View>
@@ -38,4 +42,4 @@ const styles = StyleSheet.create({
     color: Colors.light.background,
     fontWeight: '600',
   },
-}); 
+});

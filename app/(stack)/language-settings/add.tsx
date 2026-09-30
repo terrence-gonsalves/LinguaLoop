@@ -46,11 +46,11 @@ export default function AddLanguageScreen() {
 
       if (userError) throw userError;
 
-      const userLanguageIds = userLanguages.map(lang => lang.master_language_id);
-      
+      const userLanguageIds = userLanguages.map((lang) => lang.master_language_id);
+
       const availableLanguages = masterLanguages
-        .filter(lang => !userLanguageIds.includes(lang.id))
-        .map(lang => ({
+        .filter((lang) => !userLanguageIds.includes(lang.id))
+        .map((lang) => ({
           id: lang.id,
           name: lang.name,
           flag: lang.flag,
@@ -65,31 +65,29 @@ export default function AddLanguageScreen() {
   };
 
   const handleToggleLanguage = (languageId: string) => {
-    setLanguages(prev => {
-      const updated = prev.map(lang => {
+    setLanguages((prev) => {
+      const updated = prev.map((lang) => {
         if (lang.id === languageId) {
           return { ...lang, selected: !lang.selected };
         }
         return lang;
       });
-      
-      setSelectedCount(updated.filter(lang => lang.selected).length);
+
+      setSelectedCount(updated.filter((lang) => lang.selected).length);
       return updated;
     });
   };
 
   const handleAddLanguages = async () => {
     try {
-      const selectedLanguages = languages.filter(lang => lang.selected);
-      
-      const { error } = await supabase
-        .from('languages')
-        .insert(
-          selectedLanguages.map(lang => ({
-            master_language_id: lang.id,
-            name: lang.name
-          }))
-        );
+      const selectedLanguages = languages.filter((lang) => lang.selected);
+
+      const { error } = await supabase.from('languages').insert(
+        selectedLanguages.map((lang) => ({
+          master_language_id: lang.id,
+          name: lang.name,
+        }))
+      );
 
       if (error) throw error;
 
@@ -100,7 +98,7 @@ export default function AddLanguageScreen() {
     }
   };
 
-  const filteredLanguages = languages.filter(lang =>
+  const filteredLanguages = languages.filter((lang) =>
     lang.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -129,14 +127,11 @@ export default function AddLanguageScreen() {
               onPress={() => handleToggleLanguage(language.id)}
             >
               <View style={styles.languageInfo}>
-                <LanguageFlag
-                  name={language.name}
-                  flagUrl={language.flag}
-                />
+                <LanguageFlag name={language.name} flagUrl={language.flag} />
                 <Text style={styles.languageName}>{language.name}</Text>
               </View>
               <MaterialIcons
-                name={language.selected ? "check-box" : "check-box-outline-blank"}
+                name={language.selected ? 'check-box' : 'check-box-outline-blank'}
                 size={24}
                 color={language.selected ? Colors.light.rust : Colors.light.textSecondary}
               />
@@ -145,24 +140,17 @@ export default function AddLanguageScreen() {
         </ScrollView>
 
         <View style={styles.footer}>
-          <Pressable
-            style={styles.cancelButton}
-            onPress={handleClose}
-          >
+          <Pressable style={styles.cancelButton} onPress={handleClose}>
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </Pressable>
           <Pressable
-            style={[
-              styles.addButton,
-              selectedCount === 0 && styles.addButtonDisabled
-            ]}
+            style={[styles.addButton, selectedCount === 0 && styles.addButtonDisabled]}
             onPress={handleAddLanguages}
             disabled={selectedCount === 0}
           >
-            <Text style={[
-              styles.addButtonText,
-              selectedCount === 0 && styles.addButtonTextDisabled
-            ]}>
+            <Text
+              style={[styles.addButtonText, selectedCount === 0 && styles.addButtonTextDisabled]}
+            >
               Add Language
             </Text>
           </Pressable>
@@ -266,4 +254,4 @@ const styles = StyleSheet.create({
   addButtonTextDisabled: {
     color: Colors.light.textSecondary,
   },
-}); 
+});

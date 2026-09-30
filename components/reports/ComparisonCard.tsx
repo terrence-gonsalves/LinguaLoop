@@ -25,11 +25,10 @@ interface ComparisonCardProps {
   analysisData: {
     data: number[];
     total: number;
-  }
+  };
 }
 
 export function ComparisonCard({ title, subtitle, items, analysisData }: ComparisonCardProps) {
-  
   const pieChartData = items.map((item, index) => ({
     name: item.text,
     population: analysisData.data[index] || 0,
@@ -37,7 +36,7 @@ export function ComparisonCard({ title, subtitle, items, analysisData }: Compari
     legendFontColor: Colors.light.textSecondary,
     legendFontSize: 14,
   }));
-  
+
   return (
     <ChartCard title={title} subtitle={subtitle}>
       <View style={styles.chartContainer}>
@@ -106,4 +105,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.light.textSecondary,
   },
-}); 
+});

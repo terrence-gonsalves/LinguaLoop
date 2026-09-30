@@ -50,8 +50,8 @@ export default function LanguageSettingsScreen() {
       if (error) throw error;
 
       // cast to unknown first to avoid type error
-      const typedLanguages = (languages as unknown) as LanguageResponse[];
-      const formattedLanguages = typedLanguages.map(lang => ({
+      const typedLanguages = languages as unknown as LanguageResponse[];
+      const formattedLanguages = typedLanguages.map((lang) => ({
         id: lang.id,
         name: lang.master_languages.name,
         flag: lang.master_languages.flag,
@@ -84,7 +84,6 @@ export default function LanguageSettingsScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-
               // the database cascades the delete to this language's time entries and goals
               const { data, error } = await supabase
                 .from('languages')
@@ -114,29 +113,23 @@ export default function LanguageSettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           title: 'Languages',
           headerShadowVisible: false,
           headerStyle: { backgroundColor: Colors.light.background },
-        }} 
+        }}
       />
 
       <ScrollView style={styles.content}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Target Languages</Text>
-          
+
           <View style={styles.languageList}>
             {selectedLanguages.map((language) => (
-              <Pressable
-                key={language.id}
-                style={styles.languageItem}
-              >
+              <Pressable key={language.id} style={styles.languageItem}>
                 <View style={styles.languageInfo}>
-                  <LanguageFlag
-                    name={language.name}
-                    flagUrl={language.flag}
-                  />
+                  <LanguageFlag name={language.name} flagUrl={language.flag} />
                   <Text style={styles.languageName}>{language.name}</Text>
                 </View>
                 <Pressable
@@ -146,20 +139,24 @@ export default function LanguageSettingsScreen() {
                   style={({ pressed }) => [
                     styles.removeButton,
                     selectedLanguages.length === 1 && styles.removeButtonDisabled,
-                    pressed && { opacity: 0.7 }
+                    pressed && { opacity: 0.7 },
                   ]}
                 >
-                  <MaterialIcons 
-                    name="remove-circle-outline" 
-                    size={24} 
-                    color={selectedLanguages.length === 1 ? Colors.light.border : Colors.light.textSecondary} 
+                  <MaterialIcons
+                    name="remove-circle-outline"
+                    size={24}
+                    color={
+                      selectedLanguages.length === 1
+                        ? Colors.light.border
+                        : Colors.light.textSecondary
+                    }
                   />
                 </Pressable>
               </Pressable>
             ))}
           </View>
 
-          <Pressable 
+          <Pressable
             style={styles.addButton}
             onPress={() => router.push('/(stack)/language-settings/add')}
           >
@@ -224,4 +221,4 @@ const styles = StyleSheet.create({
   removeButtonDisabled: {
     opacity: 0.5,
   },
-}); 
+});

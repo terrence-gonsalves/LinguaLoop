@@ -1,6 +1,5 @@
 export default {
   light: {
-
     // text colors
     text: '#1B1C20', // default text color
     textPrimary: '#1B1C20',
@@ -51,4 +50,4 @@ export default {
   dark: {
     // we'll implement dark theme later
   },
-} as const; 
+} as const;

@@ -28,14 +28,14 @@ export default function LanguagesScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen 
-        options={{ 
+      <Stack.Screen
+        options={{
           title: 'All Languages',
           headerShadowVisible: false,
           headerStyle: { backgroundColor: Colors.light.background },
-        }} 
+        }}
       />
-      {(isLoading) ? (
+      {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.light.rust} />
         </View>
@@ -44,8 +44,8 @@ export default function LanguagesScreen() {
           <View style={styles.section}>
             <View style={styles.languageCards}>
               {languages.map((language, index) => (
-                <LanguageProgressCard 
-                  key={language.id} 
+                <LanguageProgressCard
+                  key={language.id}
                   language={language.name}
                   level={language.level}
                   activities={language.activities}
@@ -115,4 +115,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-}); 
+});

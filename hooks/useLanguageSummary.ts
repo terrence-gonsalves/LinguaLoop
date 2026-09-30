@@ -60,7 +60,8 @@ export function useLanguageSummary(userId: string) {
         // get the user's languages
         const { data: languagesData, error: languagesError } = await supabase
           .from('languages')
-          .select(`
+          .select(
+            `
             id,
             name,
             proficiency_level,
@@ -68,7 +69,8 @@ export function useLanguageSummary(userId: string) {
             master_languages (
               name
             )
-          `)
+          `
+          )
           .eq('user_id', userId);
         if (languagesError) throw languagesError;
 
@@ -80,7 +82,10 @@ export function useLanguageSummary(userId: string) {
             const language = {
               ...rawLanguage,
               master_languages: {
-                name: rawLanguage.master_languages?.[0]?.name || rawLanguage.master_languages?.name || '',
+                name:
+                  rawLanguage.master_languages?.[0]?.name ||
+                  rawLanguage.master_languages?.name ||
+                  '',
               },
             };
 
@@ -90,7 +95,7 @@ export function useLanguageSummary(userId: string) {
               .select('duration_seconds, activity_id')
               .eq('user_id', userId)
               .eq('language_id', language.id);
-              
+
             if (timeError) throw timeError;
 
             // sum durations for each activity type
@@ -100,17 +105,21 @@ export function useLanguageSummary(userId: string) {
             });
             (timeData || []).forEach((entry: any) => {
               const activity = activitiesList.find((a) => a.id === entry.activity_id);
-              
+
               if (activity) {
                 activityDurations[activity.name] += entry.duration_seconds;
               }
             });
 
             // use master language name if available, fallback to direct name
-            const languageName = language.master_languages.name || language.name || 'Unknown Language';
+            const languageName =
+              language.master_languages.name || language.name || 'Unknown Language';
 
             // calculate total tracked time for this language
-            const totalTrackedTime = Object.values(activityDurations).reduce((sum, duration) => sum + duration, 0);
+            const totalTrackedTime = Object.values(activityDurations).reduce(
+              (sum, duration) => sum + duration,
+              0
+            );
 
             return {
               id: language.id,
@@ -123,10 +132,12 @@ export function useLanguageSummary(userId: string) {
         );
 
         if (!isMounted) return;
-        
+
         // sort languages by total tracked time (most tracked first)
-        const sortedLanguages = languagesWithTime.sort((a, b) => b.totalTrackedTime - a.totalTrackedTime);
-        
+        const sortedLanguages = languagesWithTime.sort(
+          (a, b) => b.totalTrackedTime - a.totalTrackedTime
+        );
+
         setLanguages(sortedLanguages);
       } catch (err) {
         if (!isMounted) return;
@@ -183,7 +194,7 @@ export function useLanguageSummary(userId: string) {
 
     return () => {
       isMounted = false;
-      
+
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
         subscriptionRef.current = null;
@@ -192,4 +203,4 @@ export function useLanguageSummary(userId: string) {
   }, [userId]);
 
   return { languages, isLoading, error };
-} 
+}

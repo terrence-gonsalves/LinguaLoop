@@ -41,7 +41,12 @@ export default function AchievementsScreen() {
     return achievements.map((achievement) => {
       const dateToShow = achievement.obtained_date || achievement.created_at;
       const localizedDate = dateToShow
-        ? new Date(dateToShow).toLocaleDateString(undefined, { timeZone: userTimeZone, year: 'numeric', month: 'long', day: 'numeric' })
+        ? new Date(dateToShow).toLocaleDateString(undefined, {
+            timeZone: userTimeZone,
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
         : '';
       return (
         <AchievementItem
@@ -68,14 +73,18 @@ export default function AchievementsScreen() {
           <Text style={styles.addAchievementButtonText}>Add Achievement</Text>
         </Pressable>
       </View>
-      <ScrollView 
-        style={styles.scrollView} 
+      <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         {renderContent()}
       </ScrollView>
-      <AddAchievementModal visible={showAddAchievement} onClose={() => setShowAddAchievement(false)} onAdded={() => setShowAddAchievement(false)} />
+      <AddAchievementModal
+        visible={showAddAchievement}
+        onClose={() => setShowAddAchievement(false)}
+        onAdded={() => setShowAddAchievement(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -139,4 +148,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-}); 
+});

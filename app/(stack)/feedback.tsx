@@ -13,7 +13,7 @@ import {
   Text,
   TextInput,
   ToastAndroid,
-  View
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -48,7 +48,7 @@ export default function FeedbackScreen() {
     try {
       const existingFeedback = await AsyncStorage.getItem(OFFLINE_FEEDBACK_KEY);
       const feedbackArray = existingFeedback ? JSON.parse(existingFeedback) : [];
-      
+
       feedbackArray.push({
         feedback: feedbackText,
         user_name: profile?.name || '',
@@ -73,9 +73,7 @@ export default function FeedbackScreen() {
       const feedbackArray = JSON.parse(offlineFeedback);
       if (feedbackArray.length === 0) return;
 
-      const { error } = await supabase
-        .from('feedback')
-        .insert(feedbackArray);
+      const { error } = await supabase.from('feedback').insert(feedbackArray);
 
       if (error) throw error;
 
@@ -101,13 +99,11 @@ export default function FeedbackScreen() {
     }
 
     try {
-      const { error } = await supabase
-        .from('feedback')
-        .insert({
-          feedback,
-          user_name: profile?.name || '',
-          user_email: profile?.email || '',
-        });
+      const { error } = await supabase.from('feedback').insert({
+        feedback,
+        user_name: profile?.name || '',
+        user_email: profile?.email || '',
+      });
 
       if (error) throw error;
 
@@ -123,18 +119,19 @@ export default function FeedbackScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           title: 'Feedback',
           headerShadowVisible: false,
           headerStyle: { backgroundColor: Colors.light.background },
-        }} 
+        }}
       />
 
       <View style={styles.content}>
         <Text style={styles.subtitle}>Help us improve!</Text>
         <Text style={styles.description}>
-          Are you experiencing an issue? Have a bug to report or maybe a feature request? Please give as much detail as possible.
+          Are you experiencing an issue? Have a bug to report or maybe a feature request? Please
+          give as much detail as possible.
         </Text>
 
         <TextInput
@@ -148,11 +145,8 @@ export default function FeedbackScreen() {
           textAlignVertical="top"
         />
 
-        <Pressable 
-          style={[
-            styles.submitButton,
-            isSubmitting && styles.submitButtonDisabled
-          ]}
+        <Pressable
+          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
           onPress={handleSubmit}
           disabled={isSubmitting}
         >
@@ -226,4 +220,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 16,
   },
-}); 
+});

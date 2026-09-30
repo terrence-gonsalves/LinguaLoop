@@ -2,7 +2,15 @@ import { router, useLocalSearchParams } from 'expo-router';
 import Stack from 'expo-router/stack';
 
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GoalFormSteps } from '@/components/goals/GoalFormSteps';
@@ -41,7 +49,6 @@ export default function EditGoalScreen() {
     setIsLoading(true);
 
     try {
-
       // fetch user's languages
       const { data: langs } = await supabase
         .from('languages')
@@ -58,11 +65,7 @@ export default function EditGoalScreen() {
       setLanguages(transformedLangs);
 
       // fetch goal
-      const { data: goal, error } = await supabase
-        .from('goals')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const { data: goal, error } = await supabase.from('goals').select('*').eq('id', id).single();
       if (error || !goal) throw error || new Error('Goal not found');
 
       setGoal(goal as Goal);
@@ -85,10 +88,10 @@ export default function EditGoalScreen() {
   }
 
   const handleNext = () => {
-    if (currentStep < 3) setCurrentStep(prev => prev + 1);
+    if (currentStep < 3) setCurrentStep((prev) => prev + 1);
   };
   const handleBack = () => {
-    if (currentStep > 1) setCurrentStep(prev => prev - 1);
+    if (currentStep > 1) setCurrentStep((prev) => prev - 1);
   };
 
   const handleSave = async () => {
@@ -132,14 +135,12 @@ export default function EditGoalScreen() {
     Alert.alert('Delete Goal', 'Are you sure you want to delete this goal?', [
       { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Delete', style: 'destructive', onPress: async () => {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
           setDeleting(true);
 
-          const { data, error } = await supabase
-            .from('goals')
-            .delete()
-            .eq('id', id)
-            .select('id');
+          const { data, error } = await supabase.from('goals').delete().eq('id', id).select('id');
 
           setDeleting(false);
 
@@ -151,8 +152,8 @@ export default function EditGoalScreen() {
 
           await cancelGoalNotification(id);
           router.replace('/(stack)/goals');
-        }
-      }
+        },
+      },
     ]);
   };
 
@@ -188,7 +189,6 @@ export default function EditGoalScreen() {
     }
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen
@@ -198,83 +198,96 @@ export default function EditGoalScreen() {
           headerStyle: { backgroundColor: Colors.light.background },
         }}
       />
-      {(isLoading || !formData) ? (
+      {isLoading || !formData ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.light.rust} />
         </View>
       ) : (
         <>
-            {goal && (
-              <View style={styles.statusRow}>
-                <Text style={styles.statusText}>Status: {getGoalDisplayStatus(goal)}</Text>
-                {canMarkCompleted(goal) && (
-                  <Pressable style={styles.completeButton} onPress={handleMarkCompleted} disabled={completing}>
-                    <Text style={styles.completeButtonText}>{completing ? 'Saving...' : 'Mark as completed'}</Text>
-                  </Pressable>
-                )}
-              </View>
-            )}
-            <View style={styles.progressContainer}>
-              {[1, 2, 3].map((step) => (
-                <React.Fragment key={step}>
-                    <View style={[
-                    styles.progressStep,
-                    currentStep >= step && styles.progressStepActive
-                    ]}>
-                    <Text style={[
-                        styles.progressStepText,
-                        currentStep >= step && styles.progressStepTextActive
-                    ]}>
-                        {step}
-                    </Text>
-                    </View>
-                    {step < 3 && (
-                    <View style={[
-                        styles.progressLine,
-                        currentStep > step && styles.progressLineActive
-                    ]} />
-                    )}
-                </React.Fragment>
-              ))}
+          {goal && (
+            <View style={styles.statusRow}>
+              <Text style={styles.statusText}>Status: {getGoalDisplayStatus(goal)}</Text>
+              {canMarkCompleted(goal) && (
+                <Pressable
+                  style={styles.completeButton}
+                  onPress={handleMarkCompleted}
+                  disabled={completing}
+                >
+                  <Text style={styles.completeButtonText}>
+                    {completing ? 'Saving...' : 'Mark as completed'}
+                  </Text>
+                </Pressable>
+              )}
             </View>
-            <ScrollView style={styles.content}>
-                <GoalFormSteps
-                currentStep={currentStep}
-                formData={formData}
-                setFormData={setFormData}
-                languages={languages}
-                summaryExtras={{
-                    durationDays: formData.startDate && formData.endDate
+          )}
+          <View style={styles.progressContainer}>
+            {[1, 2, 3].map((step) => (
+              <React.Fragment key={step}>
+                <View
+                  style={[styles.progressStep, currentStep >= step && styles.progressStepActive]}
+                >
+                  <Text
+                    style={[
+                      styles.progressStepText,
+                      currentStep >= step && styles.progressStepTextActive,
+                    ]}
+                  >
+                    {step}
+                  </Text>
+                </View>
+                {step < 3 && (
+                  <View
+                    style={[styles.progressLine, currentStep > step && styles.progressLineActive]}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </View>
+          <ScrollView style={styles.content}>
+            <GoalFormSteps
+              currentStep={currentStep}
+              formData={formData}
+              setFormData={setFormData}
+              languages={languages}
+              summaryExtras={{
+                durationDays:
+                  formData.startDate && formData.endDate
                     ? Math.max(
                         1,
                         Math.ceil(
-                            ((formData.endDate.getTime() - formData.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+                          (formData.endDate.getTime() - formData.startDate.getTime()) /
+                            (1000 * 60 * 60 * 24) +
+                            1
                         )
-                        )
-                    : null
-                }}
-                />
-            </ScrollView>
-            <View style={styles.buttonRow}>
-                {currentStep > 1 && (
-                <Pressable style={styles.backButton} onPress={handleBack}>
-                    <Text style={styles.buttonText}>Back</Text>
-                </Pressable>
-                )}
-                {currentStep < 3 && (
-                <Pressable style={styles.nextButton} onPress={handleNext} disabled={!validateStep()}>
-                    <Text style={styles.buttonText}>Next</Text>
-                </Pressable>
-                )}
-                {currentStep === 3 && (
-                <Pressable style={styles.saveButton} onPress={handleSave} disabled={!validateStep() || isLoading}>
-                    <Text style={styles.buttonText}>{isLoading ? 'Saving...' : 'Save Changes'}</Text>
-                </Pressable>
-                )}
-            </View>
-            <Pressable style={styles.deleteButton} onPress={handleDelete} disabled={deleting}>
-                <Text style={styles.deleteButtonText}>{deleting ? 'Deleting...' : 'Delete Goal'}</Text>
-            </Pressable>
+                      )
+                    : null,
+              }}
+            />
+          </ScrollView>
+          <View style={styles.buttonRow}>
+            {currentStep > 1 && (
+              <Pressable style={styles.backButton} onPress={handleBack}>
+                <Text style={styles.buttonText}>Back</Text>
+              </Pressable>
+            )}
+            {currentStep < 3 && (
+              <Pressable style={styles.nextButton} onPress={handleNext} disabled={!validateStep()}>
+                <Text style={styles.buttonText}>Next</Text>
+              </Pressable>
+            )}
+            {currentStep === 3 && (
+              <Pressable
+                style={styles.saveButton}
+                onPress={handleSave}
+                disabled={!validateStep() || isLoading}
+              >
+                <Text style={styles.buttonText}>{isLoading ? 'Saving...' : 'Save Changes'}</Text>
+              </Pressable>
+            )}
+          </View>
+          <Pressable style={styles.deleteButton} onPress={handleDelete} disabled={deleting}>
+            <Text style={styles.deleteButtonText}>{deleting ? 'Deleting...' : 'Delete Goal'}</Text>
+          </Pressable>
         </>
       )}
     </SafeAreaView>
@@ -401,4 +414,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-}); 
+});

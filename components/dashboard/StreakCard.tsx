@@ -9,7 +9,6 @@ interface StreakCardProps {
 }
 
 export function StreakCard({ currentStreak, longestStreak, streakStartDate }: StreakCardProps) {
-
   // format the date as "Month Day, Year"
   const formattedDate = new Date(streakStartDate).toLocaleDateString(undefined, {
     year: 'numeric',
@@ -30,7 +29,11 @@ export function StreakCard({ currentStreak, longestStreak, streakStartDate }: St
         </View>
       </View>
       <View style={styles.startDateContainer}>
-        <MaterialCommunityIcons name="calendar-start" size={16} color={Colors.light.textSecondary} />
+        <MaterialCommunityIcons
+          name="calendar-start"
+          size={16}
+          color={Colors.light.textSecondary}
+        />
         <Text style={styles.startDateText}>Started on {formattedDate}</Text>
       </View>
     </View>
@@ -71,4 +74,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.light.textSecondary,
   },
-}); 
+});

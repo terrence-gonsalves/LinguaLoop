@@ -11,21 +11,21 @@ interface AchievementItemProps {
   date?: string;
 }
 
-export function AchievementItem({ 
-  title, 
-  notes, 
-  icon, 
-  progress, 
+export function AchievementItem({
+  title,
+  notes,
+  icon,
+  progress,
   isCompleted = false,
-  date = 'October 2023'
+  date = 'October 2023',
 }: AchievementItemProps) {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <MaterialCommunityIcons 
-          name={icon} 
-          size={24} 
-          color={isCompleted ? Colors.light.rust : Colors.light.textSecondary} 
+        <MaterialCommunityIcons
+          name={icon}
+          size={24}
+          color={isCompleted ? Colors.light.rust : Colors.light.textSecondary}
         />
       </View>
       <View style={styles.content}>
@@ -90,4 +90,4 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.rust,
     borderRadius: 2,
   },
-}); 
+});

@@ -1,9 +1,18 @@
-
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
-import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 import { useAuth } from '@/lib/auth-context';
@@ -26,7 +35,12 @@ interface AddAchievementModalProps {
   saveLabel?: string;
 }
 
-export default function AddAchievementModal({ visible, onClose, onAdded, saveLabel }: AddAchievementModalProps) {
+export default function AddAchievementModal({
+  visible,
+  onClose,
+  onAdded,
+  saveLabel,
+}: AddAchievementModalProps) {
   const { profile } = useAuth();
   const [title, setTitle] = useState('');
   const [type, setType] = useState('award');
@@ -61,7 +75,7 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
 
     setLoading(true);
     setError(null);
-    
+
     const { error: insertError } = await supabase.from('achievements').insert({
       user_id: profile?.id,
       type,
@@ -82,21 +96,15 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
   }
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-        <KeyboardAwareScrollView
-          contentContainerStyle={styles.keyboardContainer}
-          style={styles.keyboardAvoidingView}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-
+        <View style={styles.modalContent}>
+          <KeyboardAwareScrollView
+            contentContainerStyle={styles.keyboardContainer}
+            style={styles.keyboardAvoidingView}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
             {/* header */}
             <View style={styles.header}>
               <Text style={styles.headerTitle}>Add Achievement</Text>
@@ -116,10 +124,10 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
                 maxLength={100}
               />
               <Text style={styles.label}>Achievement Type *</Text>
-              <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false} 
-                style={styles.typeRow} 
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.typeRow}
                 contentContainerStyle={{ gap: 8 }}
               >
                 {ACHIEVEMENT_TYPES.map((t) => (
@@ -128,8 +136,18 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
                     style={[styles.typeChip, type === t.value && styles.typeChipSelected]}
                     onPress={() => setType(t.value)}
                   >
-                    <MaterialCommunityIcons name={t.icon as any} size={22} color={type === t.value ? Colors.light.background : Colors.light.textSecondary} />
-                    <Text style={[styles.typeChipText, type === t.value && styles.typeChipTextSelected]}>{t.label}</Text>
+                    <MaterialCommunityIcons
+                      name={t.icon as any}
+                      size={22}
+                      color={
+                        type === t.value ? Colors.light.background : Colors.light.textSecondary
+                      }
+                    />
+                    <Text
+                      style={[styles.typeChipText, type === t.value && styles.typeChipTextSelected]}
+                    >
+                      {t.label}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -163,11 +181,13 @@ export default function AddAchievementModal({ visible, onClose, onAdded, saveLab
               />
               {error && <Text style={styles.errorText}>{error}</Text>}
               <Pressable style={styles.saveButton} onPress={handleSave} disabled={loading}>
-                <Text style={styles.saveButtonText}>{loading ? 'Saving...' : (saveLabel || 'Save Achievement')}</Text>
+                <Text style={styles.saveButtonText}>
+                  {loading ? 'Saving...' : saveLabel || 'Save Achievement'}
+                </Text>
               </Pressable>
             </View>
-            </KeyboardAwareScrollView>
-          </View>
+          </KeyboardAwareScrollView>
+        </View>
       </View>
     </Modal>
   );
@@ -196,7 +216,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   keyboardAvoidingView: {
-    flex: 1, 
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -304,4 +324,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
-}); 
+});

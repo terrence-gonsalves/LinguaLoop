@@ -18,9 +18,9 @@ export function VersionDisplay({ showBuildNumber = false }: VersionDisplayProps)
     <View style={styles.container}>
       <Text style={styles.versionText}>
         v{version}
-        {showBuildNumber && (buildNumber.ios || buildNumber.android) && 
-          ` (${buildNumber.ios || buildNumber.android})`
-        }
+        {showBuildNumber &&
+          (buildNumber.ios || buildNumber.android) &&
+          ` (${buildNumber.ios || buildNumber.android})`}
       </Text>
     </View>
   );
@@ -35,4 +35,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.light.textSecondary,
   },
-}); 
+});

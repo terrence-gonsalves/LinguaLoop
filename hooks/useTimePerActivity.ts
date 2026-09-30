@@ -39,7 +39,7 @@ export function useTimePerActivity(userId: string | undefined, selectedLanguageI
         if (timeError) throw timeError;
 
         const timePerActivity = new Map<string, number>();
-        (timeData || []).forEach(entry => {
+        (timeData || []).forEach((entry) => {
           const current = timePerActivity.get(entry.activity_id) || 0;
           timePerActivity.set(entry.activity_id, current + entry.duration_seconds);
         });
@@ -47,16 +47,15 @@ export function useTimePerActivity(userId: string | undefined, selectedLanguageI
         const labels: string[] = [];
         const data: number[] = [];
 
-        (activitiesData || []).forEach(activity => {
+        (activitiesData || []).forEach((activity) => {
           labels.push(activity.name);
           const hours = (timePerActivity.get(activity.id) || 0) / 3600;
           data.push(hours);
         });
-        
-        setActivityData({ labels, data });
 
+        setActivityData({ labels, data });
       } catch (error) {
-        console.error("Error loading time per activity data:", error);
+        console.error('Error loading time per activity data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -79,4 +78,4 @@ export function useTimePerActivity(userId: string | undefined, selectedLanguageI
   }, [userId, selectedLanguageId]);
 
   return { activityData, isLoading };
-} 
+}

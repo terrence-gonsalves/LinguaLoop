@@ -19,49 +19,49 @@ export default function CreateAccountScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [acceptedTerms, setAcceptedTerms] = useState(false);  
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleSignUp = async () => {
-
     // clear previous errors
     setErrors({});
-    
+
     // validate form
     const newErrors: { [key: string]: string } = {};
-    
+
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    
+
     if (!password) {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (!confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     if (!acceptedTerms) {
       newErrors.terms = 'Please accept the terms and conditions';
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    
+
     await signUp(email, password);
   };
 
-  const isFormValid = email && password && confirmPassword && acceptedTerms && password === confirmPassword;
+  const isFormValid =
+    email && password && confirmPassword && acceptedTerms && password === confirmPassword;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -73,7 +73,6 @@ export default function CreateAccountScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.content}>
-
           {/* logo */}
           <View style={styles.logoContainer}>
             <ExpoImage
@@ -131,24 +130,20 @@ export default function CreateAccountScreen() {
                 />
               </Pressable>
               <Text style={styles.termsText}>
-                I accept the {' '}
+                I accept the{' '}
                 <Link href="../terms" style={styles.link}>
                   Terms of Use
-                </Link>
-                {' '}and{' '}
+                </Link>{' '}
+                and{' '}
                 <Link href="../privacy" style={styles.link}>
                   Privacy Policy
                 </Link>
               </Text>
             </View>
-            
+
             {errors.terms && <Text style={styles.errorText}>{errors.terms}</Text>}
 
-            <Button
-              title="Create Account"
-              onPress={handleSignUp}
-              loading={loading}
-            />
+            <Button title="Create Account" onPress={handleSignUp} loading={loading} />
 
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
@@ -190,7 +185,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   keyboardAvoidingView: {
-    flex: 1, 
+    flex: 1,
   },
   content: {
     flex: 1,
@@ -319,4 +314,4 @@ const styles = StyleSheet.create({
     color: Colors.light.textPrimary,
     fontWeight: '600',
   },
-}); 
+});

@@ -8,14 +8,17 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { GoalFormSteps } from '@/components/goals/GoalFormSteps';
 import Colors from '@/constants/Colors';
 import { useAuth } from '@/lib/auth-context';
-import { requestGoalNotificationPermission, scheduleGoalNotification } from '@/lib/goal-notifications';
+import {
+  requestGoalNotificationPermission,
+  scheduleGoalNotification,
+} from '@/lib/goal-notifications';
 import { toDateString, type Goal, type GoalType } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 
@@ -66,25 +69,27 @@ export default function CreateGoalsScreen() {
     try {
       const { data, error } = await supabase
         .from('languages')
-        .select(`
+        .select(
+          `
           id, 
           name,
           master_languages (
             flag
           )
-        `)
+        `
+        )
         .eq('user_id', profile.id)
         .order('name');
 
       if (error) throw error;
-      
+
       // transform the data to include flag information
       const transformedData = (data || []).map((lang: any) => ({
         id: lang.id,
         name: lang.name,
         flag: lang.master_languages?.flag || null,
       }));
-      
+
       setLanguages(transformedData);
     } catch (error) {
       console.error('Error fetching languages:', error);
@@ -101,13 +106,13 @@ export default function CreateGoalsScreen() {
 
   const handleNext = () => {
     if (currentStep < 3) {
-      setCurrentStep(prev => prev + 1);
+      setCurrentStep((prev) => prev + 1);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -166,12 +171,12 @@ export default function CreateGoalsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           title: 'Create a New Goal',
           headerShadowVisible: false,
           headerStyle: { backgroundColor: Colors.light.background },
-        }} 
+        }}
       />
       {isLoading ? (
         <View style={styles.loadingContainer}>
@@ -182,22 +187,22 @@ export default function CreateGoalsScreen() {
           <View style={styles.progressContainer}>
             {[1, 2, 3].map((step) => (
               <React.Fragment key={step}>
-                <View style={[
-                  styles.progressStep,
-                  currentStep >= step && styles.progressStepActive
-                ]}>
-                  <Text style={[
-                    styles.progressStepText,
-                    currentStep >= step && styles.progressStepTextActive
-                  ]}>
+                <View
+                  style={[styles.progressStep, currentStep >= step && styles.progressStepActive]}
+                >
+                  <Text
+                    style={[
+                      styles.progressStepText,
+                      currentStep >= step && styles.progressStepTextActive,
+                    ]}
+                  >
                     {step}
                   </Text>
                 </View>
                 {step < 3 && (
-                  <View style={[
-                    styles.progressLine,
-                    currentStep > step && styles.progressLineActive
-                  ]} />
+                  <View
+                    style={[styles.progressLine, currentStep > step && styles.progressLineActive]}
+                  />
                 )}
               </React.Fragment>
             ))}
@@ -209,23 +214,23 @@ export default function CreateGoalsScreen() {
               setFormData={setFormData}
               languages={languages}
               summaryExtras={{
-                durationDays: formData.startDate && formData.endDate
-                  ? Math.max(
-                      1,
-                      Math.ceil(
-                        ((formData.endDate.getTime() - formData.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+                durationDays:
+                  formData.startDate && formData.endDate
+                    ? Math.max(
+                        1,
+                        Math.ceil(
+                          (formData.endDate.getTime() - formData.startDate.getTime()) /
+                            (1000 * 60 * 60 * 24) +
+                            1
+                        )
                       )
-                    )
-                  : null
+                    : null,
               }}
             />
           </ScrollView>
           <View style={styles.footer}>
             {currentStep > 1 && (
-              <Pressable
-                style={styles.backButton}
-                onPress={handleBack}
-              >
+              <Pressable style={styles.backButton} onPress={handleBack}>
                 <Text style={styles.backButtonText}>Back</Text>
               </Pressable>
             )}
@@ -233,15 +238,12 @@ export default function CreateGoalsScreen() {
               style={[
                 styles.nextButton,
                 currentStep === 3 && styles.saveButton,
-                !validateStep() && styles.buttonDisabled
+                !validateStep() && styles.buttonDisabled,
               ]}
               onPress={currentStep === 3 ? handleSave : handleNext}
               disabled={!validateStep()}
             >
-              <Text style={[
-                styles.nextButtonText,
-                !validateStep() && styles.buttonTextDisabled
-              ]}>
+              <Text style={[styles.nextButtonText, !validateStep() && styles.buttonTextDisabled]}>
                 {currentStep === 3 ? 'Save Goal' : 'Next'}
               </Text>
             </Pressable>
@@ -341,4 +343,4 @@ const styles = StyleSheet.create({
   buttonTextDisabled: {
     color: Colors.light.textLight,
   },
-}); 
+});

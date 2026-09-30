@@ -9,7 +9,9 @@ const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl as string;
 const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey as string;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase configuration. Please check your environment variables and app.config.js file.');
+  throw new Error(
+    'Missing Supabase configuration. Please check your environment variables and app.config.js file.'
+  );
 }
 
 // persist the session in AsyncStorage so it survives the app being killed
@@ -53,4 +55,4 @@ export type Language = {
   master_language_id: string;
 };
 
-export default supabase; 
+export default supabase;

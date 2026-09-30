@@ -1,4 +1,3 @@
-
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Stack } from 'expo-router/stack';
 import React, { useEffect, useState } from 'react';
@@ -16,7 +15,7 @@ import {
   getPushToken,
   requestNotificationPermissions,
   sendTestNotification,
-  type NotificationSettings
+  type NotificationSettings,
 } from '@/lib/notifications';
 import { supabase } from '@/lib/supabase';
 import { showSuccessToast } from '@/lib/toast';
@@ -46,13 +45,12 @@ export default function NotificationsScreen() {
 
   const setupNotifications = async () => {
     try {
-
       // get push token
       const token = await getPushToken();
 
       if (token) {
         console.log('💾 Saving push token to settings:', token);
-        setSettings(prev => ({
+        setSettings((prev) => ({
           ...prev,
           expo_push_token: token,
         }));
@@ -65,7 +63,7 @@ export default function NotificationsScreen() {
 
   const fetchNotificationSettings = async () => {
     if (!profile?.id) return;
-    
+
     try {
       const { data, error } = await supabase
         .from('notification_settings')
@@ -75,21 +73,22 @@ export default function NotificationsScreen() {
 
       if (error) {
         if (error.code === 'PGRST116') {
-
           // no settings found, create default settings
           const { data: newSettings, error: createError } = await supabase
             .from('notification_settings')
-            .insert([{
-              user_id: profile.id,
-              notifications_enabled: false,
-              study_reminder: false,
-              study_reminder_time: null,
-              news_promotions: false,
-              product_updates: false,
-              user_notifications: false,
-              goal_notifications: true,
-              expo_push_token: null,
-            }])
+            .insert([
+              {
+                user_id: profile.id,
+                notifications_enabled: false,
+                study_reminder: false,
+                study_reminder_time: null,
+                news_promotions: false,
+                product_updates: false,
+                user_notifications: false,
+                goal_notifications: true,
+                expo_push_token: null,
+              },
+            ])
             .select()
             .single();
 
@@ -103,7 +102,6 @@ export default function NotificationsScreen() {
         setSettings(data);
         if (data.study_reminder_time) {
           try {
-
             // the database time comes in format "HH:MM:SS+00"
             // we need to parse it and format it for display
             const [time] = data.study_reminder_time.split('+'); // Remove timezone
@@ -111,11 +109,11 @@ export default function NotificationsScreen() {
             const date = new Date();
             date.setHours(parseInt(hours, 10));
             date.setMinutes(parseInt(minutes, 10));
-            
+
             const formattedTime = date.toLocaleTimeString('en-US', {
               hour: 'numeric',
               minute: 'numeric',
-              hour12: true
+              hour12: true,
             });
             setDisplayTime(formattedTime);
           } catch (e) {
@@ -138,29 +136,32 @@ export default function NotificationsScreen() {
       if (!granted) {
         return;
       }
-      
+
       // get push token when enabling notifications
       await setupNotifications();
     }
-    
-    setSettings(prev => ({
+
+    setSettings((prev) => ({
       ...prev,
-      notifications_enabled: !prev.notifications_enabled
+      notifications_enabled: !prev.notifications_enabled,
     }));
     setHasUnsavedChanges(true);
   };
 
-  const handleSettingChange = (setting: keyof NotificationSettings, value: boolean | string | null) => {
-    setSettings(prev => ({
+  const handleSettingChange = (
+    setting: keyof NotificationSettings,
+    value: boolean | string | null
+  ) => {
+    setSettings((prev) => ({
       ...prev,
-      [setting]: value
+      [setting]: value,
     }));
     setHasUnsavedChanges(true);
   };
 
   const handleTimeChange = (event: any, selectedTime?: Date) => {
     setShowTimePicker(false);
-    
+
     // on Android, cancelling returns undefined
     // on iOS, cancelling returns the previously selected time
     if (event.type === 'dismissed' || !selectedTime) {
@@ -171,27 +172,28 @@ export default function NotificationsScreen() {
     const timeString = selectedTime.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: 'numeric',
-      hour12: true
+      hour12: true,
     });
     setDisplayTime(timeString);
 
     // format time for database (HH:MM:SS+00)
-    const dbTimeString = selectedTime.toLocaleTimeString('en-US', {
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    }) + '+00';
-    
+    const dbTimeString =
+      selectedTime.toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }) + '+00';
+
     handleSettingChange('study_reminder_time', dbTimeString);
   };
 
   const handleSave = async () => {
     if (!profile?.id) return;
-    
+
     try {
       setIsLoading(true);
-      
+
       const saveData = {
         user_id: profile.id,
         notifications_enabled: settings.notifications_enabled,
@@ -204,12 +206,10 @@ export default function NotificationsScreen() {
         expo_push_token: settings.expo_push_token,
         updated_at: new Date().toISOString(),
       };
-      
+
       console.log('💾 Saving notification settings:', saveData);
-      
-      const { error } = await supabase
-        .from('notification_settings')
-        .upsert(saveData);
+
+      const { error } = await supabase.from('notification_settings').upsert(saveData);
 
       if (error) throw error;
 
@@ -241,12 +241,12 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           title: 'Notifications',
           headerShadowVisible: false,
           headerStyle: { backgroundColor: Colors.light.background },
-        }} 
+        }}
       />
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -274,7 +274,9 @@ export default function NotificationsScreen() {
               />
             </View>
             <View style={styles.settingHintContainer}>
-              <Text style={styles.settingHintText}>A reminder at 9:00 AM the day after a goal ends.</Text>
+              <Text style={styles.settingHintText}>
+                A reminder at 9:00 AM the day after a goal ends.
+              </Text>
             </View>
           </SettingsSection>
 
@@ -300,15 +302,17 @@ export default function NotificationsScreen() {
                 <Pressable
                   style={[
                     styles.timePickerButton,
-                    !settings.study_reminder && styles.timePickerButtonDisabled
+                    !settings.study_reminder && styles.timePickerButtonDisabled,
                   ]}
                   onPress={() => settings.study_reminder && setShowTimePicker(true)}
                   disabled={!settings.study_reminder}
                 >
-                  <Text style={[
-                    styles.timePickerText,
-                    !settings.study_reminder && styles.timePickerTextDisabled
-                  ]}>
+                  <Text
+                    style={[
+                      styles.timePickerText,
+                      !settings.study_reminder && styles.timePickerTextDisabled,
+                    ]}
+                  >
                     {displayTime}
                   </Text>
                 </Pressable>
@@ -351,10 +355,7 @@ export default function NotificationsScreen() {
 
               {/* test notification button */}
               <View style={styles.testButtonContainer}>
-                <Pressable
-                  style={styles.testButton}
-                  onPress={handleTestNotification}
-                >
+                <Pressable style={styles.testButton} onPress={handleTestNotification}>
                   <Text style={styles.testButtonText}>Test Notification</Text>
                 </Pressable>
               </View>
@@ -365,15 +366,19 @@ export default function NotificationsScreen() {
           <Pressable
             style={[
               styles.saveButton,
-              (!hasUnsavedChanges || !settings.notifications_enabled || isLoading) && styles.saveButtonDisabled
+              (!hasUnsavedChanges || !settings.notifications_enabled || isLoading) &&
+                styles.saveButtonDisabled,
             ]}
             onPress={handleSave}
             disabled={!hasUnsavedChanges || !settings.notifications_enabled || isLoading}
           >
-            <Text style={[
-              styles.saveButtonText,
-              (!hasUnsavedChanges || !settings.notifications_enabled || isLoading) && styles.saveButtonTextDisabled
-            ]}>
+            <Text
+              style={[
+                styles.saveButtonText,
+                (!hasUnsavedChanges || !settings.notifications_enabled || isLoading) &&
+                  styles.saveButtonTextDisabled,
+              ]}
+            >
               {isLoading ? 'Saving...' : 'Save'}
             </Text>
           </Pressable>
@@ -503,4 +508,4 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 100, // add space at bottom for better scrolling
   },
-}); 
+});

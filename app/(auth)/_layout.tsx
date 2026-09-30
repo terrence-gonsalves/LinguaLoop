@@ -13,7 +13,6 @@ export default function AuthLayout() {
 
   useEffect(() => {
     if (!isLoading && session) {
-
       // redirect to dashboard if already authenticated
       router.replace('/(tabs)');
     }
@@ -40,21 +39,20 @@ export default function AuthLayout() {
             presentation: 'card',
           }}
         >
-          <Stack.Screen 
-            name="login" 
+          <Stack.Screen
+            name="login"
             options={{
-
               // prevent this screen from being removed from stack
               gestureEnabled: false,
             }}
           />
-          <Stack.Screen 
+          <Stack.Screen
             name="create-account"
             options={{
               animation: 'simple_push',
             }}
           />
-          <Stack.Screen 
+          <Stack.Screen
             name="forgot-password"
             options={{
               animation: 'simple_push',
@@ -73,4 +71,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.light.generalBG,
   },
-}); 
+});

@@ -52,9 +52,24 @@ function UserProfileScreenContent() {
   const [nativeLanguageName, setNativeLanguageName] = useState<string>('');
 
   // hooks for user data
-  const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguageSummary(id || '');
-  const { connections, totalCount: connectionsCount, isLoading: isLoadingConnections, error: connectionsError, refresh: refreshConnections } = useActiveConnections(id || '');
-  const { achievements, totalCount: achievementsCount, isLoading: isLoadingAchievements, error: achievementsError } = useAchievements(id || '');
+  const {
+    languages,
+    isLoading: isLoadingLanguages,
+    error: languagesError,
+  } = useLanguageSummary(id || '');
+  const {
+    connections,
+    totalCount: connectionsCount,
+    isLoading: isLoadingConnections,
+    error: connectionsError,
+    refresh: refreshConnections,
+  } = useActiveConnections(id || '');
+  const {
+    achievements,
+    totalCount: achievementsCount,
+    isLoading: isLoadingAchievements,
+    error: achievementsError,
+  } = useAchievements(id || '');
 
   // debug log for troubleshooting
   React.useEffect(() => {
@@ -113,7 +128,8 @@ function UserProfileScreenContent() {
         .match({ follower_id: currentUser.id, following_id: id })
         .single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 is "not found"
         throw error;
       }
 
@@ -128,7 +144,6 @@ function UserProfileScreenContent() {
 
     try {
       if (isFollowing) {
-
         // unfollow, and check a row was actually removed
         const { data, error } = await supabase
           .from('follows')
@@ -141,7 +156,6 @@ function UserProfileScreenContent() {
         setIsFollowing(false);
         showSuccessToast('Unfollowed user');
       } else {
-
         // follow
         const { error } = await supabase
           .from('follows')
@@ -171,23 +185,26 @@ function UserProfileScreenContent() {
     }
 
     // filter out native language
-    const targetLanguages = userProfile && userProfile.native_language
-      ? languages.filter((lang: any) => lang.master_language_id !== userProfile.native_language)
-      : languages;
+    const targetLanguages =
+      userProfile && userProfile.native_language
+        ? languages.filter((lang: any) => lang.master_language_id !== userProfile.native_language)
+        : languages;
 
     if (targetLanguages.length === 0) {
       return <Text style={styles.noDataText}>No languages added yet</Text>;
     }
 
     // only show up to 2 languages
-    return targetLanguages.slice(0, 2).map((lang: any) => (
-      <LanguageProgressCard
-        key={lang.id}
-        language={lang.name}
-        level={lang.level}
-        activities={lang.activities}
-      />
-    ));
+    return targetLanguages
+      .slice(0, 2)
+      .map((lang: any) => (
+        <LanguageProgressCard
+          key={lang.id}
+          language={lang.name}
+          level={lang.level}
+          activities={lang.activities}
+        />
+      ));
   };
 
   const renderConnections = () => {
@@ -245,11 +262,12 @@ function UserProfileScreenContent() {
     return achievements.map((achievement: any) => {
       const dateToShow = achievement.obtained_date || achievement.created_at;
       const localizedDate = dateToShow
-        ? new Date(dateToShow).toLocaleDateString(undefined, { 
-          timeZone: userTimeZone, 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' })
+        ? new Date(dateToShow).toLocaleDateString(undefined, {
+            timeZone: userTimeZone,
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
         : '';
       return (
         <AchievementItem
@@ -269,13 +287,13 @@ function UserProfileScreenContent() {
     return (
       <>
         <View style={styles.container}>
-          <Stack.Screen 
-            options={{ 
+          <Stack.Screen
+            options={{
               title: 'Connection Profile',
               headerShadowVisible: true,
               headerStyle: { backgroundColor: Colors.light.background },
-            }} 
-          />        
+            }}
+          />
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={Colors.light.rust} />
           </View>
@@ -287,14 +305,14 @@ function UserProfileScreenContent() {
   return (
     <>
       <View style={styles.container}>
-        <Stack.Screen 
-          options={{ 
+        <Stack.Screen
+          options={{
             title: 'Connection Profile',
             headerShadowVisible: true,
             headerStyle: { backgroundColor: Colors.light.background },
-          }} 
+          }}
         />
-        {(!userProfile) ? (
+        {!userProfile ? (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>User not found</Text>
           </View>
@@ -309,16 +327,19 @@ function UserProfileScreenContent() {
                   transition={200}
                 />
               ) : (
-                <DefaultAvatar size={100} letter={userProfile.name?.[0] || userProfile.user_name?.[0] || '?'} />
+                <DefaultAvatar
+                  size={100}
+                  letter={userProfile.name?.[0] || userProfile.user_name?.[0] || '?'}
+                />
               )}
               <View style={styles.profileInfo}>
                 <Text style={styles.profileName}>{userProfile.name || 'User'}</Text>
-                {userProfile.user_name && <Text style={styles.username}>@{userProfile.user_name}</Text>}
+                {userProfile.user_name && (
+                  <Text style={styles.username}>@{userProfile.user_name}</Text>
+                )}
                 <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
-                <Text style={styles.bio}>
-                  {userProfile.about_me || ''}
-                </Text>
-                <Pressable 
+                <Text style={styles.bio}>{userProfile.about_me || ''}</Text>
+                <Pressable
                   style={[styles.actionButton, isFollowing && styles.unfollowButton]}
                   onPress={toggleFollow}
                 >
@@ -333,42 +354,45 @@ function UserProfileScreenContent() {
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Language Summary</Text>
                 {languages.length > 2 && (
-                  <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/languages')}>
+                  <Pressable
+                    style={styles.viewAllLink}
+                    onPress={() => router.push('/(stack)/languages')}
+                  >
                     <Text style={styles.viewAllText}>View All</Text>
                   </Pressable>
                 )}
               </View>
-              <View style={styles.languageCards}>
-                {renderLanguageCards()}
-              </View>
+              <View style={styles.languageCards}>{renderLanguageCards()}</View>
             </View>
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Active Connections</Text>
                 {connectionsCount > 2 && (
-                  <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
+                  <Pressable
+                    style={styles.viewAllLink}
+                    onPress={() => router.push('/(stack)/connections')}
+                  >
                     <Text style={styles.viewAllText}>View All</Text>
                   </Pressable>
                 )}
               </View>
-              <View style={styles.connectionCards}>
-                {renderConnections()}
-              </View>
+              <View style={styles.connectionCards}>{renderConnections()}</View>
             </View>
 
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Achievements</Text>
                 {achievementsCount > 2 && (
-                  <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/achievements')}>
+                  <Pressable
+                    style={styles.viewAllLink}
+                    onPress={() => router.push('/(stack)/achievements')}
+                  >
                     <Text style={styles.viewAllText}>History</Text>
                   </Pressable>
                 )}
               </View>
-              <View style={styles.achievements}>
-                {renderAchievements()}
-              </View>
+              <View style={styles.achievements}>{renderAchievements()}</View>
             </View>
           </ScrollView>
         )}
@@ -511,4 +535,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-}); 
+});

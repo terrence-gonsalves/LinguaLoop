@@ -42,12 +42,15 @@ export function useTimeDistribution(userId: string | undefined, selectedLanguage
         if (timeError) throw timeError;
 
         const timePerActivity = new Map<string, number>();
-        (timeData || []).forEach(entry => {
+        (timeData || []).forEach((entry) => {
           const current = timePerActivity.get(entry.activity_id) || 0;
           timePerActivity.set(entry.activity_id, current + entry.duration_seconds);
         });
 
-        const totalActivityTime = Array.from(timePerActivity.values()).reduce((sum, time) => sum + time, 0);
+        const totalActivityTime = Array.from(timePerActivity.values()).reduce(
+          (sum, time) => sum + time,
+          0
+        );
         const allActivityColors = [
           Colors.light.activityBlue1,
           Colors.light.activityBlue2,
@@ -66,11 +69,10 @@ export function useTimeDistribution(userId: string | undefined, selectedLanguage
           data.push(percentage);
           activityColors.push(allActivityColors[index % allActivityColors.length]);
         });
-        
-        setDistribution({ labels, data, activityColors });
 
+        setDistribution({ labels, data, activityColors });
       } catch (error) {
-        console.error("Error loading time distribution data:", error);
+        console.error('Error loading time distribution data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -93,4 +95,4 @@ export function useTimeDistribution(userId: string | undefined, selectedLanguage
   }, [userId, selectedLanguageId]);
 
   return { distribution, isLoading };
-} 
+}

@@ -1,13 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 
 import React, { useState } from 'react';
-import {
-  LayoutAnimation,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { LayoutAnimation, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import Colors from '@/constants/Colors';
 
@@ -26,14 +20,11 @@ export function Accordion({ title, content }: AccordionProps) {
 
   return (
     <View style={styles.container}>
-      <Pressable 
-        style={styles.header} 
-        onPress={toggleExpand}
-      >
+      <Pressable style={styles.header} onPress={toggleExpand}>
         <Text style={styles.title}>{title}</Text>
-        <MaterialIcons 
-          name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} 
-          size={24} 
+        <MaterialIcons
+          name={expanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
+          size={24}
           color={Colors.light.text}
         />
       </Pressable>
@@ -77,4 +68,4 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     lineHeight: 20,
   },
-}); 
+});
