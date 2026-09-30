@@ -151,9 +151,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signUp(email: string, password: string) {
     try {
       setIsLoading(true);
-      console.log('Starting signup process for:', email);
-      
-      // 1. sign up the user
+
+      // the profiles row is created by the on_auth_user_created trigger in the database
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -162,33 +161,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (authError) throw authError;
       if (!authData.user) throw new Error('No user data returned');
 
-      console.log('User created:', authData.user.id);
+      if (authData.session) {
 
-      // 2. create a profile for the user
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: authData.user.id,
-          email: email,
-          onboarding_completed: false,
-        })
-        .select()
-        .single();
+        // signed in straight away: the SIGNED_IN listener loads the profile and opens onboarding
+        showSuccessToast("Account created! Let's set up your profile.");
+      } else {
 
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-        throw profileError;
+        // only happens if "Confirm email" is turned on in Supabase: no session until the user confirms
+        showSuccessToast('Account created! Confirm your email, then sign in.');
       }
-
-      console.log('Profile created:', profileData);
-
-      // 3. set the profile immediately to avoid the flash
-      setProfile(profileData);
-
-      showSuccessToast('Account created successfully! Please check your email to verify your account.');
-
-      // navigate to onboarding immediately without waiting for auth state change
-      router.replace('/(stack)/onboarding');
     } catch (error) {
       showErrorToast(`Error creating account: ${(error as Error).message}`);
     } finally {
