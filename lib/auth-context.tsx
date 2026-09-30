@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
-import { getAvatarUrl } from '@/lib/supabase/storage';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
 import { Session } from '@supabase/supabase-js';
@@ -96,15 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         throw error;
       }
-      
-      // get the signed URL for the avatar if it exists
-      if (profile) {
-        const avatarUrl = await getAvatarUrl(userId);
-        if (avatarUrl) {
-          profile.avatar_url = avatarUrl;
-        }
-      }
-      
+
       setProfile(profile);
 
       // only handle navigation if skipNavigation is false

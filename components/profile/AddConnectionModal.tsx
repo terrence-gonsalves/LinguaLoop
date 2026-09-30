@@ -11,7 +11,6 @@ import { FEATURES } from '@/config/features';
 
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
-import { getAvatarUrl } from '@/lib/supabase/storage';
 
 import { Colors } from '@/providers/theme-provider';
 
@@ -83,28 +82,12 @@ function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps
       const targetLangs = (allLanguages || [])
         .filter((l: any) => l.user_id === u.id)
         .map((l: any) => l.name);
-      
-      // generate fresh signed URL for avatar if it exists
-      let avatarUrl = u.avatar_url;
 
-      if (avatarUrl) {
-        try {
-          const freshAvatarUrl = await getAvatarUrl(u.id);
-          if (freshAvatarUrl) {
-            avatarUrl = freshAvatarUrl;
-          }
-        } catch (error) {
-          console.error('Error getting fresh avatar URL for user:', u.id, error);
-
-          // keep the original URL if fresh URL generation fails
-        }
-      }
-      
       return {
         id: u.id,
         name: u.name || 'User',
         user_name: u.user_name || 'user',
-        avatar_url: avatarUrl,
+        avatar_url: u.avatar_url,
         native_language: nativeLangName,
         target_languages: targetLangs,
         is_following: followingIds.includes(u.id),
