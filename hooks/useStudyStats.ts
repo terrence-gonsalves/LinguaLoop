@@ -7,7 +7,7 @@ import {
   type TimeGoalProgress,
 } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Goal = GoalRow & {
 
@@ -50,15 +50,16 @@ export function useStudyStats(userId: string | undefined) {
   });
   const [isLoading, setIsLoading] = useState(true);
   const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const loadRef = useRef<((showLoading?: boolean) => Promise<void>) | null>(null);
 
   useEffect(() => {
     if (!userId) return;
     let isMounted = true;
 
-    async function loadStudyStats() {
+    async function loadStudyStats(showLoading: boolean = true) {
       try {
         if (!isMounted) return;
-        setIsLoading(true);
+        if (showLoading) setIsLoading(true);
 
         // fetch most recent active goal
         const { data: goalData, error: goalError } = await supabase
@@ -123,6 +124,8 @@ export function useStudyStats(userId: string | undefined) {
       }
     }
 
+    loadRef.current = loadStudyStats;
+
     // clean up any existing subscription
     if (subscriptionRef.current) {
       subscriptionRef.current.unsubscribe();
@@ -131,7 +134,8 @@ export function useStudyStats(userId: string | undefined) {
 
     loadStudyStats();
 
-    // set up real-time subscriptions
+    // set up real-time subscriptions. goals isn't in the supabase_realtime
+    // publication, so goal changes are picked up by refresh() on screen focus.
     const channelName = `study-stats-changes-${userId}-${Date.now()}`;
     subscriptionRef.current = supabase
       .channel(channelName)
@@ -141,20 +145,6 @@ export function useStudyStats(userId: string | undefined) {
           event: '*',
           schema: 'public',
           table: 'time_entries',
-          filter: `user_id=eq.${userId}`,
-        },
-        () => {
-          if (isMounted) {
-            loadStudyStats();
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'goals',
           filter: `user_id=eq.${userId}`,
         },
         () => {
@@ -181,6 +171,7 @@ export function useStudyStats(userId: string | undefined) {
 
     return () => {
       isMounted = false;
+      loadRef.current = null;
       
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
@@ -189,5 +180,10 @@ export function useStudyStats(userId: string | undefined) {
     };
   }, [userId]);
 
-  return { stats, isLoading };
+  // reloads without showing the loading state. the dashboard calls this on focus.
+  const refresh = useCallback(async () => {
+    await loadRef.current?.(false);
+  }, []);
+
+  return { stats, isLoading, refresh };
 } 
