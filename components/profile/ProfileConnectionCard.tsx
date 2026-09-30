@@ -21,16 +21,16 @@ interface ProfileConnectionCardProps {
   onUnfollow?: () => void;
 }
 
-export function ProfileConnectionCard({ 
+export function ProfileConnectionCard({
   userId,
-  name, 
-  languages, 
-  streak, 
+  name,
+  languages,
+  streak,
   avatarUrl,
   nativeLanguage = 'French',
   username = '@sarah.j',
   connectionId,
-  onUnfollow
+  onUnfollow,
 }: ProfileConnectionCardProps) {
   const { profile } = useAuth();
 
@@ -41,11 +41,8 @@ export function ProfileConnectionCard({
   return (
     <View style={styles.container}>
       <View style={styles.mainContent}>
-        <Pressable 
-          style={({ pressed }) => [
-            styles.leftContent,
-            pressed && { opacity: 0.7 }
-          ]} 
+        <Pressable
+          style={({ pressed }) => [styles.leftContent, pressed && { opacity: 0.7 }]}
           onPress={handleProfilePress}
         >
           {avatarUrl ? (
@@ -66,7 +63,7 @@ export function ProfileConnectionCard({
             </View>
           </View>
         </Pressable>
-        
+
         {/* streak indicator */}
         <View style={styles.streakContainer}>
           <MaterialCommunityIcons name="fire" size={16} color={Colors.light.rust} />
@@ -159,4 +156,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
-}); 
+});

@@ -20,7 +20,7 @@ export function StatCard({ title, value, change, changeColor }: StatCardProps) {
     if (typeof val === 'string') {
       return val;
     }
-    
+
     const { hours, minutes } = val;
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, '0')}`;
@@ -77,4 +77,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 4,
   },
-}); 
+});

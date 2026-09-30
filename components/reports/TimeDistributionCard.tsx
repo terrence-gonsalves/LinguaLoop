@@ -33,14 +33,14 @@ export function TimeDistributionCard({ timeDistributionData }: TimeDistributionC
       if (hasData) {
         return activityColors[index] ?? 'rgba(48, 51, 64, 0.8)';
       }
-      
+
       const shades = [
-        'rgba(48, 51, 64, 0.2)',  // lighter shade
+        'rgba(48, 51, 64, 0.2)', // lighter shade
         'rgba(48, 51, 64, 0.4)',
         'rgba(48, 51, 64, 0.6)',
-        'rgba(48, 51, 64, 0.8)',  // darker shade
+        'rgba(48, 51, 64, 0.8)', // darker shade
       ];
-      
+
       return shades[index % shades.length] ?? `rgba(48, 51, 64, ${opacity})`;
     },
     labelColor: (opacity = 1) => `rgba(127, 127, 127, ${opacity})`,
@@ -66,10 +66,12 @@ export function TimeDistributionCard({ timeDistributionData }: TimeDistributionC
         </View>
         <View style={styles.legendContainer}>
           {legendLabels.map((label, index) => {
-            const percentage = (data && data.length > 0) ? (data[index] || 0) * 100 : 0;
+            const percentage = data && data.length > 0 ? (data[index] || 0) * 100 : 0;
             return (
               <View key={label} style={styles.legendItem}>
-                <View style={[styles.legendColor, { backgroundColor: chartConfig.color(1, index) }]} />
+                <View
+                  style={[styles.legendColor, { backgroundColor: chartConfig.color(1, index) }]}
+                />
                 <Text style={styles.legendText}>{label}</Text>
                 <Text style={styles.legendPercentage}>{percentage.toFixed(0)}%</Text>
               </View>
@@ -117,5 +119,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     color: Colors.light.textPrimary,
-  }
-}); 
+  },
+});

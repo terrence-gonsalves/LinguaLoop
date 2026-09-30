@@ -6,7 +6,11 @@ interface WeeklyProgressData {
   data: number[];
 }
 
-export function useWeeklyProgress(userId: string | undefined, userCreatedAt: string | undefined, selectedLanguageId: string | null) {
+export function useWeeklyProgress(
+  userId: string | undefined,
+  userCreatedAt: string | undefined,
+  selectedLanguageId: string | null
+) {
   const [progressData, setProgressData] = useState<WeeklyProgressData>({
     labels: [],
     data: [],
@@ -36,7 +40,7 @@ export function useWeeklyProgress(userId: string | undefined, userCreatedAt: str
 
         const startDate = new Date(userCreatedAt);
         const todayDate = new Date();
-        
+
         startDate.setHours(0, 0, 0, 0);
         todayDate.setHours(0, 0, 0, 0);
 
@@ -44,36 +48,40 @@ export function useWeeklyProgress(userId: string | undefined, userCreatedAt: str
         const startDayMonday = new Date(startDate);
         startDayMonday.setDate(startDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
 
-        const weeksSinceSignup = Math.floor((todayDate.getTime() - startDayMonday.getTime()) / (1000 * 60 * 60 * 24 * 7));
-        
+        const weeksSinceSignup = Math.floor(
+          (todayDate.getTime() - startDayMonday.getTime()) / (1000 * 60 * 60 * 24 * 7)
+        );
+
         const currentWeek = weeksSinceSignup + 1;
         const startWeek = Math.max(1, currentWeek - 5);
         const endWeek = startWeek + 5;
 
         const weeklyTimeMap = new Map<number, number>();
-        (timeData || []).forEach(entry => {
-            const entryDate = new Date(entry.created_at);
-            entryDate.setHours(0,0,0,0);
-            const weekNum = Math.floor((entryDate.getTime() - startDayMonday.getTime()) / (1000 * 60 * 60 * 24 * 7)) + 1;
-            
-            if(weekNum >= startWeek && weekNum <= endWeek) {
-                const current = weeklyTimeMap.get(weekNum) || 0;
-                weeklyTimeMap.set(weekNum, current + entry.duration_seconds);
-            }
+        (timeData || []).forEach((entry) => {
+          const entryDate = new Date(entry.created_at);
+          entryDate.setHours(0, 0, 0, 0);
+          const weekNum =
+            Math.floor(
+              (entryDate.getTime() - startDayMonday.getTime()) / (1000 * 60 * 60 * 24 * 7)
+            ) + 1;
+
+          if (weekNum >= startWeek && weekNum <= endWeek) {
+            const current = weeklyTimeMap.get(weekNum) || 0;
+            weeklyTimeMap.set(weekNum, current + entry.duration_seconds);
+          }
         });
 
         const labels: string[] = [];
         const data: number[] = [];
         for (let i = startWeek; i <= endWeek; i++) {
-            labels.push(`${i}`);
-            const weeklyHours = (weeklyTimeMap.get(i) || 0) / 3600;
-            data.push(weeklyHours);
+          labels.push(`${i}`);
+          const weeklyHours = (weeklyTimeMap.get(i) || 0) / 3600;
+          data.push(weeklyHours);
         }
-        
-        setProgressData({ labels, data });
 
+        setProgressData({ labels, data });
       } catch (error) {
-        console.error("Error loading weekly progress data:", error);
+        console.error('Error loading weekly progress data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -96,4 +104,4 @@ export function useWeeklyProgress(userId: string | undefined, userCreatedAt: str
   }, [userId, userCreatedAt, selectedLanguageId]);
 
   return { progressData, isLoading };
-} 
+}

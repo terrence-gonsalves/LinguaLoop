@@ -6,7 +6,10 @@ interface AnalysisData {
   total: number;
 }
 
-export function useInputOutputAnalysis(userId: string | undefined, selectedLanguageId: string | null) {
+export function useInputOutputAnalysis(
+  userId: string | undefined,
+  selectedLanguageId: string | null
+) {
   const [analysis, setAnalysis] = useState<AnalysisData>({
     data: [],
     total: 0,
@@ -38,36 +41,39 @@ export function useInputOutputAnalysis(userId: string | undefined, selectedLangu
         if (timeError) throw timeError;
 
         const timePerActivity = new Map<string, number>();
-        (timeData || []).forEach(entry => {
+        (timeData || []).forEach((entry) => {
           const current = timePerActivity.get(entry.activity_id) || 0;
           timePerActivity.set(entry.activity_id, current + entry.duration_seconds);
         });
 
         const inputActivities = ['Reading', 'Listening'];
         const outputActivities = ['Writing', 'Speaking'];
-        const inputIds = (activities || []).filter(a => inputActivities.includes(a.name)).map(a => a.id);
-        const outputIds = (activities || []).filter(a => outputActivities.includes(a.name)).map(a => a.id);
+        const inputIds = (activities || [])
+          .filter((a) => inputActivities.includes(a.name))
+          .map((a) => a.id);
+        const outputIds = (activities || [])
+          .filter((a) => outputActivities.includes(a.name))
+          .map((a) => a.id);
 
         let inputTotal = 0;
         let outputTotal = 0;
 
-        for(const [activityId, time] of timePerActivity.entries()){
-            if(inputIds.includes(activityId)){
-                inputTotal += time;
-            } else if(outputIds.includes(activityId)){
-                outputTotal += time;
-            }
+        for (const [activityId, time] of timePerActivity.entries()) {
+          if (inputIds.includes(activityId)) {
+            inputTotal += time;
+          } else if (outputIds.includes(activityId)) {
+            outputTotal += time;
+          }
         }
-        
+
         const total = inputTotal + outputTotal;
-        
+
         setAnalysis({
           data: [inputTotal / 3600, outputTotal / 3600], // in hours
           total: total,
         });
-
       } catch (error) {
-        console.error("Error loading analysis data:", error);
+        console.error('Error loading analysis data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -90,4 +96,4 @@ export function useInputOutputAnalysis(userId: string | undefined, selectedLangu
   }, [userId, selectedLanguageId]);
 
   return { analysis, isLoading };
-} 
+}

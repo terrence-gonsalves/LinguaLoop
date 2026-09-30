@@ -11,10 +11,10 @@ interface ButtonProps {
   style?: any;
 }
 
-export function Button({ 
-  onPress, 
-  title, 
-  variant = 'primary', 
+export function Button({
+  onPress,
+  title,
+  variant = 'primary',
   loading = false,
   disabled = false,
   style,
@@ -34,17 +34,19 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={
-          variant === 'outline' ? Colors.light.buttonPrimary : Colors.light.background
-        } />
+        <ActivityIndicator
+          color={variant === 'outline' ? Colors.light.buttonPrimary : Colors.light.background}
+        />
       ) : (
-        <Text style={[
-          styles.text,
-          variant === 'primary' && styles.primaryText,
-          variant === 'secondary' && styles.secondaryText,
-          variant === 'outline' && styles.outlineText,
-          disabled && styles.disabledText,
-        ]}>
+        <Text
+          style={[
+            styles.text,
+            variant === 'primary' && styles.primaryText,
+            variant === 'secondary' && styles.secondaryText,
+            variant === 'outline' && styles.outlineText,
+            disabled && styles.disabledText,
+          ]}
+        >
           {title}
         </Text>
       )}
@@ -93,4 +95,4 @@ const styles = StyleSheet.create({
   disabledText: {
     color: Colors.light.textSecondary,
   },
-}); 
+});

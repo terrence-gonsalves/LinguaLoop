@@ -35,7 +35,6 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
 
   async function calculateUserStreak(userId: string): Promise<number> {
     try {
-
       // get all time entries for the user, ordered by date
       const { data: timeEntries, error } = await supabase
         .from('time_entries')
@@ -51,11 +50,9 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
       }
 
       // get unique dates (in case multiple entries on same day)
-      const uniqueDates = [...new Set(
-        timeEntries.map(entry => 
-          new Date(entry.activity_date).toDateString()
-        )
-      )].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+      const uniqueDates = [
+        ...new Set(timeEntries.map((entry) => new Date(entry.activity_date).toDateString())),
+      ].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
       // calculate consecutive days
       let currentStreak = 0;
@@ -75,7 +72,6 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
             currentStreak++;
             expectedDate.setDate(expectedDate.getDate() - 1);
           } else {
-
             // if there's a gap, break the streak
             break;
           }
@@ -90,7 +86,6 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
   }
 
   async function loadConnections() {
-
     // connections is off: never query follows or other users' data
     if (!FEATURES.connections) return;
 
@@ -105,13 +100,14 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
         .eq('follower_id', userId);
 
       if (countError) throw countError;
-      
+
       setTotalCount(count || 0);
 
       // build the query
       let query = supabase
         .from('follows')
-        .select(`
+        .select(
+          `
           following_id,
           following:profiles!following_id (
             id,
@@ -121,7 +117,8 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
             avatar_url,
             native_language
           )
-        `)
+        `
+        )
         .eq('follower_id', userId);
 
       // apply limit only if it's a number (not null or undefined)
@@ -129,22 +126,22 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
         query = query.limit(limit);
       }
 
-      const { data: followData, error: followError } = await query as unknown as { 
+      const { data: followData, error: followError } = (await query) as unknown as {
         data: FollowData[] | null;
         error: any;
       };
 
       if (followError) throw followError;
 
-      const profiles = followData?.map(f => f.following) || [];
-      const languageIds = profiles.map(p => p.native_language).filter(Boolean);
-      
+      const profiles = followData?.map((f) => f.following) || [];
+      const languageIds = profiles.map((p) => p.native_language).filter(Boolean);
+
       const { data: languageData } = await supabase
         .from('master_languages')
         .select('id, name')
         .in('id', languageIds);
 
-      const languageMap = new Map(languageData?.map(l => [l.id, l.name]) || []);
+      const languageMap = new Map(languageData?.map((l) => [l.id, l.name]) || []);
 
       // calculate streaks for all connections
       const connectionsWithStreaks = await Promise.all(
@@ -173,7 +170,6 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
   }
 
   useEffect(() => {
-
     // connections is off: no queries and no realtime channel
     if (!FEATURES.connections) return;
 
@@ -201,7 +197,6 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
         },
         () => {
           if (isMounted) {
-            
             // reload data when changes occur
             loadConnections();
           }
@@ -220,4 +215,4 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
   }, [userId]);
 
   return { connections, totalCount, isLoading, error, refresh: loadConnections };
-} 
+}

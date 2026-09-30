@@ -53,4 +53,4 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     lineHeight: 20,
   },
-}); 
+});

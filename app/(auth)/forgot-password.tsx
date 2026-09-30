@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   keyboardAvoidingView: {
-    flex: 1, 
+    flex: 1,
   },
   content: {
     flex: 1,
@@ -131,4 +131,4 @@ const styles = StyleSheet.create({
     color: Colors.light.buttonLink,
     fontWeight: '500',
   },
-}); 
+});

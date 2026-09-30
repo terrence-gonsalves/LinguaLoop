@@ -26,7 +26,13 @@ const GOAL_TYPES = [
   { value: 'custom', label: 'Custom' },
 ];
 
-export const GoalFormSteps = ({ currentStep, formData, setFormData, languages, summaryExtras }: GoalFormStepsProps) => {
+export const GoalFormSteps = ({
+  currentStep,
+  formData,
+  setFormData,
+  languages,
+  summaryExtras,
+}: GoalFormStepsProps) => {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
@@ -62,14 +68,16 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages, s
               key={type.value}
               style={[
                 styles.goalTypeButton,
-                formData.goalType === type.value && styles.goalTypeButtonActive
+                formData.goalType === type.value && styles.goalTypeButtonActive,
               ]}
               onPress={() => setFormData({ ...formData, goalType: type.value })}
             >
-              <Text style={[
-                styles.goalTypeText,
-                formData.goalType === type.value && styles.goalTypeTextActive
-              ]}>
+              <Text
+                style={[
+                  styles.goalTypeText,
+                  formData.goalType === type.value && styles.goalTypeTextActive,
+                ]}
+              >
                 {type.label}
               </Text>
             </Pressable>
@@ -91,9 +99,7 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages, s
             placeholder="e.g., B1, Intermediate"
             placeholderTextColor={Colors.light.textSecondary}
           />
-          <Text style={styles.helperText}>
-            Examples: A1, B2, Beginner, Intermediate, Fluent
-          </Text>
+          <Text style={styles.helperText}>Examples: A1, B2, Beginner, Intermediate, Fluent</Text>
         </View>
       ) : formData.goalType === 'custom' ? (
         <View style={styles.inputGroup}>
@@ -114,8 +120,8 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages, s
             {formData.goalType === 'daily_time' || formData.goalType === 'weekly_time'
               ? 'Target Minutes'
               : formData.goalType === 'monthly_vocab'
-              ? 'Target Words'
-              : 'Target Lessons'}
+                ? 'Target Words'
+                : 'Target Lessons'}
           </Text>
           <View style={styles.stepperContainer}>
             <Pressable
@@ -158,16 +164,13 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages, s
 
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Start Date</Text>
-        <Pressable
-          style={styles.dateButton}
-          onPress={() => setShowStartDatePicker(true)}
-        >
+        <Pressable style={styles.dateButton} onPress={() => setShowStartDatePicker(true)}>
           <Text style={styles.dateButtonText}>
             {formData.startDate.toLocaleDateString(undefined, {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
           </Text>
         </Pressable>
         {showStartDatePicker && (
@@ -187,16 +190,13 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages, s
 
       <View style={styles.inputGroup}>
         <Text style={styles.label}>End Date</Text>
-        <Pressable
-          style={styles.dateButton}
-          onPress={() => setShowEndDatePicker(true)}
-        >
+        <Pressable style={styles.dateButton} onPress={() => setShowEndDatePicker(true)}>
           <Text style={styles.dateButtonText}>
             {formData.endDate.toLocaleDateString(undefined, {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
           </Text>
         </Pressable>
         {showEndDatePicker && (
@@ -234,9 +234,7 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages, s
           multiline
           numberOfLines={6}
         />
-        <Text style={styles.characterCount}>
-          {formData.description.length}/1000
-        </Text>
+        <Text style={styles.characterCount}>{formData.description.length}/1000</Text>
       </View>
 
       <View style={styles.summaryContainer}>
@@ -249,14 +247,14 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages, s
           <Text style={styles.summaryLabel}>Language:</Text>
           <Text style={styles.summaryValue}>
             {formData.languageId
-              ? languages.find(l => l.id === formData.languageId)?.name
+              ? languages.find((l) => l.id === formData.languageId)?.name
               : 'All Languages'}
           </Text>
         </View>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryLabel}>Type:</Text>
           <Text style={styles.summaryValue}>
-            {GOAL_TYPES.find(t => t.value === formData.goalType)?.label}
+            {GOAL_TYPES.find((t) => t.value === formData.goalType)?.label}
           </Text>
         </View>
         <View style={styles.summaryItem}>
@@ -268,15 +266,17 @@ export const GoalFormSteps = ({ currentStep, formData, setFormData, languages, s
                   formData.goalType === 'daily_time' || formData.goalType === 'weekly_time'
                     ? 'minutes'
                     : formData.goalType === 'monthly_vocab'
-                    ? 'words'
-                    : 'lessons'
+                      ? 'words'
+                      : 'lessons'
                 }`}
           </Text>
         </View>
         {summaryExtras?.durationDays != null && (
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Duration</Text>
-            <Text style={styles.summaryValue}>{summaryExtras.durationDays} day{summaryExtras.durationDays === 1 ? '' : 's'}</Text>
+            <Text style={styles.summaryValue}>
+              {summaryExtras.durationDays} day{summaryExtras.durationDays === 1 ? '' : 's'}
+            </Text>
           </View>
         )}
       </View>
@@ -416,4 +416,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-}); 
+});

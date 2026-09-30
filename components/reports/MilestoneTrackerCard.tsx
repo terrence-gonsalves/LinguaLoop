@@ -27,7 +27,7 @@ export function MilestoneTrackerCard({ milestoneData }: MilestoneTrackerCardProp
     } else if (progressPercentage >= 25) {
       return "Keep going! You're on your way to the next milestone.";
     } else {
-      return "You are not on track to reach the next milestone unless you start tracking some time.";
+      return 'You are not on track to reach the next milestone unless you start tracking some time.';
     }
   };
 
@@ -42,8 +42,12 @@ export function MilestoneTrackerCard({ milestoneData }: MilestoneTrackerCardProp
 
       <View style={styles.progressContainer}>
         <View style={styles.progressInfo}>
-          <Text style={styles.progressText}><Text style={styles.bold}>{completedHours.toFixed(1)}h</Text> completed</Text>
-          <Text style={styles.progressText}><Text style={styles.bold}>{remaining.toFixed(1)}h</Text> remaining</Text>
+          <Text style={styles.progressText}>
+            <Text style={styles.bold}>{completedHours.toFixed(1)}h</Text> completed
+          </Text>
+          <Text style={styles.progressText}>
+            <Text style={styles.bold}>{remaining.toFixed(1)}h</Text> remaining
+          </Text>
         </View>
         <View style={styles.progressBarBackground}>
           <View style={[styles.progressBarFill, { width: `${progressPercentage}%` }]} />
@@ -54,9 +58,7 @@ export function MilestoneTrackerCard({ milestoneData }: MilestoneTrackerCardProp
         </View>
       </View>
 
-      <Text style={styles.footerText}>
-        {getFooterMessage()}
-      </Text>
+      <Text style={styles.footerText}>{getFooterMessage()}</Text>
     </View>
   );
 }
@@ -130,4 +132,4 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     textAlign: 'center',
   },
-}); 
+});

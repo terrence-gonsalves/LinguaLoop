@@ -24,13 +24,15 @@ export function useUserLanguages(userId: string) {
 
         const { data: languagesData, error: languagesError } = await supabase
           .from('languages')
-          .select(`
+          .select(
+            `
             id,
             master_languages (
               name,
               flag
             )
-          `)
+          `
+          )
           .eq('user_id', userId);
 
         if (languagesError) throw languagesError;
@@ -78,7 +80,6 @@ export function useUserLanguages(userId: string) {
         },
         () => {
           if (isMounted) {
-            
             // reload data when changes occur
             loadUserLanguages();
           }
@@ -88,7 +89,7 @@ export function useUserLanguages(userId: string) {
 
     return () => {
       isMounted = false;
-      
+
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
         subscriptionRef.current = null;
@@ -97,4 +98,4 @@ export function useUserLanguages(userId: string) {
   }, [userId]);
 
   return { languages, isLoading, error };
-} 
+}

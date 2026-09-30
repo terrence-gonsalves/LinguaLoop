@@ -28,7 +28,7 @@ export function useWeeklyStreak(userId: string | undefined) {
       const today = new Date();
       const startOfWeek = getStartOfWeek(today);
       const weekDays: Date[] = [];
-      
+
       for (let i = 0; i < 7; i++) {
         const d = new Date(startOfWeek);
         d.setDate(startOfWeek.getDate() + i);
@@ -44,7 +44,7 @@ export function useWeeklyStreak(userId: string | undefined) {
         .eq('user_id', userId)
         .gte('activity_date', fromDate)
         .lte('activity_date', toDate);
-      
+
       if (!isMounted) return;
 
       const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -92,7 +92,7 @@ export function useWeeklyStreak(userId: string | undefined) {
 
     return () => {
       isMounted = false;
-      
+
       if (subscriptionRef.current) {
         subscriptionRef.current.unsubscribe();
         subscriptionRef.current = null;
@@ -101,4 +101,4 @@ export function useWeeklyStreak(userId: string | undefined) {
   }, [userId]);
 
   return { week, isLoading };
-} 
+}

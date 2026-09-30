@@ -56,14 +56,16 @@ export function LanguageProgressCard({ language, level, activities }: LanguagePr
         {rows.map((row, rowIdx) => (
           <View
             key={rowIdx}
-            style={[
-              styles.activityRow,
-              row.length === 1 ? styles.centeredRow : undefined,
-            ]}
+            style={[styles.activityRow, row.length === 1 ? styles.centeredRow : undefined]}
           >
             {row.map((activity) => (
               <View key={activity.type} style={styles.activityItemRow}>
-                <MaterialCommunityIcons name={activity.icon as any} size={28} color={Colors.light.rust} style={styles.activityIcon} />
+                <MaterialCommunityIcons
+                  name={activity.icon as any}
+                  size={28}
+                  color={Colors.light.rust}
+                  style={styles.activityIcon}
+                />
                 <View style={styles.activityItem}>
                   <Text style={styles.activityTime}>{activity.time}</Text>
                   <Text style={styles.activityLabel}>{activity.type}</Text>
@@ -73,10 +75,7 @@ export function LanguageProgressCard({ language, level, activities }: LanguagePr
           </View>
         ))}
         {activityList.length > 4 && (
-          <Text
-            style={styles.showMore}
-            onPress={() => setShowAll((prev) => !prev)}
-          >
+          <Text style={styles.showMore} onPress={() => setShowAll((prev) => !prev)}>
             {showAll ? 'Show less' : 'Show more'}
           </Text>
         )}
@@ -161,4 +160,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
   },
-}); 
+});

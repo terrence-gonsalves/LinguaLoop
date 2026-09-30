@@ -173,7 +173,7 @@ export async function syncGoalNotifications(userId: string): Promise<void> {
 
     const map: NotificationMap = {};
 
-    if (await hasNotificationPermission() && await isGoalNotificationsEnabled(userId)) {
+    if ((await hasNotificationPermission()) && (await isGoalNotificationsEnabled(userId))) {
       const { data: goals, error } = await supabase
         .from('goals')
         .select('id, user_id, title, end_date, status')
@@ -209,8 +209,11 @@ export async function clearGoalNotifications(): Promise<void> {
 }
 
 // the goal id carried by a tapped goal reminder, or null for any other notification
-export function getGoalIdFromResponse(response: Notifications.NotificationResponse | null | undefined): string | null {
-  if (!response || response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return null;
+export function getGoalIdFromResponse(
+  response: Notifications.NotificationResponse | null | undefined
+): string | null {
+  if (!response || response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER)
+    return null;
 
   const data = response.notification.request.content.data;
 

@@ -34,7 +34,10 @@ const tools = [
 
 export default function AboutScreen() {
   const version = Constants.expoConfig?.version || '0.0.0';
-  const buildNumber = Constants.expoConfig?.ios?.buildNumber || Constants.expoConfig?.android?.versionCode?.toString() || '1';
+  const buildNumber =
+    Constants.expoConfig?.ios?.buildNumber ||
+    Constants.expoConfig?.android?.versionCode?.toString() ||
+    '1';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -58,12 +61,9 @@ export default function AboutScreen() {
 
         <SettingsSection title="Acknowledgements">
           {tools.map((tool, index) => (
-            <View 
-              key={tool.name} 
-              style={[
-                styles.toolItem,
-                index === tools.length - 1 && styles.lastItemDescription
-              ]}
+            <View
+              key={tool.name}
+              style={[styles.toolItem, index === tools.length - 1 && styles.lastItemDescription]}
             >
               <View style={styles.toolHeader}>
                 <View style={styles.iconContainer}>
@@ -171,4 +171,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.light.text,
   },
-}); 
+});

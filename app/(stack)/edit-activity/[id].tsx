@@ -4,7 +4,16 @@ import { Stack } from 'expo-router/stack';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 import { FormInput } from '@/components/forms/FormInput';
@@ -50,18 +59,13 @@ interface ActivityOptionProps {
 }
 
 const ActivityOption = ({ title, icon, isSelected, onPress }: ActivityOptionProps) => (
-  <Pressable 
-    style={[styles.activityOption, isSelected && styles.activityOptionSelected]} 
+  <Pressable
+    style={[styles.activityOption, isSelected && styles.activityOptionSelected]}
     onPress={onPress}
   >
     <View style={styles.activityContent}>
-      <View style={styles.activityIconContainer}>
-        {icon}
-      </View>
-      <Text style={[
-        styles.activityOptionText, 
-        isSelected && styles.activityOptionTextSelected
-      ]}>
+      <View style={styles.activityIconContainer}>{icon}</View>
+      <Text style={[styles.activityOptionText, isSelected && styles.activityOptionTextSelected]}>
         {title}
       </Text>
     </View>
@@ -72,12 +76,12 @@ export default function EditActivityScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { profile } = useAuth();
   const { languages, isLoading: isLoadingLanguages } = useUserLanguages(profile?.id || '');
-  
+
   const [timeEntry, setTimeEntry] = useState<TimeEntry | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
   // form state
   const [selectedActivity, setSelectedActivity] = useState<string>('');
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
@@ -101,7 +105,8 @@ export default function EditActivityScreen() {
     try {
       const { data, error } = await supabase
         .from('time_entries')
-        .select(`
+        .select(
+          `
           id,
           activity_date,
           duration_seconds,
@@ -111,13 +116,14 @@ export default function EditActivityScreen() {
           associated_goal_id,
           activities(name),
           languages(name)
-        `)
+        `
+        )
         .eq('id', id)
         .eq('user_id', profile.id)
         .single();
 
       if (error) throw error;
-      
+
       if (data) {
         setTimeEntry(data as any);
         setSelectedActivity((data.activities as any)?.name || '');
@@ -187,7 +193,6 @@ export default function EditActivityScreen() {
     setSaving(true);
 
     try {
-        
       // lookup activity_id from activities table
       let activityId: string | null = null;
 
@@ -235,12 +240,14 @@ export default function EditActivityScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{
+      <Stack.Screen
+        options={{
           title: 'Edit Activity',
           headerShadowVisible: true,
-      }} />
+        }}
+      />
 
-      {(loading) ? (
+      {loading ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={Colors.light.rust} />
         </View>
@@ -253,14 +260,10 @@ export default function EditActivityScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.content}>
-
             {/* date selection */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Date of Activity</Text>
-              <Pressable
-                style={styles.dateButton}
-                onPress={() => setShowDatePicker(true)}
-              >
+              <Pressable style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
                 <MaterialCommunityIcons
                   name="calendar"
                   size={20}
@@ -279,7 +282,12 @@ export default function EditActivityScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Language</Text>
               <View style={styles.languageDropdownContainer}>
-                <MaterialCommunityIcons name="translate" size={20} color={Colors.light.textSecondary} style={styles.languageIcon} />
+                <MaterialCommunityIcons
+                  name="translate"
+                  size={20}
+                  color={Colors.light.textSecondary}
+                  style={styles.languageIcon}
+                />
                 <LanguageDropdown
                   label=""
                   data={languages}
@@ -290,7 +298,7 @@ export default function EditActivityScreen() {
                   dropdownStyle={styles.dropdownButton}
                   style={styles.languageDropdown}
                 />
-            </View>
+              </View>
             </View>
 
             {/* activity type selection */}
@@ -299,7 +307,17 @@ export default function EditActivityScreen() {
               <View style={styles.activityGrid}>
                 <ActivityOption
                   title="Listening"
-                  icon={<MaterialCommunityIcons name="headphones" size={24} color={selectedActivity === 'listening' ? Colors.light.textTertiary : Colors.light.rust} />}
+                  icon={
+                    <MaterialCommunityIcons
+                      name="headphones"
+                      size={24}
+                      color={
+                        selectedActivity === 'listening'
+                          ? Colors.light.textTertiary
+                          : Colors.light.rust
+                      }
+                    />
+                  }
                   isSelected={selectedActivity === 'listening'}
                   onPress={() => {
                     setSelectedActivity('listening');
@@ -307,7 +325,17 @@ export default function EditActivityScreen() {
                 />
                 <ActivityOption
                   title="Reading"
-                  icon={<Ionicons name="book-outline" size={24} color={selectedActivity === 'reading' ? Colors.light.textTertiary : Colors.light.rust} />}
+                  icon={
+                    <Ionicons
+                      name="book-outline"
+                      size={24}
+                      color={
+                        selectedActivity === 'reading'
+                          ? Colors.light.textTertiary
+                          : Colors.light.rust
+                      }
+                    />
+                  }
                   isSelected={selectedActivity === 'reading'}
                   onPress={() => {
                     setSelectedActivity('reading');
@@ -315,7 +343,17 @@ export default function EditActivityScreen() {
                 />
                 <ActivityOption
                   title="Writing"
-                  icon={<MaterialCommunityIcons name="pencil-outline" size={24} color={selectedActivity === 'writing' ? Colors.light.textTertiary : Colors.light.rust} />}
+                  icon={
+                    <MaterialCommunityIcons
+                      name="pencil-outline"
+                      size={24}
+                      color={
+                        selectedActivity === 'writing'
+                          ? Colors.light.textTertiary
+                          : Colors.light.rust
+                      }
+                    />
+                  }
                   isSelected={selectedActivity === 'writing'}
                   onPress={() => {
                     setSelectedActivity('writing');
@@ -323,7 +361,17 @@ export default function EditActivityScreen() {
                 />
                 <ActivityOption
                   title="Speaking"
-                  icon={<MaterialCommunityIcons name="microphone-outline" size={24} color={selectedActivity === 'speaking' ? Colors.light.textTertiary : Colors.light.rust} />}
+                  icon={
+                    <MaterialCommunityIcons
+                      name="microphone-outline"
+                      size={24}
+                      color={
+                        selectedActivity === 'speaking'
+                          ? Colors.light.textTertiary
+                          : Colors.light.rust
+                      }
+                    />
+                  }
                   isSelected={selectedActivity === 'speaking'}
                   onPress={() => {
                     setSelectedActivity('speaking');
@@ -355,25 +403,24 @@ export default function EditActivityScreen() {
                 <Pressable
                   style={styles.goalButton}
                   onPress={() => {
-                    Alert.alert(
-                      'Select Goal',
-                      'Choose a goal to associate with this activity',
-                      [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'No Goal', style: 'destructive', onPress: () => setSelectedGoal(null) },
-                        ...goals.map(goal => ({
-                          text: goal.title,
-                          onPress: () => setSelectedGoal(goal.id)
-                        }))
-                      ]
-                    );
+                    Alert.alert('Select Goal', 'Choose a goal to associate with this activity', [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'No Goal',
+                        style: 'destructive',
+                        onPress: () => setSelectedGoal(null),
+                      },
+                      ...goals.map((goal) => ({
+                        text: goal.title,
+                        onPress: () => setSelectedGoal(goal.id),
+                      })),
+                    ]);
                   }}
                 >
                   <Text style={styles.goalButtonText}>
-                    {selectedGoal 
-                      ? goals.find(g => g.id === selectedGoal)?.title || 'Unknown Goal'
-                      : 'Select a goal (optional)'
-                    }
+                    {selectedGoal
+                      ? goals.find((g) => g.id === selectedGoal)?.title || 'Unknown Goal'
+                      : 'Select a goal (optional)'}
                   </Text>
                   <MaterialCommunityIcons
                     name="chevron-down"
@@ -384,7 +431,7 @@ export default function EditActivityScreen() {
               </View>
             </View>
 
-              {/* notes */}
+            {/* notes */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Notes (Optional)</Text>
               <FormInput
@@ -403,21 +450,18 @@ export default function EditActivityScreen() {
 
       {/* bottom action buttons */}
       <View style={styles.bottomActions}>
-          <Pressable 
-              style={styles.cancelButton} 
-              onPress={handleCancel}
-          >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-          </Pressable>
-          <Pressable 
-              style={[styles.saveButton, saving && styles.saveButtonDisabled]} 
-              onPress={handleSaveActivity}
-              disabled={saving}
-          >
-              <Text style={[styles.saveButtonText, saving && styles.saveButtonTextDisabled]}>
-                      {saving ? 'Saving...' : 'Save'}
-              </Text>
-          </Pressable>
+        <Pressable style={styles.cancelButton} onPress={handleCancel}>
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+          onPress={handleSaveActivity}
+          disabled={saving}
+        >
+          <Text style={[styles.saveButtonText, saving && styles.saveButtonTextDisabled]}>
+            {saving ? 'Saving...' : 'Save'}
+          </Text>
+        </Pressable>
       </View>
 
       {showDatePicker && (
@@ -459,34 +503,34 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
-   section: {
-     marginBottom: 10,
-     marginTop: 10,
-   },
-   sectionTitle: {
-     fontSize: 16,
-     fontWeight: '600',
-     color: Colors.light.textPrimary,
-     marginBottom: 12,
-   },
-   dateButton: {
-     flexDirection: 'row',
-     alignItems: 'center',
-     backgroundColor: Colors.light.background,
-     padding: 16,
-     borderRadius: 12,
-     gap: 8,
-     shadowColor: '#000',
-     shadowOffset: { width: 0, height: 2 },
-     shadowOpacity: 0.1,
-     shadowRadius: 4,
-     elevation: 3,
-   },
+  section: {
+    marginBottom: 10,
+    marginTop: 10,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.light.textPrimary,
+    marginBottom: 12,
+  },
+  dateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.light.background,
+    padding: 16,
+    borderRadius: 12,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
   dateButtonText: {
     fontSize: 16,
     color: Colors.light.textPrimary,
   },
-  
+
   languageDropdownContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -582,47 +626,47 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.light.text,
   },
-     notesInput: {
-     backgroundColor: Colors.light.background,
-     borderWidth: 1,
-     borderColor: Colors.light.border,
-   },
-   bottomActions: {
-     flexDirection: 'row',
-     padding: 16,
-     gap: 12,
-     borderTopWidth: 1,
-     borderTopColor: Colors.light.border,
-     backgroundColor: Colors.light.background,
-   },
-   cancelButton: {
-     flex: 1,
-     paddingVertical: 12,
-     alignItems: 'center',
-     justifyContent: 'center',
-   },
-   cancelButtonText: {
-     fontSize: 16,
-     fontWeight: '600',
-     color: Colors.light.textSecondary,
-   },
-   saveButton: {
-     flex: 1,
-     backgroundColor: Colors.light.rust,
-     paddingVertical: 12,
-     borderRadius: 8,
-     alignItems: 'center',
-     justifyContent: 'center',
-   },
-   saveButtonDisabled: {
-     opacity: 0.5,
-   },
-   saveButtonText: {
-     fontSize: 16,
-     fontWeight: '600',
-     color: Colors.light.background,
-   },
-   saveButtonTextDisabled: {
-     color: Colors.light.textSecondary,
-   },
- });
+  notesInput: {
+    backgroundColor: Colors.light.background,
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+  },
+  bottomActions: {
+    flexDirection: 'row',
+    padding: 16,
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light.border,
+    backgroundColor: Colors.light.background,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.light.textSecondary,
+  },
+  saveButton: {
+    flex: 1,
+    backgroundColor: Colors.light.rust,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveButtonDisabled: {
+    opacity: 0.5,
+  },
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.light.background,
+  },
+  saveButtonTextDisabled: {
+    color: Colors.light.textSecondary,
+  },
+});

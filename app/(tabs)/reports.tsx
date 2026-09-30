@@ -28,7 +28,7 @@ export default function ReportsScreen() {
   const { profile } = useAuth();
   const { languages } = useUserLanguages(profile?.id || '');
   const [selectedLanguageId, setSelectedLanguageId] = useState<string | null>(null);
-  
+
   // individual hooks
   const { summary } = useReportSummary(profile?.id, selectedLanguageId);
   const { milestone } = useMilestoneTracker(profile?.id);
@@ -49,7 +49,7 @@ export default function ReportsScreen() {
   ];
 
   // transform languages for dropdown with IDs
-  const languageOptions = languages.map(lang => ({
+  const languageOptions = languages.map((lang) => ({
     ...lang,
     id: lang.id, // ensure ID is available for filtering
   }));
@@ -77,17 +77,14 @@ export default function ReportsScreen() {
           ),
         }}
       />
-      <ScrollView 
-        style={styles.content} 
+      <ScrollView
+        style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 30 }}
       >
         <View style={styles.statRow}>
-          <StatCard 
-            title="Total Time" 
-            value={summary.totalTime} 
-          />
-          <PerformanceOverviewCard 
+          <StatCard title="Total Time" value={summary.totalTime} />
+          <PerformanceOverviewCard
             averageTimeSeconds={summary.averageSession.currentDay}
             changePercent={summary.averageSession.changePercent}
           />
@@ -101,13 +98,12 @@ export default function ReportsScreen() {
 
         <TimePerActivityCard timePerActivityData={activityData} />
 
-        <ComparisonCard 
-          title="Input-Output Analysis" 
-          subtitle="Comparison of input and output activities" 
-          items={comparisonItems1} 
+        <ComparisonCard
+          title="Input-Output Analysis"
+          subtitle="Comparison of input and output activities"
+          items={comparisonItems1}
           analysisData={analysis}
         />
-
       </ScrollView>
     </View>
   );
@@ -130,4 +126,4 @@ const styles = StyleSheet.create({
     gap: 16,
     marginBottom: 16,
   },
-}); 
+});

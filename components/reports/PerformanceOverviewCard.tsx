@@ -8,13 +8,16 @@ interface PerformanceOverviewCardProps {
   changePercent: number | null;
 }
 
-export function PerformanceOverviewCard({ averageTimeSeconds, changePercent }: PerformanceOverviewCardProps) {
+export function PerformanceOverviewCard({
+  averageTimeSeconds,
+  changePercent,
+}: PerformanceOverviewCardProps) {
   const formatTime = (seconds: number): string => {
     if (seconds === 0) return '0m';
-    
+
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     } else {
@@ -39,7 +42,12 @@ export function PerformanceOverviewCard({ averageTimeSeconds, changePercent }: P
           size={16}
           color={isPositive ? Colors.light.green : Colors.light.error}
         />
-        <Text style={[styles.changeText, { color: isPositive ? Colors.light.green : Colors.light.error }]}>
+        <Text
+          style={[
+            styles.changeText,
+            { color: isPositive ? Colors.light.green : Colors.light.error },
+          ]}
+        >
           {Math.abs(changePercent).toFixed(1)}%
         </Text>
       </View>
@@ -92,4 +100,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 4,
   },
-}); 
+});

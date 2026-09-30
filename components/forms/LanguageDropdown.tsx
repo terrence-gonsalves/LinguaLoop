@@ -42,12 +42,12 @@ interface LanguageDropdownProps {
 
 const { height: screenHeight } = Dimensions.get('window');
 
-export function LanguageDropdown({ 
-  label, 
-  data, 
-  value, 
-  onChange, 
-  excludeValues = [], 
+export function LanguageDropdown({
+  label,
+  data,
+  value,
+  onChange,
+  excludeValues = [],
   style,
   dropdownStyle,
   showAllLanguagesOption = false,
@@ -58,24 +58,24 @@ export function LanguageDropdown({
   const slideAnim = React.useRef(new Animated.Value(0)).current;
 
   // filter out excluded values
-  const filteredData = data.filter(item => !excludeValues.includes(item.id));
-  
+  const filteredData = data.filter((item) => !excludeValues.includes(item.id));
+
   // get the selected language object
-  const selectedLanguage = data.find(item => item.id === value) || null;
+  const selectedLanguage = data.find((item) => item.id === value) || null;
 
   // filter data based on search query
-  const searchFilteredData = filteredData.filter(item =>
+  const searchFilteredData = filteredData.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // prepare data for FlatList (including "All Languages" option if needed)
   const listData = React.useMemo(() => {
     const data: ListItem[] = [];
-    
+
     if (showAllLanguagesOption) {
       data.push({ id: 'all-languages', name: 'All Languages', isAllLanguages: true });
     }
-    
+
     data.push(...searchFilteredData);
     return data;
   }, [searchFilteredData, showAllLanguagesOption]);
@@ -101,10 +101,13 @@ export function LanguageDropdown({
     });
   }, [slideAnim]);
 
-  const handleSelectLanguage = useCallback((languageId: string | null) => {
-    onChange(languageId);
-    handleCloseModal();
-  }, [onChange, handleCloseModal]);
+  const handleSelectLanguage = useCallback(
+    (languageId: string | null) => {
+      onChange(languageId);
+      handleCloseModal();
+    },
+    [onChange, handleCloseModal]
+  );
 
   const handleClear = useCallback(() => {
     onChange(null);
@@ -113,11 +116,11 @@ export function LanguageDropdown({
   return (
     <View style={[styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      
+
       <Pressable
         style={[
           displayMode === 'flagOnly' ? styles.flagOnlyField : styles.dropdownField,
-          dropdownStyle
+          dropdownStyle,
         ]}
         onPress={handleOpenModal}
       >
@@ -132,11 +135,7 @@ export function LanguageDropdown({
             ) : (
               <MaterialCommunityIcons name="earth" size={28} color={Colors.light.textSecondary} />
             )}
-            <MaterialIcons
-              name="arrow-drop-down"
-              size={24}
-              color={Colors.light.textSecondary}
-            />
+            <MaterialIcons name="arrow-drop-down" size={24} color={Colors.light.textSecondary} />
           </View>
         ) : (
           <>
@@ -146,33 +145,19 @@ export function LanguageDropdown({
                   name={selectedLanguage.name}
                   flagUrl={selectedLanguage.flag || null}
                 />
-                <Text style={styles.selectedLanguageText}>
-                  {selectedLanguage.name}
-                </Text>
+                <Text style={styles.selectedLanguageText}>{selectedLanguage.name}</Text>
               </View>
             ) : (
               <Text style={styles.placeholderText}>Select language</Text>
             )}
-            
+
             <View style={styles.fieldActions}>
               {value && (
-                <Pressable
-                  style={styles.clearButton}
-                  onPress={handleClear}
-                  hitSlop={8}
-                >
-                  <MaterialIcons
-                    name="clear"
-                    size={20}
-                    color={Colors.light.textSecondary}
-                  />
+                <Pressable style={styles.clearButton} onPress={handleClear} hitSlop={8}>
+                  <MaterialIcons name="clear" size={20} color={Colors.light.textSecondary} />
                 </Pressable>
               )}
-              <MaterialIcons
-                name="arrow-drop-down"
-                size={24}
-                color={Colors.light.textSecondary}
-              />
+              <MaterialIcons name="arrow-drop-down" size={24} color={Colors.light.textSecondary} />
             </View>
           </>
         )}
@@ -184,38 +169,28 @@ export function LanguageDropdown({
         animationType="none"
         onRequestClose={handleCloseModal}
       >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={handleCloseModal}
-        >
+        <Pressable style={styles.modalOverlay} onPress={handleCloseModal}>
           <Animated.View
             style={[
               styles.modalContent,
               {
-                transform: [{
-                  translateY: slideAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [screenHeight, 0],
-                  }),
-                }],
+                transform: [
+                  {
+                    translateY: slideAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [screenHeight, 0],
+                    }),
+                  },
+                ],
               },
             ]}
           >
             <Pressable style={styles.modalInner} onPress={() => {}}>
-
               {/* header */}
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Select Language</Text>
-                <Pressable
-                  style={styles.closeButton}
-                  onPress={handleCloseModal}
-                  hitSlop={8}
-                >
-                  <MaterialIcons
-                    name="close"
-                    size={24}
-                    color={Colors.light.textSecondary}
-                  />
+                <Pressable style={styles.closeButton} onPress={handleCloseModal} hitSlop={8}>
+                  <MaterialIcons name="close" size={24} color={Colors.light.textSecondary} />
                 </Pressable>
               </View>
 
@@ -247,10 +222,7 @@ export function LanguageDropdown({
                   if (item.isAllLanguages) {
                     return (
                       <Pressable
-                        style={[
-                          styles.languageItem,
-                          value === null && styles.languageItemSelected,
-                        ]}
+                        style={[styles.languageItem, value === null && styles.languageItemSelected]}
                         onPress={() => handleSelectLanguage(null)}
                       >
                         <View style={styles.languageInfo}>
@@ -261,19 +233,17 @@ export function LanguageDropdown({
                               color={Colors.light.rust}
                             />
                           </View>
-                          <Text style={[
-                            styles.languageName,
-                            value === null && styles.languageNameSelected,
-                          ]}>
+                          <Text
+                            style={[
+                              styles.languageName,
+                              value === null && styles.languageNameSelected,
+                            ]}
+                          >
                             All Languages
                           </Text>
                         </View>
                         {value === null && (
-                          <MaterialIcons
-                            name="check"
-                            size={20}
-                            color={Colors.light.rust}
-                          />
+                          <MaterialIcons name="check" size={20} color={Colors.light.rust} />
                         )}
                       </Pressable>
                     );
@@ -288,23 +258,18 @@ export function LanguageDropdown({
                       onPress={() => handleSelectLanguage(item.id)}
                     >
                       <View style={styles.languageInfo}>
-                        <LanguageFlag
-                          name={item.name}
-                          flagUrl={item.flag || null}
-                        />
-                        <Text style={[
-                          styles.languageName,
-                          value === item.id && styles.languageNameSelected,
-                        ]}>
+                        <LanguageFlag name={item.name} flagUrl={item.flag || null} />
+                        <Text
+                          style={[
+                            styles.languageName,
+                            value === item.id && styles.languageNameSelected,
+                          ]}
+                        >
                           {item.name}
                         </Text>
                       </View>
                       {value === item.id && (
-                        <MaterialIcons
-                          name="check"
-                          size={20}
-                          color={Colors.light.rust}
-                        />
+                        <MaterialIcons name="check" size={20} color={Colors.light.rust} />
                       )}
                     </Pressable>
                   );
@@ -479,4 +444,4 @@ const styles = StyleSheet.create({
     color: Colors.light.rust,
     fontWeight: '500',
   },
-}); 
+});

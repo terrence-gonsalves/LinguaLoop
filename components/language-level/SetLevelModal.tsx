@@ -1,14 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 
 import React, { useEffect, useState } from 'react';
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import Colors from '@/constants/Colors';
 
@@ -90,19 +83,13 @@ export function SetLevelModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={handleClose}
-    >
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={handleClose} />
         <View style={styles.modalContainer}>
-
           {/* handle bar */}
           <View style={styles.handleBar} />
-          
+
           {/* header */}
           <View style={styles.header}>
             <Text style={styles.title}>Set Language Level</Text>
@@ -148,9 +135,7 @@ export function SetLevelModal({
               onPress={handleSave}
               disabled={isLoading}
             >
-              <Text style={styles.saveButtonText}>
-                {isLoading ? 'Saving...' : 'Save Level'}
-              </Text>
+              <Text style={styles.saveButtonText}>{isLoading ? 'Saving...' : 'Save Level'}</Text>
             </Pressable>
           </View>
         </View>
@@ -270,4 +255,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-}); 
+});

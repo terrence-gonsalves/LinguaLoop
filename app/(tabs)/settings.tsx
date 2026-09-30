@@ -15,21 +15,17 @@ export default function SettingsScreen() {
   const { signOut, profile } = useAuth();
 
   const handleSignOut = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: signOut,
-        },
-      ]
-    );
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: signOut,
+      },
+    ]);
   };
 
   const settingsItems = [
@@ -107,17 +103,16 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-        <Stack.Screen 
-          options={{
-            headerShown: true,
-            headerTitle: 'Settings',
-            headerStyle: { backgroundColor: defaultColors.light.background },
-            headerTitleStyle: { fontSize: 24 },
-            headerShadowVisible: true,
-          }}
-        />
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: 'Settings',
+          headerStyle: { backgroundColor: defaultColors.light.background },
+          headerTitleStyle: { fontSize: 24 },
+          headerShadowVisible: true,
+        }}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
-
         {/* profile section */}
         <View style={styles.profileSection}>
           {profile?.avatar_url ? (
@@ -128,10 +123,7 @@ export default function SettingsScreen() {
               transition={200}
             />
           ) : (
-            <DefaultAvatar 
-              size={80} 
-              letter={profile?.name ? profile.name[0].toUpperCase() : '?'} 
-            />
+            <DefaultAvatar size={80} letter={profile?.name ? profile.name[0].toUpperCase() : '?'} />
           )}
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{profile?.name || 'User'}</Text>
@@ -144,19 +136,27 @@ export default function SettingsScreen() {
           <View key={section.title} style={styles.section}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
             {section.items.map((item, itemIndex) => (
-              <Pressable 
-                key={item.label} 
+              <Pressable
+                key={item.label}
                 style={[
                   styles.settingItem,
-                  itemIndex === section.items.length - 1 && styles.lastItem
+                  itemIndex === section.items.length - 1 && styles.lastItem,
                 ]}
                 onPress={() => router.push(item.href)}
               >
                 <View style={styles.settingItemContent}>
-                  <MaterialIcons name={item.icon as any} size={24} color={defaultColors.light.text} />
+                  <MaterialIcons
+                    name={item.icon as any}
+                    size={24}
+                    color={defaultColors.light.text}
+                  />
                   <Text style={styles.settingItemLabel}>{item.label}</Text>
                 </View>
-                <MaterialIcons name="chevron-right" size={24} color={defaultColors.light.textSecondary} />
+                <MaterialIcons
+                  name="chevron-right"
+                  size={24}
+                  color={defaultColors.light.textSecondary}
+                />
               </Pressable>
             ))}
           </View>
@@ -252,4 +252,4 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
   },
-}); 
+});

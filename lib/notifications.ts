@@ -65,13 +65,11 @@ export async function sendTestNotification(): Promise<void> {
 
 export async function updatePushToken(userId: string, token: string): Promise<void> {
   try {
-    const { error } = await supabase
-      .from('notification_settings')
-      .upsert({
-        user_id: userId,
-        expo_push_token: token,
-        updated_at: new Date().toISOString(),
-      });
+    const { error } = await supabase.from('notification_settings').upsert({
+      user_id: userId,
+      expo_push_token: token,
+      updated_at: new Date().toISOString(),
+    });
 
     if (error) throw error;
   } catch (error) {
@@ -80,7 +78,9 @@ export async function updatePushToken(userId: string, token: string): Promise<vo
   }
 }
 
-export async function getNotificationSettings(userId: string): Promise<NotificationSettings | null> {
+export async function getNotificationSettings(
+  userId: string
+): Promise<NotificationSettings | null> {
   try {
     const { data, error } = await supabase
       .from('notification_settings')
@@ -97,21 +97,19 @@ export async function getNotificationSettings(userId: string): Promise<Notificat
 }
 
 export async function saveNotificationSettings(
-  userId: string, 
+  userId: string,
   settings: Partial<NotificationSettings>
 ): Promise<void> {
   try {
-    const { error } = await supabase
-      .from('notification_settings')
-      .upsert({
-        user_id: userId,
-        ...settings,
-        updated_at: new Date().toISOString(),
-      });
+    const { error } = await supabase.from('notification_settings').upsert({
+      user_id: userId,
+      ...settings,
+      updated_at: new Date().toISOString(),
+    });
 
     if (error) throw error;
   } catch (error) {
     console.error('Error saving notification settings:', error);
     throw error;
   }
-} 
+}

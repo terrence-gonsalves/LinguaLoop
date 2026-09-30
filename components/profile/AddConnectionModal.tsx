@@ -3,7 +3,16 @@ import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 
 import React, { useEffect, useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 
@@ -60,40 +69,39 @@ function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps
       .eq('onboarding_completed', true);
 
     // fetch all master languages
-    const { data: masterLangs } = await supabase
-      .from('master_languages')
-      .select('id, name');
+    const { data: masterLangs } = await supabase.from('master_languages').select('id, name');
 
     // fetch all target languages for all users
-    const { data: allLanguages } = await supabase
-      .from('languages')
-      .select('user_id, name');
+    const { data: allLanguages } = await supabase.from('languages').select('user_id, name');
 
     // fetch following list
     const { data: followingData } = await supabase
       .from('follows')
       .select('following_id')
       .eq('follower_id', profile?.id);
-      
-    const followingIds = (followingData || []).map((f: any) => f.following_id);
-    
-    // process users and generate fresh avatar URLs
-    const usersList: User[] = await Promise.all((userData || []).map(async (u: any) => {
-      const nativeLangName = masterLangs?.find((ml: any) => ml.id === u.native_language)?.name || 'Unknown';
-      const targetLangs = (allLanguages || [])
-        .filter((l: any) => l.user_id === u.id)
-        .map((l: any) => l.name);
 
-      return {
-        id: u.id,
-        name: u.name || 'User',
-        user_name: u.user_name || 'user',
-        avatar_url: u.avatar_url,
-        native_language: nativeLangName,
-        target_languages: targetLangs,
-        is_following: followingIds.includes(u.id),
-      };
-    }));
+    const followingIds = (followingData || []).map((f: any) => f.following_id);
+
+    // process users and generate fresh avatar URLs
+    const usersList: User[] = await Promise.all(
+      (userData || []).map(async (u: any) => {
+        const nativeLangName =
+          masterLangs?.find((ml: any) => ml.id === u.native_language)?.name || 'Unknown';
+        const targetLangs = (allLanguages || [])
+          .filter((l: any) => l.user_id === u.id)
+          .map((l: any) => l.name);
+
+        return {
+          id: u.id,
+          name: u.name || 'User',
+          user_name: u.user_name || 'user',
+          avatar_url: u.avatar_url,
+          native_language: nativeLangName,
+          target_languages: targetLangs,
+          is_following: followingIds.includes(u.id),
+        };
+      })
+    );
 
     setUsers(usersList);
     setLoading(false);
@@ -103,20 +111,20 @@ function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps
     if (!search.trim()) return users;
 
     const lower = search.toLowerCase();
-    return users.filter((u) =>
-      u.name.toLowerCase().includes(lower) ||
-      u.user_name.toLowerCase().includes(lower) ||
-      u.native_language.toLowerCase().includes(lower) ||
-      u.target_languages.some((lang) => lang.toLowerCase().includes(lower))
+    return users.filter(
+      (u) =>
+        u.name.toLowerCase().includes(lower) ||
+        u.user_name.toLowerCase().includes(lower) ||
+        u.native_language.toLowerCase().includes(lower) ||
+        u.target_languages.some((lang) => lang.toLowerCase().includes(lower))
     );
   }
 
   async function toggleFollow(userId: string) {
     const user = users.find((u) => u.id === userId);
-    
+
     if (!user) return;
     if (user.is_following) {
-
       // unfollow, and check a row was actually removed
       const { data, error } = await supabase
         .from('follows')
@@ -129,9 +137,10 @@ function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps
         return;
       }
     } else {
-
       // follow
-      const { error } = await supabase.from('follows').insert({ follower_id: profile?.id, following_id: userId });
+      const { error } = await supabase
+        .from('follows')
+        .insert({ follower_id: profile?.id, following_id: userId });
 
       if (error) {
         showErrorToast('Failed to follow user. Please try again.');
@@ -141,9 +150,7 @@ function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps
 
     // update local state
     setUsers((prev) =>
-      prev.map((u) =>
-        u.id === userId ? { ...u, is_following: !u.is_following } : u
-      )
+      prev.map((u) => (u.id === userId ? { ...u, is_following: !u.is_following } : u))
     );
   }
 
@@ -153,15 +160,9 @@ function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps
   }
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-
           {/* header */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Add Connection</Text>
@@ -172,7 +173,12 @@ function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps
 
           {/* search bar */}
           <View style={styles.searchBarContainer}>
-            <MaterialCommunityIcons name="magnify" size={20} color={Colors.light.textSecondary} style={{ marginRight: 8 }} />
+            <MaterialCommunityIcons
+              name="magnify"
+              size={20}
+              color={Colors.light.textSecondary}
+              style={{ marginRight: 8 }}
+            />
             <TextInput
               style={styles.searchBar}
               placeholder="Search by name, username, or language..."
@@ -217,7 +223,9 @@ function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps
                       ))}
                       {item.target_languages.length > 4 && (
                         <View style={styles.languageChip}>
-                          <Text style={styles.languageChipText}>+{item.target_languages.length - 4}</Text>
+                          <Text style={styles.languageChipText}>
+                            +{item.target_languages.length - 4}
+                          </Text>
                         </View>
                       )}
                     </View>
@@ -227,7 +235,12 @@ function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps
                   style={[styles.followButton, item.is_following ? styles.following : undefined]}
                   onPress={() => toggleFollow(item.id)}
                 >
-                  <Text style={[styles.followButtonText, item.is_following ? styles.followingText : undefined]}>
+                  <Text
+                    style={[
+                      styles.followButtonText,
+                      item.is_following ? styles.followingText : undefined,
+                    ]}
+                  >
                     {item.is_following ? 'Following' : 'Follow'}
                   </Text>
                 </Pressable>
@@ -368,4 +381,4 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
   },
-}); 
+});

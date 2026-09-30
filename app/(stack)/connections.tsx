@@ -27,7 +27,6 @@ function ConnectionsScreenContent() {
   const { connections, isLoading, error, refresh } = useActiveConnections(profile?.id || '', null);
 
   const handleUnfollow = () => {
-
     // refresh the connections list after unfollowing
     refresh();
   };
@@ -48,20 +47,20 @@ function ConnectionsScreenContent() {
     if (error) {
       return <Text style={styles.errorText}>Error loading connections: {error}</Text>;
     }
-    
+
     return <Text style={styles.noDataText}>No active connections yet</Text>;
   };
 
   return (
     <View style={styles.container}>
-      <Stack.Screen 
-        options={{ 
+      <Stack.Screen
+        options={{
           title: 'Active Connections',
           headerShadowVisible: false,
           headerStyle: { backgroundColor: Colors.light.background },
-        }} 
+        }}
       />
-      {(isLoading) ? (
+      {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.light.rust} />
         </View>
@@ -133,4 +132,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     padding: 16,
   },
-}); 
+});

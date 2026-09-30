@@ -1,14 +1,14 @@
-declare module "expo-router" {
+declare module 'expo-router' {
   export interface TypedRoutes {
-    "/(auth)": {
+    '/(auth)': {
       login: undefined;
-      "create-account": undefined;
-      "forgot-password": undefined;
+      'create-account': undefined;
+      'forgot-password': undefined;
     };
-    "/(stack)": {
+    '/(stack)': {
       onboarding: undefined;
     };
-    "/(tabs)": {
+    '/(tabs)': {
       profile: undefined;
     };
   }
@@ -20,4 +20,4 @@ declare module "expo-router" {
   };
 
   export function useLocalSearchParams<T = Record<string, string>>(): T;
-} 
+}

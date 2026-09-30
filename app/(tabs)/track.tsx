@@ -29,18 +29,13 @@ interface ActivityOptionProps {
 }
 
 const ActivityOption = ({ title, icon, isSelected, onPress }: ActivityOptionProps) => (
-  <Pressable 
-    style={[styles.activityOption, isSelected && styles.activityOptionSelected]} 
+  <Pressable
+    style={[styles.activityOption, isSelected && styles.activityOptionSelected]}
     onPress={onPress}
   >
     <View style={styles.activityContent}>
-      <View style={styles.activityIconContainer}>
-        {icon}
-      </View>
-      <Text style={[
-        styles.activityOptionText, 
-        isSelected && styles.activityOptionTextSelected
-      ]}>
+      <View style={styles.activityIconContainer}>{icon}</View>
+      <Text style={[styles.activityOptionText, isSelected && styles.activityOptionTextSelected]}>
         {title}
       </Text>
     </View>
@@ -62,14 +57,14 @@ export default function TrackActivityScreen() {
   // set initial activity from URL parameter
   useEffect(() => {
     const state = navigation.getState();
-    
+
     if (state) {
-      const route = state.routes.find(route => route.name === 'track');
+      const route = state.routes.find((route) => route.name === 'track');
       const params = route?.params as TrackScreenParams | undefined;
-      
+
       if (params?.activity) {
         setSelectedActivity(params.activity);
- 
+
         // clear the URL parameter after setting the activity
         navigation.setParams({ ...params, activity: undefined } as any);
       }
@@ -83,18 +78,17 @@ export default function TrackActivityScreen() {
         hasInitializedRef.current = true;
         return;
       }
-      
+
       // check if there's an activity parameter in the URL
       const state = navigation.getState();
-      const route = state?.routes.find(route => route.name === 'track');
+      const route = state?.routes.find((route) => route.name === 'track');
       const params = route?.params as TrackScreenParams | undefined;
       const activityFromParams = params?.activity;
-      
+
       // only reset fields if there's no activity parameter (coming from tab navigation)
       if (!activityFromParams) {
         resetFields();
       } else {
-
         // if there's an activity parameter, set it and clear the parameter
         setSelectedActivity(activityFromParams);
         navigation.setParams({ ...params, activity: undefined } as any);
@@ -164,16 +158,14 @@ export default function TrackActivityScreen() {
 
     // insert into time_entries
     try {
-      const { error } = await supabase
-        .from('time_entries')
-        .insert({
-          user_id: profile.id,
-          language_id: selectedLanguage,
-          activity_id: activityId,
-          duration_seconds: duration * 60,
-          notes: notes || null,
-          activity_date: date,
-        });
+      const { error } = await supabase.from('time_entries').insert({
+        user_id: profile.id,
+        language_id: selectedLanguage,
+        activity_id: activityId,
+        duration_seconds: duration * 60,
+        notes: notes || null,
+        activity_date: date,
+      });
 
       if (error) throw error;
 
@@ -195,19 +187,22 @@ export default function TrackActivityScreen() {
           headerShadowVisible: true,
         }}
       />
-      <KeyboardAwareScrollView 
+      <KeyboardAwareScrollView
         contentContainerStyle={styles.keyboardContainer}
         style={styles.keyboardAvoidingView}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.content}>
-
           {/* date section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Date of Activity</Text>
             <Pressable style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-              <MaterialCommunityIcons name="calendar" size={20} color={Colors.light.textSecondary} />
+              <MaterialCommunityIcons
+                name="calendar"
+                size={20}
+                color={Colors.light.textSecondary}
+              />
               <Text style={styles.dateText}>{formatDate(date)}</Text>
             </Pressable>
             {showDatePicker && (
@@ -218,7 +213,7 @@ export default function TrackActivityScreen() {
                 maximumDate={new Date()}
                 onChange={(event, selectedDate) => {
                   setShowDatePicker(false);
-                  
+
                   if (selectedDate) {
                     setDate(selectedDate);
                   }
@@ -233,7 +228,12 @@ export default function TrackActivityScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Language</Text>
             <View style={styles.languageDropdownContainer}>
-              <MaterialCommunityIcons name="translate" size={20} color={Colors.light.textSecondary} style={styles.languageIcon} />
+              <MaterialCommunityIcons
+                name="translate"
+                size={20}
+                color={Colors.light.textSecondary}
+                style={styles.languageIcon}
+              />
               <LanguageDropdown
                 label=""
                 data={languages}
@@ -253,7 +253,17 @@ export default function TrackActivityScreen() {
             <View style={styles.activityGrid}>
               <ActivityOption
                 title="Listening"
-                icon={<MaterialCommunityIcons name="headphones" size={24} color={selectedActivity === 'listening' ? Colors.light.textTertiary : Colors.light.rust} />}
+                icon={
+                  <MaterialCommunityIcons
+                    name="headphones"
+                    size={24}
+                    color={
+                      selectedActivity === 'listening'
+                        ? Colors.light.textTertiary
+                        : Colors.light.rust
+                    }
+                  />
+                }
                 isSelected={selectedActivity === 'listening'}
                 onPress={() => {
                   setSelectedActivity('listening');
@@ -261,7 +271,15 @@ export default function TrackActivityScreen() {
               />
               <ActivityOption
                 title="Reading"
-                icon={<Ionicons name="book-outline" size={24} color={selectedActivity === 'reading' ? Colors.light.textTertiary : Colors.light.rust} />}
+                icon={
+                  <Ionicons
+                    name="book-outline"
+                    size={24}
+                    color={
+                      selectedActivity === 'reading' ? Colors.light.textTertiary : Colors.light.rust
+                    }
+                  />
+                }
                 isSelected={selectedActivity === 'reading'}
                 onPress={() => {
                   setSelectedActivity('reading');
@@ -269,7 +287,15 @@ export default function TrackActivityScreen() {
               />
               <ActivityOption
                 title="Writing"
-                icon={<MaterialCommunityIcons name="pencil-outline" size={24} color={selectedActivity === 'writing' ? Colors.light.textTertiary : Colors.light.rust} />}
+                icon={
+                  <MaterialCommunityIcons
+                    name="pencil-outline"
+                    size={24}
+                    color={
+                      selectedActivity === 'writing' ? Colors.light.textTertiary : Colors.light.rust
+                    }
+                  />
+                }
                 isSelected={selectedActivity === 'writing'}
                 onPress={() => {
                   setSelectedActivity('writing');
@@ -277,7 +303,17 @@ export default function TrackActivityScreen() {
               />
               <ActivityOption
                 title="Speaking"
-                icon={<MaterialCommunityIcons name="microphone-outline" size={24} color={selectedActivity === 'speaking' ? Colors.light.textTertiary : Colors.light.rust} />}
+                icon={
+                  <MaterialCommunityIcons
+                    name="microphone-outline"
+                    size={24}
+                    color={
+                      selectedActivity === 'speaking'
+                        ? Colors.light.textTertiary
+                        : Colors.light.rust
+                    }
+                  />
+                }
                 isSelected={selectedActivity === 'speaking'}
                 onPress={() => {
                   setSelectedActivity('speaking');
@@ -291,19 +327,19 @@ export default function TrackActivityScreen() {
             <Text style={styles.sectionTitle}>Duration</Text>
             <View style={styles.durationContainer}>
               <View style={styles.durationInputContainer}>
-                <Pressable 
+                <Pressable
                   style={styles.durationButton}
                   onPress={() => {
-                    setDuration(prev => Math.max(0, prev - 1));
+                    setDuration((prev) => Math.max(0, prev - 1));
                   }}
                 >
                   <Text style={styles.durationButtonText}>−</Text>
                 </Pressable>
                 <Text style={styles.durationValue}>{duration}</Text>
-                <Pressable 
+                <Pressable
                   style={styles.durationButton}
                   onPress={() => {
-                    setDuration(prev => prev + 1);
+                    setDuration((prev) => prev + 1);
                   }}
                 >
                   <Text style={styles.durationButtonText}>+</Text>
@@ -311,19 +347,28 @@ export default function TrackActivityScreen() {
                 <Text style={styles.durationUnit}>minutes</Text>
               </View>
               <View style={styles.quickDurationContainer}>
-                <Pressable style={styles.quickDurationButton} onPress={() => {
-                  setDuration(prev => prev +15);
-                }}>
+                <Pressable
+                  style={styles.quickDurationButton}
+                  onPress={() => {
+                    setDuration((prev) => prev + 15);
+                  }}
+                >
                   <Text style={styles.quickDurationText}>+ 15 min</Text>
                 </Pressable>
-                <Pressable style={styles.quickDurationButton} onPress={() => {
-                  setDuration(prev => prev +30);
-                }}>
+                <Pressable
+                  style={styles.quickDurationButton}
+                  onPress={() => {
+                    setDuration((prev) => prev + 30);
+                  }}
+                >
                   <Text style={styles.quickDurationText}>+ 30 min</Text>
                 </Pressable>
-                <Pressable style={styles.quickDurationButton} onPress={() => {
-                  setDuration(prev => prev +60);
-                }}>
+                <Pressable
+                  style={styles.quickDurationButton}
+                  onPress={() => {
+                    setDuration((prev) => prev + 60);
+                  }}
+                >
                   <Text style={styles.quickDurationText}>+ 60 min</Text>
                 </Pressable>
               </View>
@@ -368,7 +413,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   keyboardAvoidingView: {
-    flex: 1, 
+    flex: 1,
   },
   content: {
     flex: 1,

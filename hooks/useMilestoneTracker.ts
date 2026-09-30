@@ -35,9 +35,12 @@ export function useMilestoneTracker(userId: string | undefined) {
 
         if (timeError) throw timeError;
 
-        const totalSeconds = (timeData || []).reduce((sum, entry) => sum + entry.duration_seconds, 0);
+        const totalSeconds = (timeData || []).reduce(
+          (sum, entry) => sum + entry.duration_seconds,
+          0
+        );
         const currentTotalHours = totalSeconds / 3600;
-        
+
         let nextMilestone = 50;
         for (let i = 0; i < MILESTONE_INCREMENTS.length; i++) {
           if (currentTotalHours < MILESTONE_INCREMENTS[i]) {
@@ -45,11 +48,11 @@ export function useMilestoneTracker(userId: string | undefined) {
             break;
           }
         }
-        
+
         if (currentTotalHours >= MILESTONE_INCREMENTS[MILESTONE_INCREMENTS.length - 1]) {
           const lastMilestone = MILESTONE_INCREMENTS[MILESTONE_INCREMENTS.length - 1];
           const milestoneIndex = Math.floor((currentTotalHours - lastMilestone) / 500) + 1;
-          nextMilestone = lastMilestone + (milestoneIndex * 500);
+          nextMilestone = lastMilestone + milestoneIndex * 500;
         }
 
         const remaining = Math.max(0, nextMilestone - currentTotalHours);
@@ -61,9 +64,8 @@ export function useMilestoneTracker(userId: string | undefined) {
           remaining,
           progressPercentage,
         });
-
       } catch (error) {
-        console.error("Error loading milestone data:", error);
+        console.error('Error loading milestone data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -86,4 +88,4 @@ export function useMilestoneTracker(userId: string | undefined) {
   }, [userId]);
 
   return { milestone, isLoading };
-} 
+}

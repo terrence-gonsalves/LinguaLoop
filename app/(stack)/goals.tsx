@@ -2,7 +2,15 @@ import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import Colors from '@/constants/Colors';
 
@@ -33,22 +41,33 @@ function formatDate(dateString: string) {
 
 function getGoalTypeLabel(type: string) {
   switch (type) {
-    case 'daily_time': return 'Daily Time';
-    case 'weekly_time': return 'Weekly Time';
-    case 'monthly_vocab': return 'Monthly Vocab';
-    case 'lessons_completed': return 'Lessons Completed';
-    case 'skill_level': return 'Skill Level';
-    case 'custom': return 'Custom';
-    default: return type;
+    case 'daily_time':
+      return 'Daily Time';
+    case 'weekly_time':
+      return 'Weekly Time';
+    case 'monthly_vocab':
+      return 'Monthly Vocab';
+    case 'lessons_completed':
+      return 'Lessons Completed';
+    case 'skill_level':
+      return 'Skill Level';
+    case 'custom':
+      return 'Custom';
+    default:
+      return type;
   }
 }
 
 function getStatusStyle(status: GoalDisplayStatus) {
   switch (status) {
-    case 'Completed': return styles.statusCompleted;
-    case 'Missed': return styles.statusMissed;
-    case 'In progress': return styles.statusInProgress;
-    default: return styles.statusNotStarted;
+    case 'Completed':
+      return styles.statusCompleted;
+    case 'Missed':
+      return styles.statusMissed;
+    case 'In progress':
+      return styles.statusInProgress;
+    default:
+      return styles.statusNotStarted;
   }
 }
 
@@ -112,7 +131,9 @@ export default function GoalsListScreen() {
     Alert.alert('Delete Goal', 'Are you sure you want to delete this goal?', [
       { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Delete', style: 'destructive', onPress: async () => {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
           setDeletingId(goalId);
 
           const { data, error } = await supabase
@@ -130,8 +151,8 @@ export default function GoalsListScreen() {
 
           await cancelGoalNotification(goalId);
           fetchGoals();
-        }
-      }
+        },
+      },
     ]);
   }
 
@@ -160,13 +181,23 @@ export default function GoalsListScreen() {
   }
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color={Colors.light.rust} /></View>;
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={Colors.light.rust} />
+      </View>
+    );
   }
 
   if (!goals.length) {
     return (
       <View style={styles.center}>
-        <Text style={styles.emptyText}>You have no goals. <Text style={styles.link} onPress={handleCreate}>Create one</Text>.</Text>
+        <Text style={styles.emptyText}>
+          You have no goals.{' '}
+          <Text style={styles.link} onPress={handleCreate}>
+            Create one
+          </Text>
+          .
+        </Text>
       </View>
     );
   }
@@ -180,7 +211,8 @@ export default function GoalsListScreen() {
     if (progress) {
       targetText = `${progress.minutes} of ${progress.targetMinutes} min ${progress.period}`;
     } else if (goal.target_value_numeric) {
-      const unit = goal.goal_type === 'daily_time' || goal.goal_type === 'weekly_time' ? ' min' : '';
+      const unit =
+        goal.goal_type === 'daily_time' || goal.goal_type === 'weekly_time' ? ' min' : '';
       targetText = `Target: ${goal.target_value_numeric}${unit}`;
     } else if (goal.target_value_text) {
       targetText = `Target: ${goal.target_value_text}`;
@@ -194,7 +226,8 @@ export default function GoalsListScreen() {
         </View>
         <Text style={styles.goalMeta}>
           {goal.languages?.name ? `${goal.languages.name} • ` : ''}
-          {getGoalTypeLabel(goal.goal_type)} • {formatDate(goal.start_date)} to {formatDate(goal.end_date)}
+          {getGoalTypeLabel(goal.goal_type)} • {formatDate(goal.start_date)} to{' '}
+          {formatDate(goal.end_date)}
         </Text>
         {targetText && <Text style={styles.goalMeta}>{targetText}</Text>}
         {progress && (
@@ -204,15 +237,27 @@ export default function GoalsListScreen() {
         )}
         <View style={styles.actionsRow}>
           {canMarkCompleted(goal) && (
-            <Pressable style={styles.completeButton} onPress={() => handleMarkCompleted(goal.id)} disabled={completingId === goal.id}>
-              <Text style={styles.completeButtonText}>{completingId === goal.id ? 'Saving...' : 'Mark as completed'}</Text>
+            <Pressable
+              style={styles.completeButton}
+              onPress={() => handleMarkCompleted(goal.id)}
+              disabled={completingId === goal.id}
+            >
+              <Text style={styles.completeButtonText}>
+                {completingId === goal.id ? 'Saving...' : 'Mark as completed'}
+              </Text>
             </Pressable>
           )}
           <Pressable style={styles.editButton} onPress={() => handleEdit(goal.id)}>
             <Text style={styles.editButtonText}>Edit</Text>
           </Pressable>
-          <Pressable style={styles.deleteButton} onPress={() => handleDelete(goal.id)} disabled={deletingId === goal.id}>
-            <Text style={styles.deleteButtonText}>{deletingId === goal.id ? 'Deleting...' : 'Delete'}</Text>
+          <Pressable
+            style={styles.deleteButton}
+            onPress={() => handleDelete(goal.id)}
+            disabled={deletingId === goal.id}
+          >
+            <Text style={styles.deleteButtonText}>
+              {deletingId === goal.id ? 'Deleting...' : 'Delete'}
+            </Text>
           </Pressable>
         </View>
       </View>

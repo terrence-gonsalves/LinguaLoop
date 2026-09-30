@@ -18,9 +18,7 @@ export function ChartCard({ title, subtitle, onMenuPress, children }: ChartCardP
           {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
       </View>
-      <View style={styles.chartContainer}>
-        {children}
-      </View>
+      <View style={styles.chartContainer}>{children}</View>
     </View>
   );
 }
@@ -61,4 +59,4 @@ const styles = StyleSheet.create({
   chartContainer: {
     marginTop: 16,
   },
-}); 
+});

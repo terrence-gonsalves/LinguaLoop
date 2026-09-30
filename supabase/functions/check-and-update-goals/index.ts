@@ -21,7 +21,6 @@ serve(async (req) => {
   });
 
   try {
-
     // call the PostgreSQL function
     const { error } = await supabaseAdmin.rpc('update_expired_goals');
 
@@ -36,7 +35,7 @@ serve(async (req) => {
       {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
-      },
+      }
     );
   } catch (error) {
     console.error('Unhandled error in check-and-update-goals Edge Function:', error);

@@ -23,23 +23,22 @@ export default function LoginScreen() {
   const { signIn } = useAuth();
 
   const handleLogin = async () => {
-
     // clear previous errors
     setErrors({});
-    
+
     // validate form
     const newErrors: { [key: string]: string } = {};
-    
+
     if (!email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    
+
     if (!password) {
       newErrors.password = 'Password is required';
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -99,11 +98,7 @@ export default function LoginScreen() {
               error={errors.password}
             />
 
-            <Button
-              title="Sign In"
-              onPress={handleLogin}
-              loading={loading}
-            />
+            <Button title="Sign In" onPress={handleLogin} loading={loading} />
 
             <Link href="/(auth)/forgot-password" style={styles.forgotPassword}>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
@@ -132,7 +127,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   keyboardAvoidingView: {
-    flex: 1, 
+    flex: 1,
   },
   content: {
     flex: 1,
@@ -191,4 +186,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-}); 
+});

@@ -1,9 +1,9 @@
-import { Stack } from "expo-router/stack";
+import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 
-import { useCallback, useEffect, useState } from "react";
-import { View } from "react-native";
+import { useCallback, useEffect, useState } from 'react';
+import { View } from 'react-native';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 /*
@@ -28,13 +28,11 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepare() {
       try {
-
         // pre-load fonts, make any API calls you need to do here
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (e) {
         console.warn(e);
       } finally {
-
         // tell the application to render
         setAppIsReady(true);
       }
@@ -45,7 +43,6 @@ export default function RootLayout() {
 
   const onLayoutRootView = useCallback(async () => {
     if (appIsReady) {
-      
       /* this tells the splash screen to hide immediately! If we call this after
        * setAppIsReady`, then we may see a blank screen while the app is
        * loading its initial state and rendering its first pixels. So instead,
@@ -61,20 +58,19 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <AuthProvider>    
-        <KeyboardProvider>    
+      <AuthProvider>
+        <KeyboardProvider>
           <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-            
             {/* status bar background for edge-to-edge */}
-            <View 
-              style={{ 
-                position: 'absolute', 
-                top: 0, 
-                left: 0, 
-                right: 0, 
-                height: insets.top, 
-                backgroundColor: '#F0F3F4' 
-              }} 
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: insets.top,
+                backgroundColor: '#F0F3F4',
+              }}
             />
             <StatusBar style="dark" />
             <Stack

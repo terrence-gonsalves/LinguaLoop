@@ -92,10 +92,11 @@ export default function LanguageLevelScreen() {
 
   return (
     <>
-      <Stack.Screen options={{
+      <Stack.Screen
+        options={{
           title: 'Set Language Levels',
           headerShadowVisible: true,
-        }}   
+        }}
       />
       <View style={styles.container}>
         <ScrollView style={styles.content}>
@@ -111,17 +112,25 @@ export default function LanguageLevelScreen() {
                   <View style={styles.levelContainer}>
                     <Text style={styles.levelLabel}>Current Level: </Text>
                     {language.proficiency_level ? (
-                      <View style={[styles.levelBadge, { backgroundColor: PROFICIENCY_LABELS[language.proficiency_level]?.color || '#E0E0E0' }] }>
-                        <Text style={styles.levelBadgeText}>{PROFICIENCY_LABELS[language.proficiency_level]?.label || language.proficiency_level}</Text>
+                      <View
+                        style={[
+                          styles.levelBadge,
+                          {
+                            backgroundColor:
+                              PROFICIENCY_LABELS[language.proficiency_level]?.color || '#E0E0E0',
+                          },
+                        ]}
+                      >
+                        <Text style={styles.levelBadgeText}>
+                          {PROFICIENCY_LABELS[language.proficiency_level]?.label ||
+                            language.proficiency_level}
+                        </Text>
                       </View>
                     ) : (
                       <Text style={styles.levelNotSet}>Not set</Text>
                     )}
                   </View>
-                  <Pressable
-                    style={styles.setLevelButton}
-                    onPress={() => handleSetLevel(language)}
-                  >
+                  <Pressable style={styles.setLevelButton} onPress={() => handleSetLevel(language)}>
                     <Text style={styles.setLevelButtonText}>
                       {language.proficiency_level ? 'Update Level' : 'Set Level'}
                     </Text>

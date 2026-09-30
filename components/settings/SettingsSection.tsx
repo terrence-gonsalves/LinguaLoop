@@ -10,9 +10,7 @@ export function SettingsSection({ title, children }: SettingsSectionProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
-      <View style={styles.content}>
-        {children}
-      </View>
+      <View style={styles.content}>{children}</View>
     </View>
   );
 }
@@ -31,4 +29,4 @@ const styles = StyleSheet.create({
   content: {
     backgroundColor: Colors.light.background,
   },
-}); 
+});

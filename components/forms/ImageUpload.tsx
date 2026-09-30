@@ -3,7 +3,14 @@ import { Image as ExpoImage } from 'expo-image';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, Image as RNImage, StyleSheet, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  Image as RNImage,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 import { Colors } from '@/providers/theme-provider';
@@ -16,12 +23,12 @@ interface ImageUploadProps {
   letter?: string;
 }
 
-export function ImageUpload({ 
-  size = 100, 
-  currentImageUrl, 
+export function ImageUpload({
+  size = 100,
+  currentImageUrl,
   onImageSelected,
   onImageRemoved,
-  letter = '?'
+  letter = '?',
 }: ImageUploadProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -31,17 +38,20 @@ export function ImageUpload({
       console.log('Processing image:', uri);
 
       // first compress the image to reduce size
-      const compressed = await ImageManipulator.manipulateAsync(
-        uri,
-        [],
-        { format: ImageManipulator.SaveFormat.JPEG, compress: 0.7 }
-      );
+      const compressed = await ImageManipulator.manipulateAsync(uri, [], {
+        format: ImageManipulator.SaveFormat.JPEG,
+        compress: 0.7,
+      });
 
       console.log('Compressed image URI:', compressed.uri);
 
       // get dimensions of compressed image
-      const { width: originalWidth, height: originalHeight } = await new Promise<{ width: number; height: number }>((resolve, reject) => {
-        RNImage.getSize(compressed.uri, 
+      const { width: originalWidth, height: originalHeight } = await new Promise<{
+        width: number;
+        height: number;
+      }>((resolve, reject) => {
+        RNImage.getSize(
+          compressed.uri,
           (w: number, h: number) => resolve({ width: w, height: h }),
           (error: Error) => reject(error)
         );
@@ -136,10 +146,7 @@ export function ImageUpload({
             transition={200}
             cachePolicy="memory-disk"
           />
-          <Pressable
-            style={styles.removeButton}
-            onPress={handleRemove}
-          >
+          <Pressable style={styles.removeButton} onPress={handleRemove}>
             <MaterialIcons name="close" size={20} color="white" />
           </Pressable>
         </>
@@ -198,4 +205,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-}); 
+});
