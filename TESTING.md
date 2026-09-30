@@ -117,6 +117,19 @@ Use Settings > Notifications to check that the "Goal ended reminders" switch is 
 - [ ] Create a goal from the goals list. The list shows it as soon as you're back on it.
 - [ ] In the dashboard's Realtime inspector, there are no channels on `goals` or `activities`.
 
+## 9. Batch 2 follow-ups
+
+### Username check
+
+Both screens now call the `is_username_available` RPC, because RLS hides other users' profiles from a direct query. You need a second account whose username you know.
+
+- [ ] Settings > Edit profile: enter the other account's username and save. The field shows "This username is already taken" and nothing is saved.
+- [ ] Save again with your own current username unchanged. It saves.
+- [ ] Change to a new, unused username. It saves, and `profiles.user_name` shows the new value.
+- [ ] Onboarding (new account): enter the other account's username and finish. The field shows "This username is already taken" and you stay on onboarding.
+- [ ] Onboarding with an unused username, or with the username left blank. It saves and you reach the dashboard.
+- [ ] Turn on airplane mode and save Edit profile with a changed username. You get the error toast, not "already taken".
+
 ## Regression pass
 
 - [ ] Onboarding, Track (manual entry), Edit activity, Reports, Achievements, Feedback and About still work as before.

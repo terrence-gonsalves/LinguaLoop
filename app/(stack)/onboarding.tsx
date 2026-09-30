@@ -134,6 +134,24 @@ export default function OnboardingScreen() {
 
     try {
 
+      // check if username is unique. RLS hides other users' profiles, so this
+      // goes through a security definer RPC
+      if (username) {
+        const { data: isAvailable, error: userCheckError } = await supabase
+          .rpc('is_username_available', { p_user_name: username });
+
+        if (userCheckError) {
+          console.error('Error checking username uniqueness:', userCheckError);
+          throw userCheckError;
+        }
+
+        if (!isAvailable) {
+          setUsernameError('This username is already taken');
+          setIsLoading(false);
+          return;
+        }
+      }
+
       // update profile
       const { error: profileError } = await supabase
         .from('profiles')
