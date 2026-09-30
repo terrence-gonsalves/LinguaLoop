@@ -241,7 +241,7 @@ export default function DashboardScreen() {
               <ActivityIndicator size="small" color={Colors.light.rust} />
             ) : (
               <>
-                <Text style={styles.quoteText}>"{quote.quote}"</Text>
+                <Text style={styles.quoteText}>&ldquo;{quote.quote}&rdquo;</Text>
                 <Text style={styles.quoteAuthor}>- {quote.author}</Text>
               </>
             )}

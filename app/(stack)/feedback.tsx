@@ -163,7 +163,7 @@ export default function FeedbackScreen() {
 
         {isOffline && (
           <Text style={styles.offlineNotice}>
-            You're offline. Your feedback will be submitted when you're back online.
+            You&apos;re offline. Your feedback will be submitted when you&apos;re back online.
           </Text>
         )}
       </View>
