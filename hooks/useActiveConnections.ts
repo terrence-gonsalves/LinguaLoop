@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { FEATURES } from '@/config/features';
+
 import { supabase } from '@/lib/supabase';
 import { getAvatarUrl } from '@/lib/supabase/storage';
 
@@ -28,7 +30,7 @@ interface FollowData {
 export function useActiveConnections(userId: string, limit: number | null = 2) {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(FEATURES.connections);
   const [error, setError] = useState<string | null>(null);
   const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
@@ -89,6 +91,10 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
   }
 
   async function loadConnections() {
+
+    // connections is off: never query follows or other users' data
+    if (!FEATURES.connections) return;
+
     try {
       setIsLoading(true);
       setError(null);
@@ -183,6 +189,10 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
   }
 
   useEffect(() => {
+
+    // connections is off: no queries and no realtime channel
+    if (!FEATURES.connections) return;
+
     let isMounted = true;
 
     // clean up any existing subscription
