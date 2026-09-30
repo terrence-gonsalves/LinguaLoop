@@ -12,6 +12,7 @@ import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { showErrorToast } from '@/lib/toast';
 
 interface Language {
   id: string;
@@ -71,7 +72,7 @@ export default function LanguageSettingsScreen() {
   const handleRemoveLanguage = (language: Language) => {
     Alert.alert(
       'Remove Language',
-      'Are you sure you want to remove this language? All data related to this language will be removed and cannot be restored.',
+      `Remove ${language.name}? All time entries and goals for ${language.name} will be permanently deleted. This can't be undone.`,
       [
         {
           text: 'Cancel',
@@ -82,18 +83,22 @@ export default function LanguageSettingsScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              const { error } = await supabase
+
+              // the database cascades the delete to this language's time entries and goals
+              const { data, error } = await supabase
                 .from('languages')
                 .delete()
-                .eq('id', language.id);
+                .eq('id', language.id)
+                .select('id');
 
               if (error) throw error;
+              if (!data || data.length === 0) throw new Error('No language was deleted');
 
               // refresh the language list after successful deletion
               fetchUserLanguages();
             } catch (error) {
               console.error('Error removing language:', error);
-              Alert.alert('Error', 'Failed to remove language');
+              showErrorToast('Failed to remove language. Please try again.');
             }
           },
         },
