@@ -53,7 +53,8 @@ export function getGoalReminderDate(goal: Pick<Goal, 'end_date'>): Date {
 }
 
 // active goals get a reminder. a missed goal still gets one if its reminder
-// time hasn't passed: the nightly job can mark a goal missed before 09:00.
+// time hasn't passed, for example a goal marked missed by an older version of
+// the nightly job, which didn't wait a day.
 function isEligible(goal: SchedulableGoal, now: Date): boolean {
   if (goal.status === 'completed') return false;
 

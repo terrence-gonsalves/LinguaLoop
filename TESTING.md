@@ -68,7 +68,8 @@ For each delete, check that the row is gone and the list refreshes. To test the 
 - [ ] Create a goal starting tomorrow. The list shows **Not started**.
 - [ ] Create a goal covering today. The list shows **In progress**.
 - [ ] Tap **Mark as completed** on it. The toast says "Goal completed", the badge shows **Completed** and the button disappears.
-- [ ] A goal whose end date has passed shows **Missed**, and after 00:05 UTC the nightly job stores it as `missed`. It still has **Mark as completed**, and tapping it makes it **Completed**.
+- [ ] A goal whose end date has passed but whose status is still `active` shows **Ended** (rust text), on the goals list, the goal edit screen and the dashboard goal card. It has **Mark as completed**, and tapping it makes it **Completed**.
+- [ ] Once the nightly job stores it as `missed` (00:05 UTC two days after the end date, see Nightly job grace day), it shows **Missed** (red). It still has **Mark as completed**, and tapping it makes it **Completed**.
 - [ ] The goal edit screen shows "Status: ..." with the same button for active and missed goals.
 
 ### Dates (the old UTC bug)
@@ -130,6 +131,17 @@ Both screens now call the `is_username_available` RPC, because RLS hides other u
 - [ ] Onboarding with an unused username, or with the username left blank. It saves and you reach the dashboard.
 - [ ] Turn on airplane mode and save Edit profile with a changed username. You get the error toast, not "already taken".
 
+### Nightly job grace day
+
+Apply `20260930210938_goals_missed_grace_day.sql` first. These checks run in the Supabase SQL editor, so no device is needed. Replace `<goal id>` with a real id.
+
+- [ ] Create three goals, then set their end dates in the SQL editor: `update goals set end_date = (now() at time zone 'UTC')::date - 1 where id = '<goal id>';` for the first, `- 2` for the second and `- 3` for the third. All three are `active`.
+- [ ] Run `select public.update_expired_goals();`. The goal that ended yesterday (UTC) is still `active`. The two older ones are `missed`.
+- [ ] Run it again. Nothing else changes.
+- [ ] In the app, the goal that ended yesterday shows **Ended** and the two older ones show **Missed**. The one that ended yesterday still had its day-after reminder (09:00 today) scheduled. The job doesn't cancel it.
+- [ ] `select schedule, command from cron.job where jobname = 'update-expired-goals';` still shows `5 0 * * *` and `select public.update_expired_goals()`.
+- [ ] As an ordinary signed-in user, calling the RPC `update_expired_goals` fails with a permission error.
+
 ### Activity and achievement dates
 
 Apply `20260930193749_time_entries_activity_date_to_date.sql` first and use a build with these changes. An older build would save the UTC date. Do the logging steps after 8 pm local time, when the UTC date is already tomorrow.
@@ -145,6 +157,23 @@ Apply `20260930193749_time_entries_activity_date_to_date.sql` first and use a bu
 - [ ] Goals: a daily or weekly time goal counts the entry you logged today, and doesn't count one dated before the goal's week.
 - [ ] Profile > Add achievement: pick today and save. In `achievements`, `obtained_date` is today, and the Profile tab and Achievements screen both show today, not yesterday.
 - [ ] The existing achievement dated 2025-06-11 shows June 11, 2025 on the Profile tab and Achievements screen. It used to show June 10 west of UTC.
+
+### Environment variables from EAS
+
+`.env` is no longer tracked. Builds on EAS get `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `EAS_PROJECT_ID` from the project's EAS environment variables.
+
+- [ ] `eas env:list --environment development` and `eas env:list --environment production` each list all three variables.
+- [ ] A development build from EAS starts and signs in. A missing variable throws at startup in `lib/supabase.ts`.
+- [ ] A production build from EAS starts and signs in.
+- [ ] Locally, with your `.env` in place, `npx expo start` still works, and `git status` doesn't show `.env`.
+
+### Goal reminders on by default
+
+Apply `20260930013148_goal_notifications_default_on.sql` first.
+
+- [ ] In `notification_settings`, every existing row has `goal_notifications` = true.
+- [ ] Sign up a new account and open Settings > Notifications. "Goal ended reminders" is on.
+- [ ] Turn it off and save. The row shows false, and it stays off after restarting the app.
 
 ## Regression pass
 
