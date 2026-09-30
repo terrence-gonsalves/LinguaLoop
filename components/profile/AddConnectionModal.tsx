@@ -11,6 +11,7 @@ import { FEATURES } from '@/config/features';
 
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { showErrorToast } from '@/lib/toast';
 
 import { Colors } from '@/providers/theme-provider';
 
@@ -116,12 +117,26 @@ function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps
     if (!user) return;
     if (user.is_following) {
 
-      // unfollow
-      await supabase.from('follows').delete().match({ follower_id: profile?.id, following_id: userId });
+      // unfollow, and check a row was actually removed
+      const { data, error } = await supabase
+        .from('follows')
+        .delete()
+        .match({ follower_id: profile?.id, following_id: userId })
+        .select('follower_id');
+
+      if (error || !data || data.length === 0) {
+        showErrorToast('Failed to unfollow user. Please try again.');
+        return;
+      }
     } else {
 
       // follow
-      await supabase.from('follows').insert({ follower_id: profile?.id, following_id: userId });
+      const { error } = await supabase.from('follows').insert({ follower_id: profile?.id, following_id: userId });
+
+      if (error) {
+        showErrorToast('Failed to follow user. Please try again.');
+        return;
+      }
     }
 
     // update local state

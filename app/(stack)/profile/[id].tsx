@@ -129,13 +129,15 @@ function UserProfileScreenContent() {
     try {
       if (isFollowing) {
 
-        // unfollow
-        const { error } = await supabase
+        // unfollow, and check a row was actually removed
+        const { data, error } = await supabase
           .from('follows')
           .delete()
-          .match({ follower_id: currentUser.id, following_id: id });
+          .match({ follower_id: currentUser.id, following_id: id })
+          .select('follower_id');
 
         if (error) throw error;
+        if (!data || data.length === 0) throw new Error('No follow was deleted');
         setIsFollowing(false);
         showSuccessToast('Unfollowed user');
       } else {

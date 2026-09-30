@@ -7,6 +7,7 @@ import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { showErrorToast } from '@/lib/toast';
 
 
 function formatDate(dateString: string) {
@@ -61,8 +62,20 @@ export default function GoalsListScreen() {
       {
         text: 'Delete', style: 'destructive', onPress: async () => {
           setDeletingId(goalId);
-          await supabase.from('goals').delete().eq('id', goalId);
+
+          const { data, error } = await supabase
+            .from('goals')
+            .delete()
+            .eq('id', goalId)
+            .select('id');
+
           setDeletingId(null);
+
+          if (error || !data || data.length === 0) {
+            showErrorToast('Failed to delete goal. Please try again.');
+            return;
+          }
+
           fetchGoals();
         }
       }

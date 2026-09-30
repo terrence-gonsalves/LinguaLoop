@@ -11,6 +11,7 @@ import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { showErrorToast } from '@/lib/toast';
 
 export default function EditGoalScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -116,8 +117,21 @@ export default function EditGoalScreen() {
       {
         text: 'Delete', style: 'destructive', onPress: async () => {
           setDeleting(true);
-          await supabase.from('goals').delete().eq('id', id);
+
+          const { data, error } = await supabase
+            .from('goals')
+            .delete()
+            .eq('id', id)
+            .select('id');
+
           setDeleting(false);
+
+          // stay on the screen if nothing was deleted
+          if (error || !data || data.length === 0) {
+            showErrorToast('Failed to delete goal. Please try again.');
+            return;
+          }
+
           router.replace('/(stack)/goals');
         }
       }
