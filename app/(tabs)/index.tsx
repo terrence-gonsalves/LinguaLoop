@@ -1,4 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
 
@@ -50,7 +51,23 @@ export default function DashboardScreen() {
   const { quote, isLoading } = useDailyQuote();
   const { profile } = useAuth();
   const { week, isLoading: isStreakLoading } = useWeeklyStreak(profile?.id);
-  const { stats, isLoading: isStatsLoading } = useStudyStats(profile?.id);
+  const { stats, isLoading: isStatsLoading, refresh: refreshStats } = useStudyStats(profile?.id);
+
+  // goals aren't sent over Realtime, so reload the stats when the dashboard comes
+  // back into focus (after creating, editing or completing a goal, or the next day).
+  // the first focus is skipped because the hook has just loaded.
+  const hasFocusedRef = React.useRef(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!hasFocusedRef.current) {
+        hasFocusedRef.current = true;
+        return;
+      }
+
+      refreshStats();
+    }, [refreshStats])
+  );
   const { activities, isLoading: isActivitiesLoading } = useActivities();
 
   // format current date as 'April 11, 2025'
