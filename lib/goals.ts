@@ -36,9 +36,10 @@ export type TimeGoalProgress = {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-// a Date as a local calendar day, YYYY-MM-DD. start_date and end_date are
-// date columns, so they must not go through toISOString(), which uses UTC and
-// can land on the next or previous day.
+// a Date as a local calendar day, YYYY-MM-DD. goal start_date and end_date,
+// time_entries.activity_date and achievements.obtained_date are date columns,
+// so they must not go through toISOString(), which uses UTC and can land on
+// the next or previous day.
 export function toDateString(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -132,8 +133,8 @@ export async function fetchTimeGoalProgress(
     .from('time_entries')
     .select('duration_seconds')
     .eq('user_id', goal.user_id)
-    .gte('activity_date', range.from.toISOString())
-    .lt('activity_date', range.toExclusive.toISOString());
+    .gte('activity_date', toDateString(range.from))
+    .lt('activity_date', toDateString(range.toExclusive));
 
   if (goal.language_id) {
     query = query.eq('language_id', goal.language_id);

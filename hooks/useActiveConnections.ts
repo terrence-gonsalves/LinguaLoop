@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { FEATURES } from '@/config/features';
 
+import { parseDateOnly } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 
 export interface Connection {
@@ -51,7 +52,7 @@ export function useActiveConnections(userId: string, limit: number | null = 2) {
 
       // get unique dates (in case multiple entries on same day)
       const uniqueDates = [
-        ...new Set(timeEntries.map((entry) => new Date(entry.activity_date).toDateString())),
+        ...new Set(timeEntries.map((entry) => parseDateOnly(entry.activity_date).toDateString())),
       ].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
       // calculate consecutive days

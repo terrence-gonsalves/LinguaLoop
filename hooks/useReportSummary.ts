@@ -1,3 +1,4 @@
+import { toDateString } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 
@@ -52,17 +53,19 @@ export function useReportSummary(userId: string | undefined, selectedLanguageId:
         const remainingSeconds = totalSeconds % 60;
 
         // --- average session ---
+        // activity_date is a date column, so compare local YYYY-MM-DD days
         const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+        const today = toDateString(now);
+        const yesterday = toDateString(
+          new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1)
+        );
 
         // today's sessions
         let todayQuery = supabase
           .from('time_entries')
           .select('duration_seconds')
           .eq('user_id', userId)
-          .gte('activity_date', today.toISOString())
-          .lt('activity_date', new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
+          .eq('activity_date', today);
         if (selectedLanguageId) todayQuery = todayQuery.eq('language_id', selectedLanguageId);
         const { data: todayData, error: todayError } = await todayQuery;
         if (todayError) throw todayError;
@@ -72,8 +75,7 @@ export function useReportSummary(userId: string | undefined, selectedLanguageId:
           .from('time_entries')
           .select('duration_seconds')
           .eq('user_id', userId)
-          .gte('activity_date', yesterday.toISOString())
-          .lt('activity_date', today.toISOString());
+          .eq('activity_date', yesterday);
         if (selectedLanguageId)
           yesterdayQuery = yesterdayQuery.eq('language_id', selectedLanguageId);
         const { data: yesterdayData, error: yesterdayError } = await yesterdayQuery;

@@ -24,6 +24,7 @@ import Colors from '@/constants/Colors';
 import { useUserLanguages } from '@/hooks/useUserLanguages';
 
 import { useAuth } from '@/lib/auth-context';
+import { parseDateOnly, toDateString } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
@@ -131,7 +132,7 @@ export default function EditActivityScreen() {
         setSelectedGoal(data.associated_goal_id);
         setDuration(Math.floor(data.duration_seconds / 60));
         setNotes(data.notes || '');
-        setDate(new Date(data.activity_date));
+        setDate(parseDateOnly(data.activity_date));
       }
     } catch (error) {
       console.error('Error fetching time entry:', error);
@@ -216,7 +217,7 @@ export default function EditActivityScreen() {
           activity_id: activityId,
           duration_seconds: duration * 60,
           notes: notes || null,
-          activity_date: date.toISOString(),
+          activity_date: toDateString(date),
           associated_goal_id: selectedGoal,
         })
         .eq('id', id)

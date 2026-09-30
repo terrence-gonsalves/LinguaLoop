@@ -130,6 +130,22 @@ Both screens now call the `is_username_available` RPC, because RLS hides other u
 - [ ] Onboarding with an unused username, or with the username left blank. It saves and you reach the dashboard.
 - [ ] Turn on airplane mode and save Edit profile with a changed username. You get the error toast, not "already taken".
 
+### Activity and achievement dates
+
+Apply `20260930193749_time_entries_activity_date_to_date.sql` first and use a build with these changes. An older build would save the UTC date. Do the logging steps after 8 pm local time, when the UTC date is already tomorrow.
+
+- [ ] Before logging anything, check the converted rows in the dashboard's `time_entries` table: `activity_date` is a plain date (for example `2025-06-12` for the 2025-06-13 02:30 UTC row), and `get_current_streak` no longer exists under Database > Functions.
+- [ ] Track: log an activity for today. In `time_entries`, `activity_date` is today's local date, not tomorrow.
+- [ ] Activities: the new entry shows today's date.
+- [ ] Edit activity: the date picker shows today. Change it to yesterday and save. The list and the table both show yesterday.
+- [ ] Track: log an activity dated this Sunday (or last Sunday if today is Sunday and it's the current week). The dashboard week strip marks that Sunday as tracked. It used to drop Sunday.
+- [ ] Dashboard week strip: every day you logged this week is marked, and no other days.
+- [ ] Reports: the average session compares today's entries with yesterday's by the dates you picked.
+- [ ] Reports weekly chart: log an entry dated two weeks ago. It adds to that week's bar, not the current week's.
+- [ ] Goals: a daily or weekly time goal counts the entry you logged today, and doesn't count one dated before the goal's week.
+- [ ] Profile > Add achievement: pick today and save. In `achievements`, `obtained_date` is today, and the Profile tab and Achievements screen both show today, not yesterday.
+- [ ] The existing achievement dated 2025-06-11 shows June 11, 2025 on the Profile tab and Achievements screen. It used to show June 10 west of UTC.
+
 ## Regression pass
 
 - [ ] Onboarding, Track (manual entry), Edit activity, Reports, Achievements, Feedback and About still work as before.

@@ -1,3 +1,4 @@
+import { parseDateOnly } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 
@@ -28,7 +29,7 @@ export function useWeeklyProgress(
       try {
         let query = supabase
           .from('time_entries')
-          .select('duration_seconds, created_at')
+          .select('duration_seconds, activity_date')
           .eq('user_id', userId);
 
         if (selectedLanguageId) {
@@ -57,9 +58,10 @@ export function useWeeklyProgress(
         const endWeek = startWeek + 5;
 
         const weeklyTimeMap = new Map<number, number>();
+        // group by the day the study happened, not the day it was logged
         (timeData || []).forEach((entry) => {
-          const entryDate = new Date(entry.created_at);
-          entryDate.setHours(0, 0, 0, 0);
+          if (!entry.activity_date) return;
+          const entryDate = parseDateOnly(entry.activity_date);
           const weekNum =
             Math.floor(
               (entryDate.getTime() - startDayMonday.getTime()) / (1000 * 60 * 60 * 24 * 7)
