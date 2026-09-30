@@ -1,10 +1,13 @@
-import { SettingsSection } from '@/components/settings/SettingsSection';
-import Colors from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { Link } from 'expo-router/build/link/Link';
+
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { SettingsSection } from '@/components/settings/SettingsSection';
+
+import Colors from '@/constants/Colors';
 
 const tools = [
   {
@@ -59,7 +62,7 @@ export default function AboutScreen() {
               key={tool.name} 
               style={[
                 styles.toolItem,
-                index === tools.length - 1 && styles.lastItem
+                index === tools.length - 1 && styles.lastItemDescription
               ]}
             >
               <View style={styles.toolHeader}>
@@ -138,6 +141,11 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
   },
   toolDescription: {
+    fontSize: 14,
+    color: Colors.light.textSecondary,
+    marginLeft: 44, // 32 (icon width) + 12 (margin)
+  },
+  lastItemDescription: {
     fontSize: 14,
     color: Colors.light.textSecondary,
     marginLeft: 44, // 32 (icon width) + 12 (margin)

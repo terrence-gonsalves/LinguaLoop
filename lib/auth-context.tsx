@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-import { createContext, useContext, useEffect, useState } from 'react';
 
-import { getAvatarUrl } from '@/lib/supabase/storage';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+
+import { clearGoalNotifications } from '@/lib/goal-notifications';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
+
 import { Session } from '@supabase/supabase-js';
 
 import { supabase, type Profile } from './supabase';
@@ -20,57 +21,71 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const SESSION_KEY = 'supabase-session';
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadSession();
-    
-    // listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session?.user?.id);
-      if (session) {
-        await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(session));
-        setSession(session);
-        if (event === 'SIGNED_IN' && !profile) {
+  // the user whose profile is loaded, so a repeated SIGNED_IN event doesn't reload and re-navigate
+  const loadedUserIdRef = useRef<string | null>(null);
 
-          // add a small delay to ensure the profile has been created
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          await loadProfile(session.user.id, false); // don't skip navigation on initial sign in
+  useEffect(() => {
+    let isMounted = true;
+
+    // restore the session that supabase-js persisted in AsyncStorage
+    async function restoreSession() {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error) throw error;
+        if (!isMounted) return;
+
+        setSession(session);
+
+        // supabase-js may already have emitted SIGNED_IN for a restored session,
+        // in which case the listener below is loading the profile
+        if (session && loadedUserIdRef.current !== session.user.id) {
+          loadedUserIdRef.current = session.user.id;
+          await loadProfile(session.user.id, false); // don't skip navigation on initial load
         }
-      } else {
-        await SecureStore.deleteItemAsync(SESSION_KEY);
-        setSession(null);
+      } catch (error) {
+        console.error('Error restoring session:', error);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    restoreSession();
+
+    // listen for auth state changes. the callback must not await supabase calls:
+    // supabase-js holds a lock while it runs and they can deadlock, so the
+    // profile load is deferred with setTimeout.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+
+      setSession(session);
+
+      if (!session) {
+        loadedUserIdRef.current = null;
         setProfile(null);
+        return;
+      }
+
+      if (event === 'SIGNED_IN' && loadedUserIdRef.current !== session.user.id) {
+        loadedUserIdRef.current = session.user.id;
+        setTimeout(() => {
+          loadProfile(session.user.id, false); // don't skip navigation on sign in
+        }, 0);
       }
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
-  async function loadSession() {
-    try {
-      const storedSession = await SecureStore.getItemAsync(SESSION_KEY);
-      if (storedSession) {
-        const session = JSON.parse(storedSession);
-        setSession(session);
-        await loadProfile(session.user.id, false); // don't skip navigation on initial load
-      }
-    } catch (error) {
-      console.error('Error loading session:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   async function loadProfile(userId: string, skipNavigation: boolean = false) {
-    console.log('Loading profile for user:', userId);
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -79,19 +94,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) {
-        console.error('Error in loadProfile query:', error);
         throw error;
       }
-      
-      // get the signed URL for the avatar if it exists
-      if (profile) {
-        const avatarUrl = await getAvatarUrl(userId);
-        if (avatarUrl) {
-          profile.avatar_url = avatarUrl;
-        }
-      }
 
-      console.log('Profile loaded with avatar:', profile);
       setProfile(profile);
 
       // only handle navigation if skipNavigation is false
@@ -105,13 +110,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      // we can safley ignore this error as the user has not logged in yet
     }
   }
 
   // add reloadProfile function with skipNavigation
   async function reloadProfile() {
     if (!session?.user?.id) return;
+
     await loadProfile(session.user.id, true); // pass true to skip navigation
   }
 
@@ -137,9 +143,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signUp(email: string, password: string) {
     try {
       setIsLoading(true);
-      console.log('Starting signup process for:', email);
-      
-      // 1. sign up the user
+
+      // the profiles row is created by the on_auth_user_created trigger in the database
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -148,35 +153,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (authError) throw authError;
       if (!authData.user) throw new Error('No user data returned');
 
-      console.log('User created:', authData.user.id);
+      if (authData.session) {
 
-      // 2. create a profile for the user
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: authData.user.id,
-          email: email,
-          onboarding_completed: false,
-        })
-        .select()
-        .single();
+        // signed in straight away: the SIGNED_IN listener loads the profile and opens onboarding
+        showSuccessToast("Account created! Let's set up your profile.");
+      } else {
 
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-        throw profileError;
+        // only happens if "Confirm email" is turned on in Supabase: no session until the user confirms
+        showSuccessToast('Account created! Confirm your email, then sign in.');
       }
-
-      console.log('Profile created:', profileData);
-
-      // 3. set the profile immediately to avoid the flash
-      setProfile(profileData);
-
-      showSuccessToast('Account created successfully! Please check your email to verify your account.');
-
-      // navigate to onboarding immediately without waiting for auth state change
-      router.replace('/(stack)/onboarding');
     } catch (error) {
-      console.error('Error signing up:', error);
       showErrorToast(`Error creating account: ${(error as Error).message}`);
     } finally {
       setIsLoading(false);
@@ -186,7 +172,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signOut() {
     try {
       setIsLoading(true);
+
+      // goal reminders are per user, so don't leave them for the next account on this device
+      await clearGoalNotifications();
+
       const { error } = await supabase.auth.signOut();
+
       if (error) throw error;
     } catch (error) {
       console.error('Error signing out:', error);
@@ -215,6 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
+  
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

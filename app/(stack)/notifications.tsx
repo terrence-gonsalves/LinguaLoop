@@ -1,6 +1,17 @@
+
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Stack } from 'expo-router/stack';
+import React, { useEffect, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Switch } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { SettingsSection } from '@/components/settings/SettingsSection';
+import { FEATURES } from '@/config/features';
 import Colors from '@/constants/Colors';
+
 import { useAuth } from '@/lib/auth-context';
+import { syncGoalNotifications } from '@/lib/goal-notifications';
 import {
   getPushToken,
   requestNotificationPermissions,
@@ -9,12 +20,6 @@ import {
 } from '@/lib/notifications';
 import { supabase } from '@/lib/supabase';
 import { showSuccessToast } from '@/lib/toast';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Stack } from 'expo-router/stack';
-import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Switch } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function NotificationsScreen() {
   const { profile } = useAuth();
@@ -25,7 +30,7 @@ export default function NotificationsScreen() {
     news_promotions: false,
     product_updates: false,
     user_notifications: false,
-    goal_notifications: false,
+    goal_notifications: true,
     expo_push_token: null,
   });
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -82,7 +87,7 @@ export default function NotificationsScreen() {
               news_promotions: false,
               product_updates: false,
               user_notifications: false,
-              goal_notifications: false,
+              goal_notifications: true,
               expo_push_token: null,
             }])
             .select()
@@ -209,6 +214,10 @@ export default function NotificationsScreen() {
       if (error) throw error;
 
       console.log('✅ Notification settings saved successfully');
+
+      // schedules or cancels the goal reminders to match the saved setting
+      await syncGoalNotifications(profile.id);
+
       setHasUnsavedChanges(false);
       showSuccessToast('Settings saved successfully');
     } catch (error) {
@@ -254,6 +263,21 @@ export default function NotificationsScreen() {
             </View>
           </View>
 
+          {/* goal reminders are scheduled on this device, so they have their own switch */}
+          <SettingsSection title="Goal Notifications">
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Goal ended reminders</Text>
+              <Switch
+                value={settings.goal_notifications}
+                onValueChange={(value) => handleSettingChange('goal_notifications', value)}
+                trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
+              />
+            </View>
+            <View style={styles.settingHintContainer}>
+              <Text style={styles.settingHintText}>A reminder at 9:00 AM the day after a goal ends.</Text>
+            </View>
+          </SettingsSection>
+
           {settings.notifications_enabled && (
             <>
               {/* study reminders section */}
@@ -290,33 +314,19 @@ export default function NotificationsScreen() {
                 </Pressable>
               </SettingsSection>
 
-              {/* user notifications section */}
-              <SettingsSection title="User Notifications">
-                <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>Messages and follows</Text>
-                  <Switch
-                    value={settings.user_notifications}
-                    onValueChange={(value) => handleSettingChange('user_notifications', value)}
-                    trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
-                  />
-                </View>
-              </SettingsSection>
-
-              {/* goal notifications section */}
-              <SettingsSection title="Goal Notifications">
-                <View style={styles.settingRow}>
-                  <Text style={styles.settingLabel}>Goal reminders and progress</Text>
-                  <Switch
-                    value={settings.goal_notifications}
-                    onValueChange={(value) => handleSettingChange('goal_notifications', value)}
-                    trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
-                    disabled={true} // Coming soon feature
-                  />
-                </View>
-                <View style={styles.comingSoonContainer}>
-                  <Text style={styles.comingSoonText}>Coming soon</Text>
-                </View>
-              </SettingsSection>
+              {/* user notifications section (follows are part of connections) */}
+              {FEATURES.connections && (
+                <SettingsSection title="User Notifications">
+                  <View style={styles.settingRow}>
+                    <Text style={styles.settingLabel}>Messages and follows</Text>
+                    <Switch
+                      value={settings.user_notifications}
+                      onValueChange={(value) => handleSettingChange('user_notifications', value)}
+                      trackColor={{ false: Colors.light.border, true: Colors.light.buttonPrimary }}
+                    />
+                  </View>
+                </SettingsSection>
+              )}
 
               {/* other notifications section */}
               <SettingsSection title="Other Notifications">
@@ -445,15 +455,14 @@ const styles = StyleSheet.create({
   timePickerTextDisabled: {
     color: Colors.light.textSecondary,
   },
-  comingSoonContainer: {
+  settingHintContainer: {
     paddingHorizontal: 16,
     paddingBottom: 16,
     backgroundColor: Colors.light.background,
   },
-  comingSoonText: {
+  settingHintText: {
     fontSize: 14,
     color: Colors.light.textSecondary,
-    fontStyle: 'italic',
   },
   testButtonContainer: {
     paddingHorizontal: 16,

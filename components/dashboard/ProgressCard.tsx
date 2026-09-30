@@ -1,6 +1,7 @@
-import { Colors } from '@/providers/theme-provider';
 import { StyleSheet, Text, View } from 'react-native';
 import { BarChart, PieChart } from 'react-native-chart-kit';
+
+import { Colors } from '@/providers/theme-provider';
 
 interface ActivityData {
   name: string;

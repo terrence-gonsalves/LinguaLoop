@@ -4,20 +4,24 @@ export default {
   expo: {
     name: "LinguaLoop",
     slug: "LinguaLoop",
-    version: "0.6.2",
+    version: "0.6.10",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "lingualoop",
-    userInterfaceStyle: "automatic",
+    userInterfaceStyle: "light",
     newArchEnabled: true,
     splash: {
       image: "./assets/images/icon.png",
-      resizeMode: "cover",
-      backgroundColor: "#F0F3F4"
+      backgroundColor: "#F0F3F4",
+      resizeMode: "cover"
     },
     assetBundlePatterns: [
       "**/*"
     ],
+    updates: {
+      "url": "https://u.expo.dev/" + process.env.EAS_PROJECT_ID
+    },
+    runtimeVersion: "exposdk:53.0.0",
     extra: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
@@ -28,22 +32,19 @@ export default {
     },
     ios: {
       supportsTablet: true,
-      uildNumber: "1",
+      buildNumber: "1",
       splash: {
         image: "./assets/images/icon.png",
-        resizeMode: "cover",
-        backgroundColor: "#F0F3F4"
+        backgroundColor: "#F0F3F4",
+        resizeMode: "cover"
       }
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/images/icon.png",
-        backgroundColor: "#F0F3F4"
-      },
-      splash: {
-        image: "./assets/images/icon.png",
-        resizeMode: "cover",
-        backgroundColor: "#F0F3F4"
+        foregroundImage: "./assets/images/adaptive-icon.png",
+        monochromeImage: "./assets/images/adaptive-icon.png",
+        backgroundColor: "#F0F3F4",
+        resizeMode: "cover"
       },
       versionCode: 1,
       edgeToEdgeEnabled: true,
@@ -65,8 +66,8 @@ export default {
         "expo-splash-screen",
         {
           image: "./assets/images/icon.png",
-          imageResizeMode: "cover",
-          backgroundColor: "#F0F3F4"
+          backgroundColor: "#F0F3F4",
+          resizeMode: "cover"
         }
       ],
       "expo-secure-store",
@@ -77,7 +78,8 @@ export default {
           color: "#F0F3F4"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-background-task"
     ],
     experiments: {
       typedRoutes: true

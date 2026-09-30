@@ -1,22 +1,26 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 import { AchievementItem } from '@/components/profile/AchievementItem';
 import { LanguageProgressCard } from '@/components/profile/LanguageProgressCard';
 import { ProfileConnectionCard } from '@/components/profile/ProfileConnectionCard';
+
+import FeatureOffRedirect from '@/components/common/FeatureOffRedirect';
+import { FEATURES } from '@/config/features';
+
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveConnections } from '@/hooks/useActiveConnections';
 import { useLanguageSummary } from '@/hooks/useLanguageSummary';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
+
 import { Colors } from '@/providers/theme-provider';
 
 interface UserProfile {
@@ -29,7 +33,17 @@ interface UserProfile {
   onboarding_completed: boolean;
 }
 
+// other users' profiles are part of connections, which is hidden for v1.
+// redirect before any of the screen's hooks run their queries.
 export default function UserProfileScreen() {
+  if (!FEATURES.connections) {
+    return <FeatureOffRedirect to="/(tabs)/profile" />;
+  }
+
+  return <UserProfileScreenContent />;
+}
+
+function UserProfileScreenContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { profile: currentUser } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -115,13 +129,15 @@ export default function UserProfileScreen() {
     try {
       if (isFollowing) {
 
-        // unfollow
-        const { error } = await supabase
+        // unfollow, and check a row was actually removed
+        const { data, error } = await supabase
           .from('follows')
           .delete()
-          .match({ follower_id: currentUser.id, following_id: id });
+          .match({ follower_id: currentUser.id, following_id: id })
+          .select('follower_id');
 
         if (error) throw error;
+        if (!data || data.length === 0) throw new Error('No follow was deleted');
         setIsFollowing(false);
         showSuccessToast('Unfollowed user');
       } else {
@@ -194,6 +210,7 @@ export default function UserProfileScreen() {
     return connections.map((connection) => (
       <ProfileConnectionCard
         key={connection.id}
+        userId={connection.id}
         name={connection.name || ''}
         username={connection.user_name || ''}
         nativeLanguage={connection.native_language || 'Unknown'}
@@ -251,114 +268,111 @@ export default function UserProfileScreen() {
   if (isLoading) {
     return (
       <>
-        <Stack.Screen options={{ title: 'Connection' }} />
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
+          <Stack.Screen 
+            options={{ 
+              title: 'Connection Profile',
+              headerShadowVisible: true,
+              headerStyle: { backgroundColor: Colors.light.background },
+            }} 
+          />        
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={Colors.light.rust} />
           </View>
-        </SafeAreaView>
-      </>
-    );
-  }
-
-  if (!userProfile) {
-    return (
-      <>
-        <Stack.Screen options={{ title: 'Connection' }} />
-        <SafeAreaView style={styles.container}>
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>User not found</Text>
-          </View>
-        </SafeAreaView>
+        </View>
       </>
     );
   }
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView style={styles.container}>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <Pressable onPress={() => router.back()} style={styles.backButton}>
-              <MaterialIcons name="arrow-back" size={24} color={Colors.light.textPrimary} />
-            </Pressable>
-            <Text style={styles.headerTitle}>Connection</Text>
-            <View style={{ width: 24 }} />
+      <View style={styles.container}>
+        <Stack.Screen 
+          options={{ 
+            title: 'Connection Profile',
+            headerShadowVisible: true,
+            headerStyle: { backgroundColor: Colors.light.background },
+          }} 
+        />
+        {(!userProfile) ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>User not found</Text>
           </View>
-
-          <View style={styles.profileSection}>
-            {userProfile.avatar_url ? (
-              <ExpoImage
-                source={{ uri: userProfile.avatar_url }}
-                style={styles.avatar}
-                contentFit="cover"
-                transition={200}
-              />
-            ) : (
-              <DefaultAvatar size={100} letter={userProfile.name?.[0] || userProfile.user_name?.[0] || '?'} />
-            )}
-            <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{userProfile.name || 'User'}</Text>
-              <Text style={styles.username}>@{userProfile.user_name || 'username'}</Text>
-              <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
-              <Text style={styles.bio}>
-                {userProfile.about_me || ''}
-              </Text>
-              <Pressable 
-                style={[styles.actionButton, isFollowing && styles.unfollowButton]}
-                onPress={toggleFollow}
-              >
-                <Text style={[styles.actionButtonText, isFollowing && styles.unfollowButtonText]}>
-                  {isFollowing ? 'Unfollow' : 'Follow'}
+        ) : (
+          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <View style={styles.profileSection}>
+              {userProfile.avatar_url ? (
+                <ExpoImage
+                  source={{ uri: userProfile.avatar_url }}
+                  style={styles.avatar}
+                  contentFit="cover"
+                  transition={200}
+                />
+              ) : (
+                <DefaultAvatar size={100} letter={userProfile.name?.[0] || userProfile.user_name?.[0] || '?'} />
+              )}
+              <View style={styles.profileInfo}>
+                <Text style={styles.profileName}>{userProfile.name || 'User'}</Text>
+                {userProfile.user_name && <Text style={styles.username}>@{userProfile.user_name}</Text>}
+                <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
+                <Text style={styles.bio}>
+                  {userProfile.about_me || ''}
                 </Text>
-              </Pressable>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Language Summary</Text>
-              {languages.length > 2 && (
-                <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/languages')}>
-                  <Text style={styles.viewAllText}>View All</Text>
+                <Pressable 
+                  style={[styles.actionButton, isFollowing && styles.unfollowButton]}
+                  onPress={toggleFollow}
+                >
+                  <Text style={[styles.actionButtonText, isFollowing && styles.unfollowButtonText]}>
+                    {isFollowing ? 'Unfollow' : 'Follow'}
+                  </Text>
                 </Pressable>
-              )}
+              </View>
             </View>
-            <View style={styles.languageCards}>
-              {renderLanguageCards()}
-            </View>
-          </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Active Connections</Text>
-              {connectionsCount > 2 && (
-                <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
-                  <Text style={styles.viewAllText}>View All</Text>
-                </Pressable>
-              )}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Language Summary</Text>
+                {languages.length > 2 && (
+                  <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/languages')}>
+                    <Text style={styles.viewAllText}>View All</Text>
+                  </Pressable>
+                )}
+              </View>
+              <View style={styles.languageCards}>
+                {renderLanguageCards()}
+              </View>
             </View>
-            <View style={styles.connectionCards}>
-              {renderConnections()}
-            </View>
-          </View>
 
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Achievements</Text>
-              {achievementsCount > 2 && (
-                <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/achievements')}>
-                  <Text style={styles.viewAllText}>History</Text>
-                </Pressable>
-              )}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Active Connections</Text>
+                {connectionsCount > 2 && (
+                  <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
+                    <Text style={styles.viewAllText}>View All</Text>
+                  </Pressable>
+                )}
+              </View>
+              <View style={styles.connectionCards}>
+                {renderConnections()}
+              </View>
             </View>
-            <View style={styles.achievements}>
-              {renderAchievements()}
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Achievements</Text>
+                {achievementsCount > 2 && (
+                  <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/achievements')}>
+                    <Text style={styles.viewAllText}>History</Text>
+                  </Pressable>
+                )}
+              </View>
+              <View style={styles.achievements}>
+                {renderAchievements()}
+              </View>
             </View>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+          </ScrollView>
+        )}
+      </View>
     </>
   );
 }

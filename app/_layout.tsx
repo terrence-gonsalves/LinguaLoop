@@ -1,11 +1,20 @@
 import { Stack } from "expo-router/stack";
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+
 import { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
+import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+/*
+import { NavigationContainer } from '@react-navigation/native';
+import { createSharedElementStackNavigator } from 'react-navigation-shared-element';
+*/
 
 import AuthProvider from '@/providers/auth-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
+
+//const Stack = createSharedElementStackNavigator();
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -14,6 +23,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 
 export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     async function prepare() {
@@ -51,19 +61,33 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <AuthProvider>        
-        <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-          <StatusBar style="dark" backgroundColor="#F0F3F4" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          >
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="(stack)" />
-          </Stack>
-        </View>
+      <AuthProvider>    
+        <KeyboardProvider>    
+          <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+            
+            {/* status bar background for edge-to-edge */}
+            <View 
+              style={{ 
+                position: 'absolute', 
+                top: 0, 
+                left: 0, 
+                right: 0, 
+                height: insets.top, 
+                backgroundColor: '#F0F3F4' 
+              }} 
+            />
+            <StatusBar style="dark" />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            >
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="(stack)" />
+            </Stack>
+          </View>
+        </KeyboardProvider>
       </AuthProvider>
     </ThemeProvider>
   );

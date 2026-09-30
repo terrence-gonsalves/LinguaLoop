@@ -1,13 +1,18 @@
-import { AchievementItem } from '@/components/profile/AchievementItem';
-import AddAchievementModal from '@/components/profile/AddAchievementModal';
-import { useAchievements } from '@/hooks/useAchievements';
-import { useAuth } from '@/lib/auth-context';
-import { Colors } from '@/providers/theme-provider';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+
 import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { AchievementItem } from '@/components/profile/AchievementItem';
+import AddAchievementModal from '@/components/profile/AddAchievementModal';
+
+import { useAchievements } from '@/hooks/useAchievements';
+
+import { useAuth } from '@/lib/auth-context';
+
+import { Colors } from '@/providers/theme-provider';
 
 export default function AchievementsScreen() {
   const { profile } = useAuth();

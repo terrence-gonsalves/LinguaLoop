@@ -1,11 +1,15 @@
-import { LanguageFlag } from '@/components/LanguageFlag';
-import Colors from '@/constants/Colors';
-import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { LanguageFlag } from '@/components/LanguageFlag';
+
+import Colors from '@/constants/Colors';
+
+import { supabase } from '@/lib/supabase';
 
 interface Language {
   id: string;
@@ -247,7 +251,7 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.light.rust,
+    backgroundColor: Colors.light.buttonBG,
     borderRadius: 8,
     marginLeft: 8,
   },

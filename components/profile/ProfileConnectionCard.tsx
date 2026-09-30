@@ -1,13 +1,16 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
+
 import { useAuth } from '@/lib/auth-context';
-import { supabase } from '@/lib/supabase';
+
 import { Colors } from '@/providers/theme-provider';
 
-
 interface ProfileConnectionCardProps {
+  userId: string;
   name: string;
   languages: string[];
   streak: number;
@@ -19,6 +22,7 @@ interface ProfileConnectionCardProps {
 }
 
 export function ProfileConnectionCard({ 
+  userId,
   name, 
   languages, 
   streak, 
@@ -30,46 +34,20 @@ export function ProfileConnectionCard({
 }: ProfileConnectionCardProps) {
   const { profile } = useAuth();
 
-  const handleUnfollow = () => {
-    Alert.alert(
-      'Unfollow User',
-      `Are you sure you want to unfollow ${name}?`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Unfollow',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const { error } = await supabase
-                .from('follows')
-                .delete()
-                .match({ 
-                  follower_id: profile?.id, 
-                  following_id: connectionId 
-                });
-
-              if (error) throw error;
-              
-              // call the callback to refresh the connections list
-              onUnfollow?.();
-            } catch (error) {
-              console.error('Error unfollowing user:', error);
-              Alert.alert('Error', 'Failed to unfollow user. Please try again.');
-            }
-          },
-        },
-      ]
-    );
+  const handleProfilePress = () => {
+    router.push(`/(stack)/profile/${userId}`);
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.mainContent}>
-        <View style={styles.leftContent}>
+        <Pressable 
+          style={({ pressed }) => [
+            styles.leftContent,
+            pressed && { opacity: 0.7 }
+          ]} 
+          onPress={handleProfilePress}
+        >
           {avatarUrl ? (
             <Image source={{ uri: avatarUrl }} style={styles.avatar} />
           ) : (
@@ -77,7 +55,7 @@ export function ProfileConnectionCard({
           )}
           <View style={styles.info}>
             <Text style={styles.name}>{name}</Text>
-            <Text style={styles.username}>{username}</Text>
+            {username && <Text style={styles.username}>@{username}</Text>}
             <Text style={styles.nativeLanguage}>Native: {nativeLanguage}</Text>
             <View style={styles.languagesContainer}>
               {languages.map((language, index) => (
@@ -87,16 +65,9 @@ export function ProfileConnectionCard({
               ))}
             </View>
           </View>
-        </View>
-        
-        {/* unfollow button in top right corner */}
-        <Pressable onPress={handleUnfollow} style={styles.unfollowButton}>
-          <MaterialCommunityIcons name="account-remove" size={20} color={Colors.light.error} />
         </Pressable>
-      </View>
-      
-      {/* streak indicator in bottom right section */}
-      <View style={styles.bottomSection}>
+        
+        {/* streak indicator */}
         <View style={styles.streakContainer}>
           <MaterialCommunityIcons name="fire" size={16} color={Colors.light.rust} />
           <Text style={styles.streakText}>{streak} days</Text>
@@ -184,7 +155,7 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     marginTop: 8,
   },

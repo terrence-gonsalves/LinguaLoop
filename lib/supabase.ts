@@ -1,6 +1,8 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import { AppState } from 'react-native';
 import 'react-native-url-polyfill/auto';
-//import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl as string;
@@ -10,7 +12,26 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase configuration. Please check your environment variables and app.config.js file.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// persist the session in AsyncStorage so it survives the app being killed
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storage: AsyncStorage,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
+  },
+});
+
+// only refresh the token while the app is in the foreground. supabase-js can't
+// tell on its own when a React Native app is backgrounded, so without this a
+// session can expire while the app sleeps.
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') {
+    supabase.auth.startAutoRefresh();
+  } else {
+    supabase.auth.stopAutoRefresh();
+  }
+});
 
 export type Profile = {
   id: string;

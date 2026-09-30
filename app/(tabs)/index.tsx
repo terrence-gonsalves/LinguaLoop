@@ -1,17 +1,22 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
+
 import React from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
+
 import Colors from '@/constants/Colors';
+
 import { useActivities } from '@/hooks/useActivities';
 import { useDailyQuote } from '@/hooks/useDailyQuote';
 import { useStudyStats } from '@/hooks/useStudyStats';
 import { useWeeklyStreak } from '@/hooks/useWeeklyStreak';
+
 import { useAuth } from '@/lib/auth-context';
 
 // map activity names to their respective icons
@@ -46,7 +51,23 @@ export default function DashboardScreen() {
   const { quote, isLoading } = useDailyQuote();
   const { profile } = useAuth();
   const { week, isLoading: isStreakLoading } = useWeeklyStreak(profile?.id);
-  const { stats, isLoading: isStatsLoading } = useStudyStats(profile?.id);
+  const { stats, isLoading: isStatsLoading, refresh: refreshStats } = useStudyStats(profile?.id);
+
+  // goals aren't sent over Realtime, so reload the stats when the dashboard comes
+  // back into focus (after creating, editing or completing a goal, or the next day).
+  // the first focus is skipped because the hook has just loaded.
+  const hasFocusedRef = React.useRef(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!hasFocusedRef.current) {
+        hasFocusedRef.current = true;
+        return;
+      }
+
+      refreshStats();
+    }, [refreshStats])
+  );
   const { activities, isLoading: isActivitiesLoading } = useActivities();
 
   // format current date as 'April 11, 2025'
@@ -97,11 +118,13 @@ export default function DashboardScreen() {
 
   const renderActivityIcon = (activityName: string) => {
     const iconConfig = ACTIVITY_ICONS[activityName];
+    
     if (!iconConfig) return null;
 
     if (iconConfig.type === 'ionicon') {
       return <Ionicons name={iconConfig.icon as any} size={24} color={Colors.light.rust} />;
     }
+
     return <MaterialCommunityIcons name={iconConfig.icon} size={24} color={Colors.light.rust} />;
   };
 
@@ -178,6 +201,12 @@ export default function DashboardScreen() {
                     <Text style={styles.goalTitle}>{stats.goal.title}</Text>
                     {renderGoalProgress(stats.goal.progress)}
                   </View>
+                  <Text style={styles.goalStatusText}>
+                    {stats.goal.displayStatus}
+                    {stats.goal.timeProgress
+                      ? ` • ${stats.goal.timeProgress.minutes} of ${stats.goal.timeProgress.targetMinutes} min ${stats.goal.timeProgress.period}`
+                      : ''}
+                  </Text>
                   {stats.goal.description && (
                     <Text style={styles.goalDescription}>{stats.goal.description}</Text>
                   )}
@@ -235,7 +264,7 @@ export default function DashboardScreen() {
               <ActivityIndicator size="small" color={Colors.light.rust} />
             ) : (
               <>
-                <Text style={styles.quoteText}>"{quote.quote}"</Text>
+                <Text style={styles.quoteText}>&ldquo;{quote.quote}&rdquo;</Text>
                 <Text style={styles.quoteAuthor}>- {quote.author}</Text>
               </>
             )}
@@ -534,6 +563,12 @@ const styles = StyleSheet.create({
   goalDescription: {
     fontSize: 14,
     color: Colors.light.textSecondary,
+  },
+  goalStatusText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.light.textSecondary,
+    marginBottom: 4,
   },
   goalProgressContainer: {
     width: 40,

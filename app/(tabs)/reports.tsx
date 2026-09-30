@@ -1,26 +1,27 @@
+import { Stack } from 'expo-router/stack';
+
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+
 import { LanguageDropdown } from '@/components/forms/LanguageDropdown';
 import { ComparisonCard } from '@/components/reports/ComparisonCard';
-import { KeyInsightsCard } from '@/components/reports/KeyInsightsCard';
 import { MilestoneTrackerCard } from '@/components/reports/MilestoneTrackerCard';
 import { PerformanceOverviewCard } from '@/components/reports/PerformanceOverviewCard';
 import { StatCard } from '@/components/reports/StatCard';
 import { StudyProgressCard } from '@/components/reports/StudyProgressCard';
 import { TimeDistributionCard } from '@/components/reports/TimeDistributionCard';
 import { TimePerActivityCard } from '@/components/reports/TimePerActivityCard';
-import Colors from '@/constants/Colors';
-import { useUserLanguages } from '@/hooks/useUserLanguages';
-import { useAuth } from '@/lib/auth-context';
-import { Stack } from 'expo-router/stack';
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
-// hooks
+import Colors from '@/constants/Colors';
+
+import { useAuth } from '@/lib/auth-context';
+
 import { useInputOutputAnalysis } from '@/hooks/useInputOutputAnalysis';
 import { useMilestoneTracker } from '@/hooks/useMilestoneTracker';
 import { useReportSummary } from '@/hooks/useReportSummary';
 import { useTimeDistribution } from '@/hooks/useTimeDistribution';
 import { useTimePerActivity } from '@/hooks/useTimePerActivity';
+import { useUserLanguages } from '@/hooks/useUserLanguages';
 import { useWeeklyProgress } from '@/hooks/useWeeklyProgress';
 
 export default function ReportsScreen() {
@@ -54,13 +55,14 @@ export default function ReportsScreen() {
   }));
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: 'Reports',
           headerStyle: { backgroundColor: Colors.light.background },
-          headerShadowVisible: false,
+          headerTitleStyle: { fontSize: 24 },
+          headerShadowVisible: true,
           headerRight: () => (
             <View style={styles.headerRight}>
               <LanguageDropdown
@@ -75,7 +77,11 @@ export default function ReportsScreen() {
           ),
         }}
       />
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 30 }}
+      >
         <View style={styles.statRow}>
           <StatCard 
             title="Total Time" 
@@ -102,9 +108,8 @@ export default function ReportsScreen() {
           analysisData={analysis}
         />
 
-        <KeyInsightsCard />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -118,6 +123,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 16,
+    paddingTop: 20,
   },
   statRow: {
     flexDirection: 'row',

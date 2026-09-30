@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
+import { Stack } from 'expo-router/stack';
+
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
 import { AchievementItem } from '@/components/profile/AchievementItem';
@@ -11,11 +12,16 @@ import AddAchievementModal from '@/components/profile/AddAchievementModal';
 import AddConnectionModal from '@/components/profile/AddConnectionModal';
 import { LanguageProgressCard } from '@/components/profile/LanguageProgressCard';
 import { ProfileConnectionCard } from '@/components/profile/ProfileConnectionCard';
+
+import { FEATURES } from '@/config/features';
+
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveConnections } from '@/hooks/useActiveConnections';
 import { useLanguageSummary } from '@/hooks/useLanguageSummary';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+
 import { Colors } from '@/providers/theme-provider';
 
 const ACHIEVEMENT_TYPE_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
@@ -106,6 +112,7 @@ export default function ProfileScreen() {
     return connections.map((connection) => (
       <ProfileConnectionCard
         key={connection.id}
+        userId={connection.id}
         name={connection.name || ''}
         username={connection.user_name || ''}
         nativeLanguage={connection.native_language || 'Unknown'}
@@ -140,7 +147,11 @@ export default function ProfileScreen() {
     return achievements.map((achievement: any) => {
       const dateToShow = achievement.obtained_date || achievement.created_at;
       const localizedDate = dateToShow
-        ? new Date(dateToShow).toLocaleDateString(undefined, { timeZone: userTimeZone, year: 'numeric', month: 'long', day: 'numeric' })
+        ? new Date(dateToShow).toLocaleDateString(undefined, { 
+          timeZone: userTimeZone, 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' })
         : '';
       return (
         <AchievementItem
@@ -157,18 +168,25 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: 'Profile',
+          headerStyle: { backgroundColor: Colors.light.background,  },
+          headerTitleStyle: { fontSize: 24 },
+          headerShadowVisible: true,
+          headerRight: () => (
+            <Pressable 
+              style={styles.notificationButton}
+              onPress={() => router.push('/(stack)/notifications')}
+            >
+              <MaterialIcons name="notifications" size={24} color={Colors.light.textPrimary} />
+            </Pressable>
+          ),
+        }}
+      />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <Pressable 
-            style={styles.notificationButton}
-            onPress={() => router.push('/(stack)/notifications')}
-          >
-            <MaterialIcons name="notifications" size={24} color={Colors.light.textPrimary} />
-          </Pressable>
-        </View>
-
         <View style={styles.profileSection}>
           {profile?.avatar_url ? (
             <ExpoImage
@@ -182,7 +200,7 @@ export default function ProfileScreen() {
           )}
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{profile?.name || 'User'}</Text>
-            <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>
+            {profile?.user_name && <Text style={styles.username}>@{profile?.user_name || 'username'}</Text>}
             <Text style={styles.nativeLanguage}>Native: {nativeLanguageName}</Text>
             <Text style={styles.bio}>
               {profile?.about_me || ''}
@@ -212,22 +230,24 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Active Connections</Text>
-            {connectionsCount > 2 && (
-              <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
-                <Text style={styles.viewAllText}>View All</Text>
-              </Pressable>
-            )}
-          </View>
-          <View style={styles.connectionCards}>
-            {renderConnections()}
-          </View>
-          <Pressable style={styles.addConnectionButton} onPress={() => setShowAddConnection(true)}>
+        {FEATURES.connections && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Active Connections</Text>
+              {connectionsCount > 2 && (
+                <Pressable style={styles.viewAllLink} onPress={() => router.push('/(stack)/connections')}>
+                  <Text style={styles.viewAllText}>View All</Text>
+                </Pressable>
+              )}
+            </View>
+            <View style={styles.connectionCards}>
+              {renderConnections()}
+            </View>
+            <Pressable style={styles.addConnectionButton} onPress={() => setShowAddConnection(true)}>
               <Text style={styles.addConnectionButtonText}>Add Connection</Text>
             </Pressable>
-        </View>
+          </View>
+        )}
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -246,9 +266,11 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
       </ScrollView>
-      <AddConnectionModal visible={showAddConnection} onClose={() => { setShowAddConnection(false); refreshConnections(); }} />
+      {FEATURES.connections && (
+        <AddConnectionModal visible={showAddConnection} onClose={() => { setShowAddConnection(false); refreshConnections(); }} />
+      )}
       <AddAchievementModal visible={showAddAchievement} onClose={() => { setShowAddAchievement(false); refreshAchievements(); }} onAdded={() => { setShowAddAchievement(false); refreshAchievements(); }} saveLabel="Save" />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -278,7 +300,6 @@ const styles = StyleSheet.create({
   profileSection: {
     alignItems: 'center',
     paddingVertical: 24,
-    paddingHorizontal: 16,
     backgroundColor: Colors.light.background,
     marginBottom: 16,
   },

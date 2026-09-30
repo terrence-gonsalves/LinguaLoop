@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
 import { Stack } from 'expo-router/stack';
+
 import React, { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/lib/auth-context';
+
 import { Colors } from '@/providers/theme-provider';
 
 export default function AuthLayout() {
@@ -29,7 +31,7 @@ export default function AuthLayout() {
             headerShown: false,
 
             // add animation config to make transitions smoother
-            animation: 'slide_from_right',
+            animation: 'simple_push',
 
             // prevent gesture-based dismissal which can cause blank screens
             gestureEnabled: false,
@@ -49,13 +51,13 @@ export default function AuthLayout() {
           <Stack.Screen 
             name="create-account"
             options={{
-              animation: 'slide_from_right',
+              animation: 'simple_push',
             }}
           />
           <Stack.Screen 
             name="forgot-password"
             options={{
-              animation: 'slide_from_right',
+              animation: 'simple_push',
             }}
           />
         </Stack>

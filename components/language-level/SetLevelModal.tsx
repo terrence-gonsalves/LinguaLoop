@@ -1,17 +1,20 @@
+import { MaterialIcons } from '@expo/vector-icons';
+
+import React, { useEffect, useState } from 'react';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
+
 import Colors from '@/constants/Colors';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
-import { MaterialIcons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
-import {
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View
-} from 'react-native';
 
 const PROFICIENCY_LEVELS = [
   { value: 'Beginner', label: 'Beginner' },
@@ -96,7 +99,8 @@ export function SetLevelModal({
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={handleClose} />
         <View style={styles.modalContainer}>
-          {/* Handle bar */}
+
+          {/* handle bar */}
           <View style={styles.handleBar} />
           
           {/* header */}
@@ -157,7 +161,11 @@ export function SetLevelModal({
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
   },
@@ -249,7 +257,7 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.light.border,
   },
   saveButton: {
-    backgroundColor: Colors.light.rust,
+    backgroundColor: Colors.light.buttonBG,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',

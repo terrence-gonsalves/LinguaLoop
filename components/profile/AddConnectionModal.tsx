@@ -1,11 +1,18 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Image as ExpoImage } from 'expo-image';
 import { router } from 'expo-router';
+
 import React, { useEffect, useState } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import DefaultAvatar from '@/components/DefaultAvatar';
+
+import { FEATURES } from '@/config/features';
+
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
+import { showErrorToast } from '@/lib/toast';
+
 import { Colors } from '@/providers/theme-provider';
 
 interface AddConnectionModalProps {
@@ -23,7 +30,14 @@ interface User {
   is_following: boolean;
 }
 
-export default function AddConnectionModal({ visible, onClose }: AddConnectionModalProps) {
+// connections is hidden for v1: render nothing so no profile or language queries run
+export default function AddConnectionModal(props: AddConnectionModalProps) {
+  if (!FEATURES.connections) return null;
+
+  return <AddConnectionModalContent {...props} />;
+}
+
+function AddConnectionModalContent({ visible, onClose }: AddConnectionModalProps) {
   const { profile } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState('');
@@ -60,12 +74,16 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
       .from('follows')
       .select('following_id')
       .eq('follower_id', profile?.id);
+      
     const followingIds = (followingData || []).map((f: any) => f.following_id);
-    const usersList: User[] = (userData || []).map((u: any) => {
+    
+    // process users and generate fresh avatar URLs
+    const usersList: User[] = await Promise.all((userData || []).map(async (u: any) => {
       const nativeLangName = masterLangs?.find((ml: any) => ml.id === u.native_language)?.name || 'Unknown';
       const targetLangs = (allLanguages || [])
         .filter((l: any) => l.user_id === u.id)
         .map((l: any) => l.name);
+
       return {
         id: u.id,
         name: u.name || 'User',
@@ -75,13 +93,15 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
         target_languages: targetLangs,
         is_following: followingIds.includes(u.id),
       };
-    });
+    }));
+
     setUsers(usersList);
     setLoading(false);
   }
 
   function filteredUsers() {
     if (!search.trim()) return users;
+
     const lower = search.toLowerCase();
     return users.filter((u) =>
       u.name.toLowerCase().includes(lower) ||
@@ -93,15 +113,30 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
 
   async function toggleFollow(userId: string) {
     const user = users.find((u) => u.id === userId);
+    
     if (!user) return;
     if (user.is_following) {
 
-      // unfollow
-      await supabase.from('follows').delete().match({ follower_id: profile?.id, following_id: userId });
+      // unfollow, and check a row was actually removed
+      const { data, error } = await supabase
+        .from('follows')
+        .delete()
+        .match({ follower_id: profile?.id, following_id: userId })
+        .select('follower_id');
+
+      if (error || !data || data.length === 0) {
+        showErrorToast('Failed to unfollow user. Please try again.');
+        return;
+      }
     } else {
 
       // follow
-      await supabase.from('follows').insert({ follower_id: profile?.id, following_id: userId });
+      const { error } = await supabase.from('follows').insert({ follower_id: profile?.id, following_id: userId });
+
+      if (error) {
+        showErrorToast('Failed to follow user. Please try again.');
+        return;
+      }
     }
 
     // update local state
@@ -161,7 +196,12 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
               <View style={styles.userRow}>
                 <TouchableOpacity style={styles.userInfo} onPress={() => goToUserProfile(item.id)}>
                   {item.avatar_url ? (
-                    <DefaultAvatar size={48} letter={item.name[0]} />
+                    <ExpoImage
+                      source={{ uri: item.avatar_url }}
+                      style={styles.avatar}
+                      contentFit="cover"
+                      transition={200}
+                    />
                   ) : (
                     <DefaultAvatar size={48} letter={item.name[0]} />
                   )}
@@ -202,7 +242,11 @@ export default function AddConnectionModal({ visible, onClose }: AddConnectionMo
 
 const styles = StyleSheet.create({
   modalOverlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.2)',
     justifyContent: 'flex-end',
   },
@@ -260,7 +304,7 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     flex: 1,
   },
   userDetails: {
@@ -318,5 +362,10 @@ const styles = StyleSheet.create({
   },
   followingText: {
     color: Colors.light.buttonPrimary,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
 }); 

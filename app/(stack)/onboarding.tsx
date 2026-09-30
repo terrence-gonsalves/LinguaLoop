@@ -1,13 +1,18 @@
-import { FormInput } from '@/components/forms/FormInput';
-import { Language, LanguageDropdown } from '@/components/forms/LanguageDropdown';
-import Colors from '@/constants/Colors';
-import { useAuth } from '@/lib/auth-context';
-import { supabase } from '@/lib/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { FormInput } from '@/components/forms/FormInput';
+import { Language, LanguageDropdown } from '@/components/forms/LanguageDropdown';
+
+import Colors from '@/constants/Colors';
+
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 
 export default function OnboardingScreen() {
   const { profile, reloadProfile } = useAuth();
@@ -49,14 +54,17 @@ export default function OnboardingScreen() {
       setUsernameError('Username must be at least 3 characters');
       return false;
     }
+
     if (value.length > 20) {
       setUsernameError('Username must be less than 20 characters');
       return false;
     }
+
     if (!/^[a-zA-Z0-9._]+$/.test(value)) {
       setUsernameError('Username can only contain letters, numbers, periods, and underscores');
       return false;
     }
+
     setUsernameError('');
     return true;
   }
@@ -66,6 +74,7 @@ export default function OnboardingScreen() {
       setAboutMeError('About me must be less than 250 characters');
       return false;
     }
+
     setAboutMeError('');
     return true;
   }
@@ -109,6 +118,7 @@ export default function OnboardingScreen() {
 
     // check for duplicate target languages
     const uniqueTargets = new Set(validTargetLanguages);
+
     if (uniqueTargets.size !== validTargetLanguages.length) {
       Alert.alert('Error', 'Please select different languages for each target language');
       return;
@@ -123,6 +133,24 @@ export default function OnboardingScreen() {
     setIsLoading(true);
 
     try {
+
+      // check if username is unique. RLS hides other users' profiles, so this
+      // goes through a security definer RPC
+      if (username) {
+        const { data: isAvailable, error: userCheckError } = await supabase
+          .rpc('is_username_available', { p_user_name: username });
+
+        if (userCheckError) {
+          console.error('Error checking username uniqueness:', userCheckError);
+          throw userCheckError;
+        }
+
+        if (!isAvailable) {
+          setUsernameError('This username is already taken');
+          setIsLoading(false);
+          return;
+        }
+      }
 
       // update profile
       const { error: profileError } = await supabase
@@ -166,9 +194,15 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.keyboardContainer}
+        bottomOffset={20}
+        style={styles.keyboardAvoidingView}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>Welcome to LinguaLoop!</Text>
-        <Text style={styles.subtitle}>Let's set up your learning preferences</Text>
+        <Text style={styles.subtitle}>Let&apos;s set up your learning preferences</Text>
 
         <View style={styles.form}>
           <FormInput
@@ -210,7 +244,7 @@ export default function OnboardingScreen() {
               <View key={index} style={styles.targetLanguageRow}>
                 <View style={styles.targetLanguageDropdown}>
                   <LanguageDropdown
-                    label={`Target Language ${index + 1}`}
+                    label=''
                     data={languages}
                     value={lang}
                     onChange={(value) => updateTargetLanguage(index, value || '')}
@@ -222,7 +256,7 @@ export default function OnboardingScreen() {
                     onPress={() => removeTargetLanguage(index)}
                     style={styles.removeButton}
                   >
-                    <MaterialIcons name="remove-circle-outline" size={24} color={Colors.light.error} />
+                    <MaterialIcons name="remove-circle-outline" size={24} color={Colors.light.rust} />
                   </Pressable>
                 )}
               </View>
@@ -236,7 +270,7 @@ export default function OnboardingScreen() {
               setAboutMe(text);
               validateAboutMe(text);
             }}
-            placeholder="Tell us about yourself (250 characters max)"
+            placeholder="Tell us about yourself"
             multiline
             numberOfLines={4}
             error={aboutMeError}
@@ -252,7 +286,7 @@ export default function OnboardingScreen() {
             {isLoading ? 'Saving...' : 'Start Learning'}
           </Text>
         </Pressable>
-      </ScrollView>
+        </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -261,6 +295,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.generalBG,
+  },
+  keyboardContainer: {
+    padding: 16,
+    gap: 16,
+  },
+  keyboardAvoidingView: {
+    flex: 1, 
   },
   scrollView: {
     flex: 1,
@@ -280,7 +321,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   form: {
-    marginBottom: 24,
+    marginBottom: 0,
   },
   targetLanguagesContainer: {
     marginBottom: 16,
@@ -312,7 +353,7 @@ const styles = StyleSheet.create({
     marginTop: -8,
   },
   submitButton: {
-    backgroundColor: Colors.light.rust,
+    backgroundColor: Colors.light.buttonPrimary,
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',

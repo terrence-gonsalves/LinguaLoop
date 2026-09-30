@@ -1,21 +1,15 @@
-import Colors from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
+
 import React, { useState } from 'react';
 import {
   LayoutAnimation,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
-  UIManager,
   View
 } from 'react-native';
 
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}
+import Colors from '@/constants/Colors';
 
 interface AccordionProps {
   title: string;
