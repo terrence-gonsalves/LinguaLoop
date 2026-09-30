@@ -14,6 +14,7 @@ import Colors from '@/constants/Colors';
 import { useUserLanguages } from '@/hooks/useUserLanguages';
 
 import { useAuth } from '@/lib/auth-context';
+import { toDateString } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 import { showErrorToast, showSuccessToast } from '@/lib/toast';
 
@@ -164,7 +165,7 @@ export default function TrackActivityScreen() {
         activity_id: activityId,
         duration_seconds: duration * 60,
         notes: notes || null,
-        activity_date: date,
+        activity_date: toDateString(date),
       });
 
       if (error) throw error;

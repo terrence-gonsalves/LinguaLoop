@@ -1,3 +1,4 @@
+import { toDateString } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useRef, useState } from 'react';
 
@@ -35,10 +36,11 @@ export function useWeeklyStreak(userId: string | undefined) {
         weekDays.push(d);
       }
 
-      // query all entries for this user in this week
-      const fromDate = weekDays[0].toISOString().split('T')[0];
-      const toDate = weekDays[6].toISOString().split('T')[0];
-      const { data, error } = await supabase
+      // query all entries for this user in this week. activity_date is a date
+      // column, so compare local YYYY-MM-DD days
+      const fromDate = toDateString(weekDays[0]);
+      const toDate = toDateString(weekDays[6]);
+      const { data } = await supabase
         .from('time_entries')
         .select('activity_date')
         .eq('user_id', userId)
@@ -47,16 +49,13 @@ export function useWeeklyStreak(userId: string | undefined) {
 
       if (!isMounted) return;
 
-      const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const trackedDates = new Set(
-        (data || []).map((entry: any) =>
-          new Date(entry.activity_date).toLocaleDateString(undefined, { timeZone: userTimeZone })
-        )
+        (data || []).map((entry: { activity_date: string }) => entry.activity_date)
       );
       setWeek(
         weekDays.map((date) => ({
           date,
-          tracked: trackedDates.has(date.toLocaleDateString(undefined, { timeZone: userTimeZone })),
+          tracked: trackedDates.has(toDateString(date)),
         }))
       );
       setIsLoading(false);

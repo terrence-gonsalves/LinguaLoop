@@ -15,6 +15,7 @@ import {
 import Colors from '@/constants/Colors';
 
 import { useAuth } from '@/lib/auth-context';
+import { parseDateOnly } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 import { showErrorToast } from '@/lib/toast';
 
@@ -34,7 +35,7 @@ interface TimeEntry {
 function formatDate(dateString: string) {
   if (!dateString) return '';
 
-  const date = new Date(dateString);
+  const date = parseDateOnly(dateString);
   return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 

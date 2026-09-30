@@ -16,6 +16,7 @@ import {
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 import { useAuth } from '@/lib/auth-context';
+import { toDateString } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 
 import { Colors } from '@/providers/theme-provider';
@@ -81,7 +82,7 @@ export default function AddAchievementModal({
       type,
       title,
       notes: notes || null,
-      obtained_date: date.toISOString().split('T')[0],
+      obtained_date: toDateString(date),
     });
 
     setLoading(false);

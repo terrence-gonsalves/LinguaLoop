@@ -20,6 +20,7 @@ import { useActiveConnections } from '@/hooks/useActiveConnections';
 import { useLanguageSummary } from '@/hooks/useLanguageSummary';
 
 import { useAuth } from '@/lib/auth-context';
+import { parseDateOnly } from '@/lib/goals';
 import { supabase } from '@/lib/supabase';
 
 import { Colors } from '@/providers/theme-provider';
@@ -163,9 +164,14 @@ export default function ProfileScreen() {
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     return achievements.map((achievement: any) => {
-      const dateToShow = achievement.obtained_date || achievement.created_at;
+      // obtained_date is a date column, created_at is a timestamp
+      const dateToShow = achievement.obtained_date
+        ? parseDateOnly(achievement.obtained_date)
+        : achievement.created_at
+          ? new Date(achievement.created_at)
+          : null;
       const localizedDate = dateToShow
-        ? new Date(dateToShow).toLocaleDateString(undefined, {
+        ? dateToShow.toLocaleDateString(undefined, {
             timeZone: userTimeZone,
             year: 'numeric',
             month: 'long',
