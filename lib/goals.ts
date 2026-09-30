@@ -1,7 +1,8 @@
 import { supabase } from '@/lib/supabase';
 
 // statuses stored in goals.status (goal_status_enum). the nightly
-// update_expired_goals job moves active goals past their end_date to missed.
+// update_expired_goals job moves active goals to missed once their end_date is
+// more than a day before the UTC date.
 export type GoalStatus = 'active' | 'completed' | 'missed';
 
 export type GoalType =
@@ -23,9 +24,9 @@ export type Goal = {
   updated_at: string | null;
 };
 
-// what the app shows. "Not started" and "In progress" are derived from the
-// dates of an active goal and are never stored.
-export type GoalDisplayStatus = 'Not started' | 'In progress' | 'Completed' | 'Missed';
+// what the app shows. "Not started", "In progress" and "Ended" are derived
+// from the dates of an active goal and are never stored.
+export type GoalDisplayStatus = 'Not started' | 'In progress' | 'Ended' | 'Completed' | 'Missed';
 
 export type TimeGoalProgress = {
   minutes: number;
@@ -66,8 +67,9 @@ export function getGoalDisplayStatus(
   // YYYY-MM-DD strings compare correctly as text
   if (goal.start_date > today) return 'Not started';
 
-  // past its end date but the nightly job hasn't marked it missed yet
-  if (goal.end_date < today) return 'Missed';
+  // past its end date but the nightly job hasn't marked it missed yet. the
+  // user can still mark it completed, so don't call it missed.
+  if (goal.end_date < today) return 'Ended';
 
   return 'In progress';
 }

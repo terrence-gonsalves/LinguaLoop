@@ -58,18 +58,18 @@ LinguaLoop is a goal-driven language-learning tracker built with Expo SDK 53 (Re
 - Goal dates (`start_date`, `end_date`), `time_entries.activity_date` and `achievements.obtained_date` are `date` columns. Filter them with `YYYY-MM-DD` strings. Write them with `toDateString()` and read them with `parseDateOnly()` from `lib/goals.ts`, never `toISOString()` or `new Date('YYYY-MM-DD')`, which shift the day west of UTC.
 
 ### Goals
-- `goals.status` stores only `active`, `completed` or `missed`. The nightly `update_expired_goals` cron job (00:05 UTC) sets active goals past `end_date` to `missed`. Users can mark active or missed goals as completed.
+- `goals.status` stores only `active`, `completed` or `missed`. The nightly `update_expired_goals` cron job (00:05 UTC) sets active goals to `missed` once `end_date` is more than 1 day before the UTC date, so the day-after reminder fires first. Users can mark active or missed goals as completed.
 - The app derives the labels it shows with `getGoalDisplayStatus()` in `lib/goals.ts`:
   - completed: Completed
   - missed: Missed
   - active, `start_date` after today: Not started
   - active, today within the dates: In progress
-  - active, `end_date` before today: Missed (before the job has run)
+  - active, `end_date` before today: Ended (until the job marks it missed)
 - `daily_time` and `weekly_time` goals (target in minutes) show minutes logged from `time_entries` for the goal's language: today, or the current Monday to Sunday week (`fetchTimeGoalProgress()`).
 - `lib/goal-notifications.ts` schedules a local reminder at 09:00 on the day after `end_date` ("Your goal <title> ended. Did you hit it?"). It's scheduled on create, rescheduled on edit, cancelled on delete, on complete and on sign out, and rebuilt on app start. The goalId -> notificationId map lives in AsyncStorage. Reminders need `notification_settings.goal_notifications` to be on (a missing row counts as on) and permission already granted. Permission is only requested after creating a goal.
 
 ### Backend
-- `supabase/functions/check-and-update-goals/index.ts` is a Deno Edge Function. It uses the service-role key to call the Postgres RPC `update_expired_goals`.
+- There are no Edge Functions. Goal expiry runs inside Postgres: the pg_cron job `update-expired-goals` calls `update_expired_goals()` daily at 00:05 UTC (see Goals). Only `postgres` and `service_role` can execute the function.
 
 ### Notifications
 - `lib/notifications.ts` handles Expo push tokens, permissions and the foreground notification handler, backed by the `notification_settings` table. Goal reminders are in `lib/goal-notifications.ts` (see Goals). The goal reminder switch in Settings > Notifications sits outside the main push toggle, because the reminders are local. See `NOTIFICATION_SETUP.md`, `PUSH_TOKEN_EXPLANATION.md` and `FIREBASE_SETUP_GUIDE.md`.

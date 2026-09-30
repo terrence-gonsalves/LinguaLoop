@@ -66,6 +66,8 @@ function getStatusStyle(status: GoalDisplayStatus) {
       return styles.statusMissed;
     case 'In progress':
       return styles.statusInProgress;
+    case 'Ended':
+      return styles.statusEnded;
     default:
       return styles.statusNotStarted;
   }
@@ -344,6 +346,10 @@ const styles = StyleSheet.create({
   statusCompleted: {
     color: Colors.light.green,
     backgroundColor: Colors.light.green_tint,
+  },
+  statusEnded: {
+    color: Colors.light.rust,
+    backgroundColor: Colors.light.generalBG,
   },
   statusMissed: {
     color: Colors.light.error,
