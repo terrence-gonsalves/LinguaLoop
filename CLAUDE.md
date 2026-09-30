@@ -13,6 +13,8 @@ LinguaLoop is a goal-driven language-learning tracker built with Expo SDK 53 (Re
 - `npm run android` / `npm run ios` build and run natively (`expo run:*`). `npm run web` runs the web build.
 - `npm run lint` runs ESLint through `expo lint` (flat config, `eslint-config-expo`). It caches results between runs, so use `npx expo lint --no-cache` if the output looks empty or stale.
 - `npx tsc --noEmit` type-checks (strict mode).
+- `npm run format` / `npm run format:check` run Prettier (`.prettierrc`, `.prettierignore`; Markdown is ignored). `eslint-config-prettier` is last in `eslint.config.js`, so ESLint doesn't check formatting.
+- After editing any file, run `npx prettier --write` on the files you changed. Never reformat files you didn't otherwise change.
 - `eas build --profile development|preview|production` builds with EAS (`eas.json`). OTA updates use `expo-updates` channels `preview` and `production`.
 - There is no test runner configured.
 

@@ -1,0 +1,19 @@
+# dependencies and native projects
+node_modules
+android
+ios
+
+# expo and build output
+.expo
+dist
+web-build
+expo-env.d.ts
+
+# supabase cli state
+supabase/.temp
+
+# lockfile
+package-lock.json
+
+# docs
+*.md
