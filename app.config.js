@@ -4,7 +4,7 @@ export default {
   expo: {
     name: 'LinguaLoop',
     slug: 'LinguaLoop',
-    version: '0.6.10',
+    version: '0.6.11',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
     scheme: 'lingualoop',

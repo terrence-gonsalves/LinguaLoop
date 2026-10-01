@@ -22,6 +22,12 @@ LinguaLoop is a goal-driven language-learning tracker built with Expo SDK 53 (Re
 
 - `app.config.js` (not `app.json`) is the real Expo config. It loads `.env` through `dotenv` and exposes `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `EAS_PROJECT_ID` via `extra`. `lib/supabase.ts` reads them from `Constants.expoConfig.extra` and throws at import time if they are missing. See `.env-example`.
 - App version is set in `app.config.js` (`version`). `runtimeVersion` is pinned to `exposdk:53.0.0`.
+- **Versioning uses SemVer (`MAJOR.MINOR.PATCH`).** Every change to the app must bump `version` in `app.config.js` in the same change set:
+  - PATCH: bug fixes, dependency updates, config or build fixes, small UI tweaks.
+  - MINOR: new features or screens, user-visible behavior changes that stay backward compatible.
+  - MAJOR: breaking changes, such as a data model change that older app versions can't handle or a full redesign. While on `0.x`, ask the owner before going to `1.0.0`.
+  - Bump once per change set, not once per file. Docs-only changes (`*.md`) and migrations that don't touch app code don't need a bump.
+  - Build numbers (`android.versionCode`, `ios.buildNumber`) are managed by EAS (`appVersionSource: "remote"`, `autoIncrement`), so don't edit them. `package.json` `version` isn't the app version, so leave it alone.
 - Path alias: `@/*` maps to the repo root (for example `@/lib/supabase`, `@/hooks/useActivities`).
 - `types/expo-router.d.ts` declares its own `expo-router` module with only `router` and `useLocalSearchParams`, so other exports such as `Redirect` don't type-check. Redirect with `router.replace` in an effect (see `components/common/FeatureOffRedirect.tsx`).
 - Feature flags live in `config/features.ts`. `FEATURES.connections` is `false` for v1: the connections code stays in the repo, but the Profile tab hides its sections, `connections` and `profile/[id]` redirect to the Profile tab before their hooks run, `AddConnectionModal` renders nothing, and `useActiveConnections` runs no queries or Realtime channel. RLS only lets users read their own profiles, languages and follows, so connections can't work until cross-user reads are designed.
