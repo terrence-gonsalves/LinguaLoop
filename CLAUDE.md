@@ -89,3 +89,9 @@ LinguaLoop is a goal-driven language-learning tracker built with Expo SDK 53 (Re
 ### Testing
 - There are no automated tests. `TESTING.md` is the manual checklist for changes that need a device build (session persistence, notifications, deletes).
 - Docs and code comments don't use em-dashes.
+
+## Issue tracking
+
+- Bugs and tasks live in GitHub Issues (`terrence-gonsalves/LinguaLoop`). Labels: `bug`, `design`, `tech-debt`, `feature`, `v1` (needed before the Play Store release) and `later` (after v1). v1 issues are in the "v1 release" milestone.
+- When the owner says "fix issue #N", read it first with `gh issue view N`.
+- Never close issues. The owner closes them through commit messages (for example `Fixes #N`).

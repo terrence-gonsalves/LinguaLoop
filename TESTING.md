@@ -18,28 +18,29 @@ Use a **development or preview EAS build** on a real Android phone. Notification
 
 ## 1. Connections are hidden
 
-- [ ] Profile tab: there's no "Active Connections" section and no "Add Connection" button.
-- [ ] Settings > Notifications: with the main toggle on, there's no "User Notifications / Messages and follows" row.
-- [ ] Deep link `lingualoop://connections` goes back to the Profile tab. Run it with `adb shell am start -a android.intent.action.VIEW -d "lingualoop://connections"`.
-- [ ] Deep link `lingualoop://profile/<any-uuid>` also goes back to the Profile tab.
-- [ ] In the Supabase dashboard, open Logs > API while using the Profile tab. There are no requests to `follows`, and no `profiles` requests for other users.
+- [✓] Profile tab: there's no "Active Connections" section and no "Add Connection" button.
+- [✓] Settings > Notifications: with the main toggle on, there's no "User Notifications / Messages and follows" row. (Error getting push token: Make sure to complete the guide at https://docs.expo.dev/push-notifications/fcm-credentials : Default FirebaseApp is not initialized in this process com.bloopa.LinguaLoop. Make sure to call FirebaseApp.initializeApp(Context) first. ** This app is not using Firebase for notifications **)
+- [✓] Deep link `lingualoop://connections` goes back to the Profile tab. Run it with `adb shell am start -a android.intent.action.VIEW -d "lingualoop://connections"`.
+- [✓] Deep link `lingualoop://profile/<any-uuid>` also goes back to the Profile tab.
+- [✓] In the Supabase dashboard, open Logs > API while using the Profile tab. There are no requests to `follows`, and no `profiles` requests for other users.
+
 
 ## 2. Session persistence
 
-- [ ] Sign in, then kill the app from the recents screen and reopen it. You land on the dashboard without signing in again.
-- [ ] Reboot the phone and reopen the app. You're still signed in.
-- [ ] Leave the app in the background for more than 1 hour (longer than the access token lifetime), then reopen it. Pull data, for example open Reports. It loads with no auth errors and no sign-out.
-- [ ] Sign out, kill the app and reopen it. You land on the login screen.
-- [ ] Sign in with a wrong password. You get the error toast and stay on login.
-- [ ] Right after a normal sign-in, you land on the dashboard once, with no double navigation or flicker.
+- [✓] Sign in, then kill the app from the recents screen and reopen it. You land on the dashboard without signing in again.
+- [✓] Reboot the phone and reopen the app. You're still signed in.
+- [✓] Leave the app in the background for more than 1 hour (longer than the access token lifetime), then reopen it. Pull data, for example open Reports. It loads with no auth errors and no sign-out.
+- [✓] Sign out, kill the app and reopen it. You land on the login screen.
+- [✓] Sign in with a wrong password. You get the error toast and stay on login.
+- [✓] Right after a normal sign-in, you land on the dashboard once, with no double navigation or flicker.
 
 ## 3. Profile created at sign-up
 
-- [ ] Create a new account with a fresh email. The toast says "Account created! Let's set up your profile." and doesn't mention checking your email.
-- [ ] You land on onboarding once. Pressing back doesn't show a second onboarding screen.
-- [ ] Finish onboarding. The profile saves and you reach the dashboard.
-- [ ] In the dashboard's `profiles` table, the new row has the right `id` and `email`, and `onboarding_completed` is true after onboarding.
-- [ ] Kill and reopen the app. You're still signed in and don't see onboarding again.
+- [✓] Create a new account with a fresh email. The toast says "Account created! Let's set up your profile." and doesn't mention checking your email. (Create an account still has Google and Facebook login buttons, which do not work at this time. If a password is too easy I get a Toast that it is too weak and I am sent back to the login in screen instead of staying on the signup screen. When an account is created the login screen flashes briefly with a Toast message quickly flashing on the screen that you will be signed in, which you are and then we are presented with the onboarding (which can use some design work))
+- [✓] You land on onboarding once. Pressing back doesn't show a second onboarding screen.
+- [✓] Finish onboarding. The profile saves and you reach the dashboard.
+- [✓] In the dashboard's `profiles` table, the new row has the right `id` and `email`, and `onboarding_completed` is true after onboarding.
+- [✓] Kill and reopen the app. You're still signed in and don't see onboarding again.
 
 ## 4. Avatars
 
